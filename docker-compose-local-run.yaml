@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+
+  inner-friends-user-profile-picture:
+    image: damdamdeo/inner-friends-user-profile-picture
+    ports:
+      - 8080:8080
+    environment:
+      - quarkus.s3.endpoint-override=http://zenko:8000
+    restart: unless-stopped

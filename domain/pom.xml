@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>domain</artifactId>
+    <artifactId>user-profile-picture-domain</artifactId>
 
     <properties>
         <mutiny-version>1.0.0</mutiny-version>
