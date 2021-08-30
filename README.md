@@ -10,3 +10,7 @@ Store user profile picture into a s3 server like real amazon S3 service or Zenko
 1. access swagger ui via `http://0.0.0.0:8080/q/swagger-ui/`
 
 ## Infra
+
+### Zenko
+
+`ENDPOINT` need to be defined however the `inner-friends-user-profile-picture` application will not be able to connect to zenko having this error **Connection refused**

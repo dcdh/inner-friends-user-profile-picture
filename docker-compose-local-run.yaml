@@ -2,6 +2,16 @@ version: '3'
 
 services:
 
+  zenko:
+    image: zenko/cloudserver:8.2.7
+    ports:
+      - 8000:8000
+    environment:
+      - SCALITY_ACCESS_KEY_ID=test-key
+      - SCALITY_SECRET_ACCESS_KEY=test-secret
+      - S3BACKEND=mem
+      - ENDPOINT=zenko
+
   inner-friends-user-profile-picture:
     image: damdamdeo/inner-friends-user-profile-picture
     ports:
