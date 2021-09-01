@@ -12,10 +12,32 @@ services:
       - S3BACKEND=mem
       - ENDPOINT=zenko
 
+  # Jaeger
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:1.25.0
+    ports:
+      - "16686:16686"
+      - "14268"
+      - "14250"
+
+  # Collector
+  otel-collector:
+    image: otel/opentelemetry-collector:0.33.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "13133:13133" # Health_check extension
+      - "4317"        # OTLP gRPC receiver
+      - "55680:55680" # OTLP gRPC receiver alternative port
+    depends_on:
+      - jaeger-all-in-one
+
   inner-friends-user-profile-picture:
     image: damdamdeo/inner-friends-user-profile-picture
     ports:
       - 8080:8080
     environment:
       - quarkus.s3.endpoint-override=http://zenko:8000
+      - quarkus.opentelemetry.tracer.exporter.otlp.endpoint=http://otel-collector:55680
     restart: unless-stopped
