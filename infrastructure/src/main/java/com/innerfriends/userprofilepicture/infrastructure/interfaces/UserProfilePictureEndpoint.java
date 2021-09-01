@@ -38,7 +38,6 @@ public class UserProfilePictureEndpoint {
 
     @GET
     @Path("/{userPseudo}")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Uni<Response> downloadFile(@PathParam("userPseudo") final String userPseudo) {
         return getLastUserProfilePictureUseCase.execute(new GetLastUserProfilePictureCommand(new JaxRsUserPseudo(userPseudo)),
                 getLastUserProfilePictureResponseTransformer);
