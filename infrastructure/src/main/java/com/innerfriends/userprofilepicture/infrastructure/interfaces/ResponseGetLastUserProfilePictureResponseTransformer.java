@@ -12,7 +12,8 @@ public class ResponseGetLastUserProfilePictureResponseTransformer implements Get
     @Override
     public Response toResponse(final ProfilePicture profilePicture) {
         return Response.ok(profilePicture.picture())
-                .header("Content-Disposition", "attachment;filename=" + profilePicture.userPseudo().pseudo())
+                .header("Content-Disposition",
+                        String.format("attachment;filename=%s%s", profilePicture.userPseudo().pseudo(), profilePicture.mediaType().extension()))
                 .header("Content-Type", profilePicture.mediaType().contentType())
                 .header("Content-Length", profilePicture.contentLength())
                 .header("versionId", profilePicture.versionId())

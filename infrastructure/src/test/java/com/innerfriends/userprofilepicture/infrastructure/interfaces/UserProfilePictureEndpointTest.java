@@ -119,7 +119,7 @@ public class UserProfilePictureEndpointTest {
                 .then()
                 .log().headers()
                 .statusCode(200)
-                .header("Content-Disposition", "attachment;filename=pseudo")
+                .header("Content-Disposition", "attachment;filename=pseudo.jpeg")
                 .header("Content-Type","image/jpeg")
                 .header("Content-Length","7")
                 .header("versionId","v0");
