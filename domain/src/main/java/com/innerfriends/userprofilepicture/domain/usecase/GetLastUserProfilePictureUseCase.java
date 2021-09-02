@@ -17,7 +17,7 @@ public class GetLastUserProfilePictureUseCase<R> implements UseCase<R, GetLastUs
     public Uni<R> execute(final GetLastUserProfilePictureCommand command,
                           final GetLastUserProfilePictureResponseTransformer<R> responseTransformer) {
         return Uni.createFrom()
-                .deferred(() -> profilePictureRepository.getLast(command.userPseudo()))
+                .deferred(() -> profilePictureRepository.getLast(command.userPseudo(), command.mediaType()))
                 .onItem()
                 .transform(profilePicture -> responseTransformer.toResponse(profilePicture))
                 .onFailure(ProfilePictureNotAvailableYetException.class)

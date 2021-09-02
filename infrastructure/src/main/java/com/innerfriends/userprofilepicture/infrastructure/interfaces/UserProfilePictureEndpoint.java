@@ -1,5 +1,6 @@
 package com.innerfriends.userprofilepicture.infrastructure.interfaces;
 
+import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
 import com.innerfriends.userprofilepicture.domain.usecase.*;
 import io.smallrye.mutiny.Uni;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
@@ -37,9 +38,13 @@ public class UserProfilePictureEndpoint {
     }
 
     @GET
+    @Consumes("image/*")
     @Path("/{userPseudo}")
-    public Uni<Response> downloadFile(@PathParam("userPseudo") final String userPseudo) {
-        return getLastUserProfilePictureUseCase.execute(new GetLastUserProfilePictureCommand(new JaxRsUserPseudo(userPseudo)),
+    public Uni<Response> downloadFile(@PathParam("userPseudo") final String userPseudo,
+                                      @DefaultValue("image/jpeg; charset=ISO-8859-1") @HeaderParam("Content-Type") final String contentType) {
+        return getLastUserProfilePictureUseCase.execute(new GetLastUserProfilePictureCommand(new JaxRsUserPseudo(userPseudo),
+                        SupportedMediaType.fromContentType(
+                                new ImageContentType(contentType).imageContentType())),
                 getLastUserProfilePictureResponseTransformer);
     }
 

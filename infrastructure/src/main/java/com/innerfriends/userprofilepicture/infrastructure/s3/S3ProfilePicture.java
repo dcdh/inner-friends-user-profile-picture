@@ -20,7 +20,7 @@ public final class S3ProfilePicture implements ProfilePicture {
     public S3ProfilePicture(final UserPseudo userPseudo, final ResponseBytes<GetObjectResponse> getObjectResponse) {
         this.userPseudo = Objects.requireNonNull(userPseudo);
         this.picture = getObjectResponse.asByteArray();
-        this.mediaType = SupportedMediaType.fromMimeType(getObjectResponse.response().contentType());
+        this.mediaType = SupportedMediaType.fromContentType(getObjectResponse.response().contentType());
         this.contentLength = getObjectResponse.response().contentLength();
         this.versionId = getObjectResponse.response().versionId();
     }

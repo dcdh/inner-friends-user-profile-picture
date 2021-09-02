@@ -25,20 +25,21 @@ public class GetLastUserProfilePictureUseCaseTest {
         final GetLastUserProfilePictureUseCase<Response> getLastUserProfilePictureUseCase = new GetLastUserProfilePictureUseCase<>(profilePictureRepository);
         final ResponseGetLastUserProfilePictureResponseTransformer responseGetLastUserProfilePictureResponseTransformer = mock(ResponseGetLastUserProfilePictureResponseTransformer.class);
         final UserPseudo userPseudo = mock(UserPseudo.class);
+        final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
         final ProfilePicture profilePicture = mock(ProfilePicture.class);
-        doReturn(Uni.createFrom().item(profilePicture)).when(profilePictureRepository).getLast(userPseudo);
+        doReturn(Uni.createFrom().item(profilePicture)).when(profilePictureRepository).getLast(userPseudo, supportedMediaType);
         final Response response = mock(Response.class);
         doReturn(response).when(responseGetLastUserProfilePictureResponseTransformer).toResponse(profilePicture);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getLastUserProfilePictureUseCase.execute(
-                new GetLastUserProfilePictureCommand(userPseudo),
+                new GetLastUserProfilePictureCommand(userPseudo, supportedMediaType),
                 responseGetLastUserProfilePictureResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).getLast(any());
+        verify(profilePictureRepository, times(1)).getLast(any(), any());
         verify(responseGetLastUserProfilePictureResponseTransformer).toResponse(any(ProfilePicture.class));
         verifyNoMoreInteractions(responseGetLastUserProfilePictureResponseTransformer);
     }
@@ -50,19 +51,19 @@ public class GetLastUserProfilePictureUseCaseTest {
         final GetLastUserProfilePictureUseCase<Response> getLastUserProfilePictureUseCase = new GetLastUserProfilePictureUseCase<>(profilePictureRepository);
         final ResponseGetLastUserProfilePictureResponseTransformer responseGetLastUserProfilePictureResponseTransformer = mock(ResponseGetLastUserProfilePictureResponseTransformer.class);
         final ProfilePictureNotAvailableYetException profilePictureNotAvailableYetException = mock(ProfilePictureNotAvailableYetException.class);
-        doReturn(Uni.createFrom().failure(profilePictureNotAvailableYetException)).when(profilePictureRepository).getLast(any());
+        doReturn(Uni.createFrom().failure(profilePictureNotAvailableYetException)).when(profilePictureRepository).getLast(any(), any());
         final Response response = mock(Response.class);
         doReturn(response).when(responseGetLastUserProfilePictureResponseTransformer).toResponse(profilePictureNotAvailableYetException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getLastUserProfilePictureUseCase.execute(
-                new GetLastUserProfilePictureCommand(mock(UserPseudo.class)),
+                new GetLastUserProfilePictureCommand(mock(UserPseudo.class), mock(SupportedMediaType.class)),
                 responseGetLastUserProfilePictureResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).getLast(any());
+        verify(profilePictureRepository, times(1)).getLast(any(), any());
         verify(responseGetLastUserProfilePictureResponseTransformer).toResponse(any(ProfilePictureNotAvailableYetException.class));
         verifyNoMoreInteractions(responseGetLastUserProfilePictureResponseTransformer);
     }
@@ -74,19 +75,19 @@ public class GetLastUserProfilePictureUseCaseTest {
         final GetLastUserProfilePictureUseCase<Response> getLastUserProfilePictureUseCase = new GetLastUserProfilePictureUseCase<>(profilePictureRepository);
         final ResponseGetLastUserProfilePictureResponseTransformer responseGetLastUserProfilePictureResponseTransformer = mock(ResponseGetLastUserProfilePictureResponseTransformer.class);
         final ProfilePictureRepositoryException profilePictureRepositoryException = mock(ProfilePictureRepositoryException.class);
-        doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(profilePictureRepository).getLast(any());
+        doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(profilePictureRepository).getLast(any(), any());
         final Response response = mock(Response.class);
         doReturn(response).when(responseGetLastUserProfilePictureResponseTransformer).toResponse(profilePictureRepositoryException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getLastUserProfilePictureUseCase.execute(
-                new GetLastUserProfilePictureCommand(mock(UserPseudo.class)),
+                new GetLastUserProfilePictureCommand(mock(UserPseudo.class), mock(SupportedMediaType.class)),
                 responseGetLastUserProfilePictureResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).getLast(any());
+        verify(profilePictureRepository, times(1)).getLast(any(), any());
         verify(responseGetLastUserProfilePictureResponseTransformer).toResponse(any(ProfilePictureRepositoryException.class));
         verifyNoMoreInteractions(responseGetLastUserProfilePictureResponseTransformer);
     }
@@ -98,19 +99,19 @@ public class GetLastUserProfilePictureUseCaseTest {
         final GetLastUserProfilePictureUseCase<Response> getLastUserProfilePictureUseCase = new GetLastUserProfilePictureUseCase<>(profilePictureRepository);
         final ResponseGetLastUserProfilePictureResponseTransformer responseGetLastUserProfilePictureResponseTransformer = mock(ResponseGetLastUserProfilePictureResponseTransformer.class);
         final RuntimeException runtimeException = new RuntimeException();
-        doReturn(Uni.createFrom().failure(runtimeException)).when(profilePictureRepository).getLast(any());
+        doReturn(Uni.createFrom().failure(runtimeException)).when(profilePictureRepository).getLast(any(), any());
         final Response response = mock(Response.class);
         doReturn(response).when(responseGetLastUserProfilePictureResponseTransformer).toResponse(runtimeException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getLastUserProfilePictureUseCase.execute(
-                new GetLastUserProfilePictureCommand(mock(UserPseudo.class)),
+                new GetLastUserProfilePictureCommand(mock(UserPseudo.class), mock(SupportedMediaType.class)),
                 responseGetLastUserProfilePictureResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).getLast(any());
+        verify(profilePictureRepository, times(1)).getLast(any(), any());
         verify(responseGetLastUserProfilePictureResponseTransformer).toResponse(any(RuntimeException.class));
         verifyNoMoreInteractions(responseGetLastUserProfilePictureResponseTransformer);
     }

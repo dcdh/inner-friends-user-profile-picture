@@ -45,8 +45,8 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                     final Span span = spanBuilder.startSpan();
                     final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                             .bucket(bucketUserProfilePictureName)
-                            .key(userPseudo.pseudo())
-                            .contentType(mediaType.mimeType())
+                            .key(new S3ObjectKey(userPseudo, mediaType).objectKey())
+                            .contentType(mediaType.contentType())
                             .build();
                     return this.s3AsyncClient.putObject(putObjectRequest, AsyncRequestBody.fromBytes(picture))
                             .handle((putObjectResponse, completionException) -> {
@@ -65,7 +65,8 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
     }
 
     @Override
-    public Uni<ProfilePicture> getLast(final UserPseudo userPseudo) throws ProfilePictureNotAvailableYetException, ProfilePictureRepositoryException {
+    public Uni<ProfilePicture> getLast(final UserPseudo userPseudo, final SupportedMediaType mediaType)
+            throws ProfilePictureNotAvailableYetException, ProfilePictureRepositoryException {
         return Uni.createFrom()
                 .completionStage(() -> {
                     final Span parentSpan = Objects.requireNonNull(Span.current());
@@ -73,7 +74,8 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                     spanBuilder.setParent(Context.current().with(parentSpan));
                     final Span span = spanBuilder.startSpan();
                     final GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketUserProfilePictureName)
-                            .key(userPseudo.pseudo()).build();
+                            .key(new S3ObjectKey(userPseudo, mediaType).objectKey())
+                            .build();
                     return s3AsyncClient.getObject(getObjectRequest, AsyncResponseTransformer.toBytes())
                             .handle((getObjectResponse, completionException) -> {
                                 try {

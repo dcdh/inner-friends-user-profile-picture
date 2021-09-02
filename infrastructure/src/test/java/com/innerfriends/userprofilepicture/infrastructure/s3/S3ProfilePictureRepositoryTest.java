@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 @QuarkusTest
 public class S3ProfilePictureRepositoryTest {
@@ -90,16 +91,19 @@ public class S3ProfilePictureRepositoryTest {
     public void should_save_return_profile_picture_repository_exception_when_user_pseudo_name_is_invalid() {
         // Given
         final UserPseudo userPseudo = () -> "";
+        final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
+        doReturn("").when(supportedMediaType).extension();
 
         // When
         final Uni<ProfilePictureSaved> uni = s3ProfilePictureRepository.save(
                 userPseudo,
                 "picture".getBytes(),
-                SupportedMediaType.IMAGE_JPEG);
+                supportedMediaType);
 
         // Then
         final UniAssertSubscriber<ProfilePictureSaved> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
         subscriber.awaitFailure().assertFailedWith(ProfilePictureRepositoryException.class);
+        verify(supportedMediaType, times(1)).extension();
     }
 
     @Test
@@ -112,7 +116,7 @@ public class S3ProfilePictureRepositoryTest {
                 .subscribe().withSubscriber(UniAssertSubscriber.create()).awaitItem().assertCompleted();
 
         // When
-        final Uni<ProfilePicture> uni = s3ProfilePictureRepository.getLast(userPseudo);
+        final Uni<ProfilePicture> uni = s3ProfilePictureRepository.getLast(userPseudo, SupportedMediaType.IMAGE_JPEG);
 
         // Then
         final UniAssertSubscriber<ProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
@@ -139,7 +143,7 @@ public class S3ProfilePictureRepositoryTest {
         final UserPseudo userPseudo = () -> "user";
 
         // When
-        final Uni<ProfilePicture> uni = s3ProfilePictureRepository.getLast(userPseudo);
+        final Uni<ProfilePicture> uni = s3ProfilePictureRepository.getLast(userPseudo, SupportedMediaType.IMAGE_JPEG);
 
         // Then
         final UniAssertSubscriber<ProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
@@ -150,12 +154,15 @@ public class S3ProfilePictureRepositoryTest {
     public void should_get_last_return_profile_picture_repository_exception_when_user_pseudo_name_is_invalid() {
         // Given
         final UserPseudo userPseudo = () -> "";
+        final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
+        doReturn("").when(supportedMediaType).extension();
 
         // When
-        final Uni<ProfilePicture> uni = s3ProfilePictureRepository.getLast(userPseudo);
+        final Uni<ProfilePicture> uni = s3ProfilePictureRepository.getLast(userPseudo, supportedMediaType);
 
         // Then
         final UniAssertSubscriber<ProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
         subscriber.awaitFailure().assertFailedWith(ProfilePictureRepositoryException.class);
+        verify(supportedMediaType, times(1)).extension();
     }
 }

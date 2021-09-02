@@ -82,6 +82,7 @@ public class UserProfilePictureEndpointTest {
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("expected/profilePictureSaved.json"))
                 .body("userPseudo", equalTo("pseudo"))
                 .body("versionId", equalTo("v0"));
+        verify(profilePictureRepository, times(1)).save(any(), any(), any());
     }
 
     @Test
@@ -101,15 +102,18 @@ public class UserProfilePictureEndpointTest {
                 .then()
                 .log().all()
                 .statusCode(500);
+        verify(profilePictureRepository, times(1)).save(any(), any(), any());
     }
 
     @Test
     public void should_get_last_user_profile_picture() {
         // Given
-        doReturn(Uni.createFrom().item(new TestProfilePicture())).when(profilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"));
+        doReturn(Uni.createFrom().item(new TestProfilePicture())).when(profilePictureRepository)
+                .getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
 
         // When && Then
         given()
+                .header("Content-Type", "image/jpeg")
                 .when()
                 .get("/users/pseudo")
                 .then()
@@ -119,37 +123,41 @@ public class UserProfilePictureEndpointTest {
                 .header("Content-Type","image/jpeg")
                 .header("Content-Length","7")
                 .header("versionId","v0");
-        verify(profilePictureRepository, times(1)).getLast(any());
+        verify(profilePictureRepository, times(1)).getLast(any(), any());
     }
 
     @Test
     public void should_get_last_user_profile_picture_return_expected_response_when_profile_picture_not_available_yet_is_thrown() {
         // Given
         doReturn(Uni.createFrom().failure(new ProfilePictureNotAvailableYetException(new JaxRsUserPseudo("pseudo"))))
-                .when(profilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"));
+                .when(profilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
 
         // When && Then
         given()
+                .header("Content-Type", "image/jpeg")
                 .when()
                 .get("/users/pseudo")
                 .then()
                 .log().all()
                 .statusCode(404);
+        verify(profilePictureRepository, times(1)).getLast(any(), any());
     }
 
     @Test
     public void should_get_last_user_profile_picture_return_expected_response_when_profile_picture_repository_exception_is_thrown() {
         // Given
         doReturn(Uni.createFrom().failure(new ProfilePictureRepositoryException()))
-                .when(profilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"));
+                .when(profilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
 
         // When && Then
         given()
+                .header("Content-Type", "image/jpeg")
                 .when()
                 .get("/users/pseudo")
                 .then()
                 .log().all()
                 .statusCode(500);
+        verify(profilePictureRepository, times(1)).getLast(any(), any());
     }
 
     private File getFileFromResource(final String fileName) throws Exception {

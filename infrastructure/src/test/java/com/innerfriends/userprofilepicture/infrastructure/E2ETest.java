@@ -158,7 +158,7 @@ public class E2ETest {
         final List<ObjectVersion> objectVersions = s3Client.listObjectVersions(ListObjectVersionsRequest
                 .builder()
                 .bucket(bucketUserProfilePictureName)
-                .prefix("pseudoE2E")
+                .prefix("pseudoE2E.jpeg")
                 .build()).versions();
         assertThat(objectVersions.size()).isEqualTo(1);
     }
@@ -167,6 +167,7 @@ public class E2ETest {
     @Order(1)
     public void should_get_last_user_profile_picture() {
         given()
+                .header("Content-Type", "image/jpeg")
                 .when()
                 .get("/users/pseudoE2E")
                 .then()
@@ -200,6 +201,7 @@ public class E2ETest {
     @Order(2)
     public void should_get_last_user_profile_picture_return_404_when_picture_does_not_exist() {
         given()
+                .header("Content-Type", "image/jpeg")
                 .when()
                 .get("/users/unknownPseudoE2E")
                 .then()
@@ -231,7 +233,7 @@ public class E2ETest {
         final List<ObjectVersion> objectVersions = s3Client.listObjectVersions(ListObjectVersionsRequest
                 .builder()
                 .bucket(bucketUserProfilePictureName)
-                .prefix("unknownPseudoE2E")
+                .prefix("unknownPseudoE2E.jpeg")
                 .build()).versions();
         assertThat(objectVersions.isEmpty()).isTrue();
     }
