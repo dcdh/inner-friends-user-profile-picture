@@ -9,22 +9,22 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
-public class GetLastUserProfilePictureCommandTest {
+public class GetFeaturedUserProfilePictureCommandTest {
 
     @Test
     public void should_verify_equality() {
-        EqualsVerifier.forClass(GetLastUserProfilePictureCommand.class).verify();
+        EqualsVerifier.forClass(GetFeaturedUserProfilePictureCommand.class).verify();
     }
 
     @Test
     public void should_fail_fast_when_user_pseudo_is_null() {
-        assertThatThrownBy(() -> new GetLastUserProfilePictureCommand(null, mock(SupportedMediaType.class)))
+        assertThatThrownBy(() -> new GetFeaturedUserProfilePictureCommand(null, mock(SupportedMediaType.class)))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     public void should_fail_fast_when_media_type_is_null() {
-        assertThatThrownBy(() -> new GetLastUserProfilePictureCommand(mock(UserPseudo.class), null))
+        assertThatThrownBy(() -> new GetFeaturedUserProfilePictureCommand(mock(UserPseudo.class), null))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -34,7 +34,7 @@ public class GetLastUserProfilePictureCommandTest {
         final UserPseudo givenUserPseudo = mock(UserPseudo.class);
 
         // When && Then
-        assertThat(new GetLastUserProfilePictureCommand(givenUserPseudo, mock(SupportedMediaType.class)).userPseudo())
+        assertThat(new GetFeaturedUserProfilePictureCommand(givenUserPseudo, mock(SupportedMediaType.class)).userPseudo())
                 .isEqualTo(givenUserPseudo);
     }
 
@@ -44,7 +44,7 @@ public class GetLastUserProfilePictureCommandTest {
         final SupportedMediaType givenSupportedMediaType = mock(SupportedMediaType.class);
 
         // When && Then
-        assertThat(new GetLastUserProfilePictureCommand(mock(UserPseudo.class), givenSupportedMediaType).mediaType())
+        assertThat(new GetFeaturedUserProfilePictureCommand(mock(UserPseudo.class), givenSupportedMediaType).mediaType())
                 .isEqualTo(givenSupportedMediaType);
     }
 

@@ -6,13 +6,13 @@ import com.innerfriends.userprofilepicture.domain.UserPseudo;
 
 import java.util.Objects;
 
-public final class GetLastUserProfilePictureCommand implements UseCaseCommand {
+public final class GetFeaturedUserProfilePictureCommand implements UseCaseCommand {
 
     private final UserPseudo userPseudo;
 
     private final SupportedMediaType mediaType;
 
-    public GetLastUserProfilePictureCommand(final UserPseudo userPseudo, final SupportedMediaType mediaType) {
+    public GetFeaturedUserProfilePictureCommand(final UserPseudo userPseudo, final SupportedMediaType mediaType) {
         this.userPseudo = Objects.requireNonNull(userPseudo);
         this.mediaType = Objects.requireNonNull(mediaType);
     }
@@ -29,8 +29,8 @@ public final class GetLastUserProfilePictureCommand implements UseCaseCommand {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GetLastUserProfilePictureCommand)) return false;
-        GetLastUserProfilePictureCommand that = (GetLastUserProfilePictureCommand) o;
+        if (!(o instanceof GetFeaturedUserProfilePictureCommand)) return false;
+        GetFeaturedUserProfilePictureCommand that = (GetFeaturedUserProfilePictureCommand) o;
         return Objects.equals(userPseudo, that.userPseudo) &&
                 mediaType == that.mediaType;
     }

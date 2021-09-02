@@ -165,11 +165,11 @@ public class E2ETest {
 
     @Test
     @Order(1)
-    public void should_get_last_user_profile_picture() {
+    public void should_get_featured_user_profile_picture() {
         given()
                 .header("Content-Type", "image/jpeg")
                 .when()
-                .get("/users/pseudoE2E")
+                .get("/users/pseudoE2E/featured")
                 .then()
                 .statusCode(200);
 
@@ -181,7 +181,7 @@ public class E2ETest {
                             .when()
                             .queryParam("limit", "1")
                             .queryParam("service", "user-profile-picture")
-                            .queryParam("tags", "{\"http.target\":\"/users/pseudoE2E\"}")
+                            .queryParam("tags", "{\"http.target\":\"/users/pseudoE2E/featured\"}")
                             .get(new URL(String.format("http://localhost:%d/api/traces", hostPort)))
                             .then()
                             .log().all()
@@ -191,7 +191,7 @@ public class E2ETest {
                     if (traces.getOperationNames().isEmpty()) {
                         return false;
                     }
-                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}", "S3ProfilePictureRepository.getLast"))
+                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}/featured", "S3ProfilePictureRepository.getLast"))
                             && traces.getHttpStatus().containsAll(List.of(200))
                             && traces.getOperationNamesInError().isEmpty();
         });
@@ -199,11 +199,11 @@ public class E2ETest {
 
     @Test
     @Order(2)
-    public void should_get_last_user_profile_picture_return_404_when_picture_does_not_exist() {
+    public void should_get_featured_user_profile_picture_return_404_when_picture_does_not_exist() {
         given()
                 .header("Content-Type", "image/jpeg")
                 .when()
-                .get("/users/unknownPseudoE2E")
+                .get("/users/unknownPseudoE2E/featured")
                 .then()
                 .statusCode(404);
 
@@ -215,7 +215,7 @@ public class E2ETest {
                             .when()
                             .queryParam("limit", "1")
                             .queryParam("service", "user-profile-picture")
-                            .queryParam("tags", "{\"http.target\":\"/users/unknownPseudoE2E\"}")
+                            .queryParam("tags", "{\"http.target\":\"/users/unknownPseudoE2E/featured\"}")
                             .get(new URL(String.format("http://localhost:%d/api/traces", hostPort)))
                             .then()
                             .log().all()
@@ -225,7 +225,7 @@ public class E2ETest {
                     if (traces.getOperationNames().isEmpty()) {
                         return false;
                     }
-                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}", "S3ProfilePictureRepository.getLast"))
+                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}/featured", "S3ProfilePictureRepository.getLast"))
                             && traces.getHttpStatus().containsAll(List.of(404))
                             && traces.getOperationNamesInError().containsAll(List.of("S3ProfilePictureRepository.getLast"));
         });

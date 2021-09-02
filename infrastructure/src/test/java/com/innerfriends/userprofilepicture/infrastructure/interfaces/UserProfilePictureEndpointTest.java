@@ -106,7 +106,7 @@ public class UserProfilePictureEndpointTest {
     }
 
     @Test
-    public void should_get_last_user_profile_picture() {
+    public void should_get_featured_user_profile_picture() {
         // Given
         doReturn(Uni.createFrom().item(new TestProfilePicture())).when(profilePictureRepository)
                 .getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
@@ -115,7 +115,7 @@ public class UserProfilePictureEndpointTest {
         given()
                 .header("Content-Type", "image/jpeg")
                 .when()
-                .get("/users/pseudo")
+                .get("/users/pseudo/featured")
                 .then()
                 .log().headers()
                 .statusCode(200)
@@ -127,7 +127,7 @@ public class UserProfilePictureEndpointTest {
     }
 
     @Test
-    public void should_get_last_user_profile_picture_return_expected_response_when_profile_picture_not_available_yet_is_thrown() {
+    public void should_get_featured_user_profile_picture_return_expected_response_when_profile_picture_not_available_yet_is_thrown() {
         // Given
         doReturn(Uni.createFrom().failure(new ProfilePictureNotAvailableYetException(new JaxRsUserPseudo("pseudo"))))
                 .when(profilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
@@ -136,7 +136,7 @@ public class UserProfilePictureEndpointTest {
         given()
                 .header("Content-Type", "image/jpeg")
                 .when()
-                .get("/users/pseudo")
+                .get("/users/pseudo/featured")
                 .then()
                 .log().all()
                 .statusCode(404);
@@ -144,7 +144,7 @@ public class UserProfilePictureEndpointTest {
     }
 
     @Test
-    public void should_get_last_user_profile_picture_return_expected_response_when_profile_picture_repository_exception_is_thrown() {
+    public void should_get_featured_user_profile_picture_return_expected_response_when_profile_picture_repository_exception_is_thrown() {
         // Given
         doReturn(Uni.createFrom().failure(new ProfilePictureRepositoryException()))
                 .when(profilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
@@ -153,7 +153,7 @@ public class UserProfilePictureEndpointTest {
         given()
                 .header("Content-Type", "image/jpeg")
                 .when()
-                .get("/users/pseudo")
+                .get("/users/pseudo/featured")
                 .then()
                 .log().all()
                 .statusCode(500);

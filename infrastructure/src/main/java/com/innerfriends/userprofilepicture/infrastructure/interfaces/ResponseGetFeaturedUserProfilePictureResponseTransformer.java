@@ -3,11 +3,11 @@ package com.innerfriends.userprofilepicture.infrastructure.interfaces;
 import com.innerfriends.userprofilepicture.domain.ProfilePicture;
 import com.innerfriends.userprofilepicture.domain.ProfilePictureNotAvailableYetException;
 import com.innerfriends.userprofilepicture.domain.ProfilePictureRepositoryException;
-import com.innerfriends.userprofilepicture.domain.usecase.GetLastUserProfilePictureResponseTransformer;
+import com.innerfriends.userprofilepicture.domain.usecase.GetFeaturedUserProfilePictureResponseTransformer;
 
 import javax.ws.rs.core.Response;
 
-public class ResponseGetLastUserProfilePictureResponseTransformer implements GetLastUserProfilePictureResponseTransformer<Response> {
+public class ResponseGetFeaturedUserProfilePictureResponseTransformer implements GetFeaturedUserProfilePictureResponseTransformer<Response> {
 
     @Override
     public Response toResponse(final ProfilePicture profilePicture) {

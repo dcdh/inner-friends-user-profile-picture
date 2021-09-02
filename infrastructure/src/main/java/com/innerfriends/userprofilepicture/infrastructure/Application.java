@@ -1,7 +1,7 @@
 package com.innerfriends.userprofilepicture.infrastructure;
 
 import com.innerfriends.userprofilepicture.domain.ProfilePictureRepository;
-import com.innerfriends.userprofilepicture.domain.usecase.GetLastUserProfilePictureUseCase;
+import com.innerfriends.userprofilepicture.domain.usecase.GetFeaturedUserProfilePictureUseCase;
 import com.innerfriends.userprofilepicture.domain.usecase.SaveUserProfilePictureUseCase;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -12,8 +12,8 @@ public class Application {
 
     @ApplicationScoped
     @Produces
-    public GetLastUserProfilePictureUseCase<Response> getLastUserProfilePictureUseCaseProducer(final ProfilePictureRepository profilePictureRepository) {
-        return new GetLastUserProfilePictureUseCase<>(profilePictureRepository);
+    public GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCaseProducer(final ProfilePictureRepository profilePictureRepository) {
+        return new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
     }
 
     @ApplicationScoped

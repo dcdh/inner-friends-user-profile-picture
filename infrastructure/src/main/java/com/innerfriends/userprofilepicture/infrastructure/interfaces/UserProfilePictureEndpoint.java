@@ -14,17 +14,17 @@ import java.util.Objects;
 public class UserProfilePictureEndpoint {
 
     private final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase;
-    private final GetLastUserProfilePictureUseCase<Response> getLastUserProfilePictureUseCase;
+    private final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase;
 
     private final SaveUserProfilePictureResponseTransformer<Response> saveUserProfilePictureResponseTransformer;
-    private final GetLastUserProfilePictureResponseTransformer<Response> getLastUserProfilePictureResponseTransformer;
+    private final GetFeaturedUserProfilePictureResponseTransformer<Response> getFeaturedUserProfilePictureResponseTransformer;
 
     public UserProfilePictureEndpoint(final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase,
-                                      final GetLastUserProfilePictureUseCase<Response> getLastUserProfilePictureUseCase) {
+                                      final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase) {
         this.saveUserProfilePictureUseCase = Objects.requireNonNull(saveUserProfilePictureUseCase);
-        this.getLastUserProfilePictureUseCase = Objects.requireNonNull(getLastUserProfilePictureUseCase);
+        this.getFeaturedUserProfilePictureUseCase = Objects.requireNonNull(getFeaturedUserProfilePictureUseCase);
         this.saveUserProfilePictureResponseTransformer = new ResponseSaveUserProfilePictureResponseTransformer();
-        this.getLastUserProfilePictureResponseTransformer = new ResponseGetLastUserProfilePictureResponseTransformer();
+        this.getFeaturedUserProfilePictureResponseTransformer = new ResponseGetFeaturedUserProfilePictureResponseTransformer();
     }
 
     @POST
@@ -39,13 +39,13 @@ public class UserProfilePictureEndpoint {
 
     @GET
     @Consumes("image/*")
-    @Path("/{userPseudo}")
-    public Uni<Response> downloadFile(@PathParam("userPseudo") final String userPseudo,
-                                      @DefaultValue("image/jpeg; charset=ISO-8859-1") @HeaderParam("Content-Type") final String contentType) {
-        return getLastUserProfilePictureUseCase.execute(new GetLastUserProfilePictureCommand(new JaxRsUserPseudo(userPseudo),
+    @Path("/{userPseudo}/featured")
+    public Uni<Response> downloadFeaturedUserProfilePicture(@PathParam("userPseudo") final String userPseudo,
+                                                            @DefaultValue("image/jpeg; charset=ISO-8859-1") @HeaderParam("Content-Type") final String contentType) {
+        return getFeaturedUserProfilePictureUseCase.execute(new GetFeaturedUserProfilePictureCommand(new JaxRsUserPseudo(userPseudo),
                         SupportedMediaType.fromContentType(
                                 new ImageContentType(contentType).imageContentType())),
-                getLastUserProfilePictureResponseTransformer);
+                getFeaturedUserProfilePictureResponseTransformer);
     }
 
 }

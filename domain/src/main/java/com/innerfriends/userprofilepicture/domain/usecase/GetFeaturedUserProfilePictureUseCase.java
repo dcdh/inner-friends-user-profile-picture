@@ -5,17 +5,17 @@ import io.smallrye.mutiny.Uni;
 
 import java.util.Objects;
 
-public class GetLastUserProfilePictureUseCase<R> implements UseCase<R, GetLastUserProfilePictureCommand, GetLastUserProfilePictureResponseTransformer<R>> {
+public class GetFeaturedUserProfilePictureUseCase<R> implements UseCase<R, GetFeaturedUserProfilePictureCommand, GetFeaturedUserProfilePictureResponseTransformer<R>> {
 
     private final ProfilePictureRepository profilePictureRepository;
 
-    public GetLastUserProfilePictureUseCase(final ProfilePictureRepository profilePictureRepository) {
+    public GetFeaturedUserProfilePictureUseCase(final ProfilePictureRepository profilePictureRepository) {
         this.profilePictureRepository = Objects.requireNonNull(profilePictureRepository);
     }
 
     @Override
-    public Uni<R> execute(final GetLastUserProfilePictureCommand command,
-                          final GetLastUserProfilePictureResponseTransformer<R> responseTransformer) {
+    public Uni<R> execute(final GetFeaturedUserProfilePictureCommand command,
+                          final GetFeaturedUserProfilePictureResponseTransformer<R> responseTransformer) {
         return Uni.createFrom()
                 .deferred(() -> profilePictureRepository.getLast(command.userPseudo(), command.mediaType()))
                 .onItem()
