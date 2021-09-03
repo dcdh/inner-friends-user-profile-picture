@@ -9,14 +9,6 @@ import static org.mockito.Mockito.*;
 
 public class SaveUserProfilePictureUseCaseTest {
 
-    public interface Response {
-
-    }
-
-    public interface TestResponseTransformer extends ResponseTransformer<Response> {
-
-    }
-
     @Test
     public void should_save_user_profile_picture() {
         // Given

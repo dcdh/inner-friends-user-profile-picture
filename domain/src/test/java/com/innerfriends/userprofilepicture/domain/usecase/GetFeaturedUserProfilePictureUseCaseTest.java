@@ -10,14 +10,6 @@ import static org.mockito.Mockito.*;
 
 public class GetFeaturedUserProfilePictureUseCaseTest {
 
-    public interface Response {
-
-    }
-
-    public interface TestResponseTransformer extends ResponseTransformer<Response> {
-
-    }
-
     @Test
     public void should_get_featured_user_profile_picture() {
         // Given
