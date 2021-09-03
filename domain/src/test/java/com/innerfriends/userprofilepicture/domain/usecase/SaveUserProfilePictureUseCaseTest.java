@@ -13,7 +13,7 @@ public class SaveUserProfilePictureUseCaseTest {
 
     }
 
-    public interface ResponseSaveUserProfilePictureResponseTransformer extends SaveUserProfilePictureResponseTransformer<Response> {
+    public interface TestResponseTransformer extends ResponseTransformer<Response> {
 
     }
 
@@ -22,24 +22,24 @@ public class SaveUserProfilePictureUseCaseTest {
         // Given
         final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
         final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(profilePictureRepository);
-        final ResponseSaveUserProfilePictureResponseTransformer responseSaveUserProfilePictureResponseTransformer = mock(ResponseSaveUserProfilePictureResponseTransformer.class);
+        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final UserPseudo userPseudo = mock(UserPseudo.class);
         final ProfilePictureSaved profilePictureSaved = mock(ProfilePictureSaved.class);
         doReturn(Uni.createFrom().item(profilePictureSaved)).when(profilePictureRepository).save(userPseudo, "content".getBytes(), SupportedMediaType.IMAGE_JPEG);
         final Response response = mock(Response.class);
-        doReturn(response).when(responseSaveUserProfilePictureResponseTransformer).toResponse(profilePictureSaved);
+        doReturn(response).when(testResponseTransformer).toResponse(profilePictureSaved);
 
         // When
         final UniAssertSubscriber<Response> subscriber = saveUserProfilePictureUseCase.execute(
                 new SaveUserProfilePictureCommand(userPseudo, "content".getBytes(), SupportedMediaType.IMAGE_JPEG),
-                responseSaveUserProfilePictureResponseTransformer)
+                testResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(profilePictureRepository, times(1)).save(any(), any(), any());
-        verify(responseSaveUserProfilePictureResponseTransformer).toResponse(any(ProfilePictureSaved.class));
-        verifyNoMoreInteractions(responseSaveUserProfilePictureResponseTransformer);
+        verify(testResponseTransformer).toResponse(any(ProfilePictureSaved.class));
+        verifyNoMoreInteractions(testResponseTransformer);
     }
 
     @Test
@@ -47,23 +47,23 @@ public class SaveUserProfilePictureUseCaseTest {
         // Given
         final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
         final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(profilePictureRepository);
-        final ResponseSaveUserProfilePictureResponseTransformer responseSaveUserProfilePictureResponseTransformer = mock(ResponseSaveUserProfilePictureResponseTransformer.class);
+        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final ProfilePictureRepositoryException profilePictureRepositoryException = mock(ProfilePictureRepositoryException.class);
         doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(profilePictureRepository).save(any(), any(), any());
         final Response response = mock(Response.class);
-        doReturn(response).when(responseSaveUserProfilePictureResponseTransformer).toResponse(profilePictureRepositoryException);
+        doReturn(response).when(testResponseTransformer).toResponse(profilePictureRepositoryException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = saveUserProfilePictureUseCase.execute(
                 new SaveUserProfilePictureCommand(mock(UserPseudo.class), "content".getBytes(), SupportedMediaType.IMAGE_JPEG),
-                responseSaveUserProfilePictureResponseTransformer)
+                testResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(profilePictureRepository, times(1)).save(any(), any(), any());
-        verify(responseSaveUserProfilePictureResponseTransformer).toResponse(any(ProfilePictureRepositoryException.class));
-        verifyNoMoreInteractions(responseSaveUserProfilePictureResponseTransformer);
+        verify(testResponseTransformer).toResponse(any(ProfilePictureRepositoryException.class));
+        verifyNoMoreInteractions(testResponseTransformer);
     }
 
     @Test
@@ -71,23 +71,23 @@ public class SaveUserProfilePictureUseCaseTest {
         // Given
         final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
         final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(profilePictureRepository);
-        final ResponseSaveUserProfilePictureResponseTransformer responseSaveUserProfilePictureResponseTransformer = mock(ResponseSaveUserProfilePictureResponseTransformer.class);
+        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final RuntimeException runtimeException = new RuntimeException();
         doReturn(Uni.createFrom().failure(runtimeException)).when(profilePictureRepository).save(any(), any(), any());
         final Response response = mock(Response.class);
-        doReturn(response).when(responseSaveUserProfilePictureResponseTransformer).toResponse(runtimeException);
+        doReturn(response).when(testResponseTransformer).toResponse(runtimeException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = saveUserProfilePictureUseCase.execute(
                 new SaveUserProfilePictureCommand(mock(UserPseudo.class), "content".getBytes(), SupportedMediaType.IMAGE_JPEG),
-                responseSaveUserProfilePictureResponseTransformer)
+                testResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(profilePictureRepository, times(1)).save(any(), any(), any());
-        verify(responseSaveUserProfilePictureResponseTransformer).toResponse(any(RuntimeException.class));
-        verifyNoMoreInteractions(responseSaveUserProfilePictureResponseTransformer);
+        verify(testResponseTransformer).toResponse(any(RuntimeException.class));
+        verifyNoMoreInteractions(testResponseTransformer);
     }
 
 }

@@ -1,13 +1,10 @@
 package com.innerfriends.userprofilepicture.infrastructure.interfaces;
 
-import com.innerfriends.userprofilepicture.domain.ProfilePicture;
-import com.innerfriends.userprofilepicture.domain.ProfilePictureNotAvailableYetException;
-import com.innerfriends.userprofilepicture.domain.ProfilePictureRepositoryException;
-import com.innerfriends.userprofilepicture.domain.usecase.GetFeaturedUserProfilePictureResponseTransformer;
+import com.innerfriends.userprofilepicture.domain.*;
 
 import javax.ws.rs.core.Response;
 
-public class ResponseGetFeaturedUserProfilePictureResponseTransformer implements GetFeaturedUserProfilePictureResponseTransformer<Response> {
+public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
 
     @Override
     public Response toResponse(final ProfilePicture profilePicture) {
@@ -17,6 +14,13 @@ public class ResponseGetFeaturedUserProfilePictureResponseTransformer implements
                 .header("Content-Type", profilePicture.mediaType().contentType())
                 .header("Content-Length", profilePicture.contentLength())
                 .header("versionId", profilePicture.versionId())
+                .build();
+    }
+
+    @Override
+    public Response toResponse(final ProfilePictureSaved profilePictureSaved) {
+        return Response.created(null)
+                .entity(new ProfilePictureSavedDTO(profilePictureSaved))
                 .build();
     }
 
@@ -36,4 +40,5 @@ public class ResponseGetFeaturedUserProfilePictureResponseTransformer implements
         throwable.printStackTrace();
         return Response.serverError().build();
     }
+
 }

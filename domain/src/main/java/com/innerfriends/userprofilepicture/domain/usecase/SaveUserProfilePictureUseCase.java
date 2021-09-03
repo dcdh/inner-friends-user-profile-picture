@@ -2,12 +2,13 @@ package com.innerfriends.userprofilepicture.domain.usecase;
 
 import com.innerfriends.userprofilepicture.domain.ProfilePictureRepository;
 import com.innerfriends.userprofilepicture.domain.ProfilePictureRepositoryException;
+import com.innerfriends.userprofilepicture.domain.ResponseTransformer;
 import com.innerfriends.userprofilepicture.domain.UseCase;
 import io.smallrye.mutiny.Uni;
 
 import java.util.Objects;
 
-public class SaveUserProfilePictureUseCase<R> implements UseCase<R, SaveUserProfilePictureCommand, SaveUserProfilePictureResponseTransformer<R>> {
+public class SaveUserProfilePictureUseCase<R> implements UseCase<R, SaveUserProfilePictureCommand> {
 
     private final ProfilePictureRepository profilePictureRepository;
 
@@ -17,7 +18,7 @@ public class SaveUserProfilePictureUseCase<R> implements UseCase<R, SaveUserProf
 
     @Override
     public Uni<R> execute(final SaveUserProfilePictureCommand command,
-                          final SaveUserProfilePictureResponseTransformer<R> responseTransformer) {
+                          final ResponseTransformer<R> responseTransformer) {
         return Uni.createFrom()
                 .deferred(() -> profilePictureRepository.save(command.userPseudo(), command.picture(), command.mediaType()))
                 .onItem()

@@ -14,7 +14,7 @@ public class GetFeaturedUserProfilePictureUseCaseTest {
 
     }
 
-    public interface ResponseGetFeaturedUserProfilePictureResponseTransformer extends GetFeaturedUserProfilePictureResponseTransformer<Response> {
+    public interface TestResponseTransformer extends ResponseTransformer<Response> {
 
     }
 
@@ -23,25 +23,25 @@ public class GetFeaturedUserProfilePictureUseCaseTest {
         // Given
         final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
         final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
-        final ResponseGetFeaturedUserProfilePictureResponseTransformer responseGetFeaturedUserProfilePictureResponseTransformer = mock(ResponseGetFeaturedUserProfilePictureResponseTransformer.class);
+        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final UserPseudo userPseudo = mock(UserPseudo.class);
         final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
         final ProfilePicture profilePicture = mock(ProfilePicture.class);
         doReturn(Uni.createFrom().item(profilePicture)).when(profilePictureRepository).getLast(userPseudo, supportedMediaType);
         final Response response = mock(Response.class);
-        doReturn(response).when(responseGetFeaturedUserProfilePictureResponseTransformer).toResponse(profilePicture);
+        doReturn(response).when(testResponseTransformer).toResponse(profilePicture);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getFeaturedUserProfilePictureUseCase.execute(
                 new GetFeaturedUserProfilePictureCommand(userPseudo, supportedMediaType),
-                responseGetFeaturedUserProfilePictureResponseTransformer)
+                testResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(profilePictureRepository, times(1)).getLast(any(), any());
-        verify(responseGetFeaturedUserProfilePictureResponseTransformer).toResponse(any(ProfilePicture.class));
-        verifyNoMoreInteractions(responseGetFeaturedUserProfilePictureResponseTransformer);
+        verify(testResponseTransformer).toResponse(any(ProfilePicture.class));
+        verifyNoMoreInteractions(testResponseTransformer);
     }
 
     @Test
@@ -49,23 +49,23 @@ public class GetFeaturedUserProfilePictureUseCaseTest {
         // Given
         final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
         final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
-        final ResponseGetFeaturedUserProfilePictureResponseTransformer responseGetFeaturedUserProfilePictureResponseTransformer = mock(ResponseGetFeaturedUserProfilePictureResponseTransformer.class);
+        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final ProfilePictureNotAvailableYetException profilePictureNotAvailableYetException = mock(ProfilePictureNotAvailableYetException.class);
         doReturn(Uni.createFrom().failure(profilePictureNotAvailableYetException)).when(profilePictureRepository).getLast(any(), any());
         final Response response = mock(Response.class);
-        doReturn(response).when(responseGetFeaturedUserProfilePictureResponseTransformer).toResponse(profilePictureNotAvailableYetException);
+        doReturn(response).when(testResponseTransformer).toResponse(profilePictureNotAvailableYetException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getFeaturedUserProfilePictureUseCase.execute(
                 new GetFeaturedUserProfilePictureCommand(mock(UserPseudo.class), mock(SupportedMediaType.class)),
-                responseGetFeaturedUserProfilePictureResponseTransformer)
+                testResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(profilePictureRepository, times(1)).getLast(any(), any());
-        verify(responseGetFeaturedUserProfilePictureResponseTransformer).toResponse(any(ProfilePictureNotAvailableYetException.class));
-        verifyNoMoreInteractions(responseGetFeaturedUserProfilePictureResponseTransformer);
+        verify(testResponseTransformer).toResponse(any(ProfilePictureNotAvailableYetException.class));
+        verifyNoMoreInteractions(testResponseTransformer);
     }
 
     @Test
@@ -73,23 +73,23 @@ public class GetFeaturedUserProfilePictureUseCaseTest {
         // Given
         final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
         final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
-        final ResponseGetFeaturedUserProfilePictureResponseTransformer responseGetFeaturedUserProfilePictureResponseTransformer = mock(ResponseGetFeaturedUserProfilePictureResponseTransformer.class);
+        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final ProfilePictureRepositoryException profilePictureRepositoryException = mock(ProfilePictureRepositoryException.class);
         doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(profilePictureRepository).getLast(any(), any());
         final Response response = mock(Response.class);
-        doReturn(response).when(responseGetFeaturedUserProfilePictureResponseTransformer).toResponse(profilePictureRepositoryException);
+        doReturn(response).when(testResponseTransformer).toResponse(profilePictureRepositoryException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getFeaturedUserProfilePictureUseCase.execute(
                 new GetFeaturedUserProfilePictureCommand(mock(UserPseudo.class), mock(SupportedMediaType.class)),
-                responseGetFeaturedUserProfilePictureResponseTransformer)
+                testResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(profilePictureRepository, times(1)).getLast(any(), any());
-        verify(responseGetFeaturedUserProfilePictureResponseTransformer).toResponse(any(ProfilePictureRepositoryException.class));
-        verifyNoMoreInteractions(responseGetFeaturedUserProfilePictureResponseTransformer);
+        verify(testResponseTransformer).toResponse(any(ProfilePictureRepositoryException.class));
+        verifyNoMoreInteractions(testResponseTransformer);
     }
 
     @Test
@@ -97,22 +97,22 @@ public class GetFeaturedUserProfilePictureUseCaseTest {
         // Given
         final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
         final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
-        final ResponseGetFeaturedUserProfilePictureResponseTransformer responseGetFeaturedUserProfilePictureResponseTransformer = mock(ResponseGetFeaturedUserProfilePictureResponseTransformer.class);
+        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final RuntimeException runtimeException = new RuntimeException();
         doReturn(Uni.createFrom().failure(runtimeException)).when(profilePictureRepository).getLast(any(), any());
         final Response response = mock(Response.class);
-        doReturn(response).when(responseGetFeaturedUserProfilePictureResponseTransformer).toResponse(runtimeException);
+        doReturn(response).when(testResponseTransformer).toResponse(runtimeException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getFeaturedUserProfilePictureUseCase.execute(
                 new GetFeaturedUserProfilePictureCommand(mock(UserPseudo.class), mock(SupportedMediaType.class)),
-                responseGetFeaturedUserProfilePictureResponseTransformer)
+                testResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(profilePictureRepository, times(1)).getLast(any(), any());
-        verify(responseGetFeaturedUserProfilePictureResponseTransformer).toResponse(any(RuntimeException.class));
-        verifyNoMoreInteractions(responseGetFeaturedUserProfilePictureResponseTransformer);
+        verify(testResponseTransformer).toResponse(any(RuntimeException.class));
+        verifyNoMoreInteractions(testResponseTransformer);
     }
 }

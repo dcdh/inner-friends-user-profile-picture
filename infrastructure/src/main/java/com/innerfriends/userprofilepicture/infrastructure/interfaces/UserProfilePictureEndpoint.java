@@ -1,5 +1,6 @@
 package com.innerfriends.userprofilepicture.infrastructure.interfaces;
 
+import com.innerfriends.userprofilepicture.domain.ResponseTransformer;
 import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
 import com.innerfriends.userprofilepicture.domain.usecase.*;
 import io.smallrye.mutiny.Uni;
@@ -16,15 +17,13 @@ public class UserProfilePictureEndpoint {
     private final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase;
     private final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase;
 
-    private final SaveUserProfilePictureResponseTransformer<Response> saveUserProfilePictureResponseTransformer;
-    private final GetFeaturedUserProfilePictureResponseTransformer<Response> getFeaturedUserProfilePictureResponseTransformer;
+    private final ResponseTransformer<Response> jaxRsResponseTransformer;
 
     public UserProfilePictureEndpoint(final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase,
                                       final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase) {
         this.saveUserProfilePictureUseCase = Objects.requireNonNull(saveUserProfilePictureUseCase);
         this.getFeaturedUserProfilePictureUseCase = Objects.requireNonNull(getFeaturedUserProfilePictureUseCase);
-        this.saveUserProfilePictureResponseTransformer = new ResponseSaveUserProfilePictureResponseTransformer();
-        this.getFeaturedUserProfilePictureResponseTransformer = new ResponseGetFeaturedUserProfilePictureResponseTransformer();
+        this.jaxRsResponseTransformer = new JaxRsResponseTransformer();
     }
 
     @POST
@@ -34,7 +33,7 @@ public class UserProfilePictureEndpoint {
                                                   @MultipartForm final UserProfilePicture userProfilePicture) {
         return saveUserProfilePictureUseCase.execute(
                 new SaveUserProfilePictureCommand(new JaxRsUserPseudo(userPseudo), userProfilePicture.picture, userProfilePicture.mediaType),
-                saveUserProfilePictureResponseTransformer);
+                jaxRsResponseTransformer);
     }
 
     @GET
@@ -45,7 +44,7 @@ public class UserProfilePictureEndpoint {
         return getFeaturedUserProfilePictureUseCase.execute(new GetFeaturedUserProfilePictureCommand(new JaxRsUserPseudo(userPseudo),
                         SupportedMediaType.fromContentType(
                                 new ImageContentType(contentType).imageContentType())),
-                getFeaturedUserProfilePictureResponseTransformer);
+                jaxRsResponseTransformer);
     }
 
 }
