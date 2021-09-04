@@ -17,7 +17,7 @@ public class OpenTelemetryLifecycleManager implements QuarkusTestResourceLifecyc
     private final Logger logger = LoggerFactory.getLogger(OpenTelemetryLifecycleManager.class);
 
     private Network network;
-    public static GenericContainer jaegerTracingAllInOneContainer;
+    private static GenericContainer jaegerTracingAllInOneContainer;
     private GenericContainer otelOpentelemetryCollectorContainer;
 
     @Override
@@ -46,6 +46,10 @@ public class OpenTelemetryLifecycleManager implements QuarkusTestResourceLifecyc
         System.setProperty("quarkus.opentelemetry.tracer.exporter.otlp.endpoint", String.format("http://localhost:%d",
                 otelOpentelemetryCollectorContainer.getMappedPort(55680)));
         return Collections.emptyMap();
+    }
+
+    public static Integer getJaegerRestApiHostPort() {
+        return jaegerTracingAllInOneContainer.getMappedPort(16686);
     }
 
     @Override

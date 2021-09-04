@@ -132,7 +132,7 @@ public class E2ETest {
                 .log().all()
                 .statusCode(201);
 
-        final Integer hostPort = OpenTelemetryLifecycleManager.jaegerTracingAllInOneContainer.getMappedPort(16686);
+        final Integer hostPort = OpenTelemetryLifecycleManager.getJaegerRestApiHostPort();
         await().atMost(15, TimeUnit.SECONDS)
                 .pollInterval(Duration.ofSeconds(1l))
                 .until(() -> {
@@ -173,7 +173,7 @@ public class E2ETest {
                 .then()
                 .statusCode(200);
 
-        final Integer hostPort = OpenTelemetryLifecycleManager.jaegerTracingAllInOneContainer.getMappedPort(16686);
+        final Integer hostPort = OpenTelemetryLifecycleManager.getJaegerRestApiHostPort();
         await().atMost(15, TimeUnit.SECONDS)
                 .pollInterval(Duration.ofSeconds(1l))
                 .until(() -> {
@@ -207,7 +207,7 @@ public class E2ETest {
                 .then()
                 .statusCode(404);
 
-        final Integer hostPort = OpenTelemetryLifecycleManager.jaegerTracingAllInOneContainer.getMappedPort(16686);
+        final Integer hostPort = OpenTelemetryLifecycleManager.getJaegerRestApiHostPort();
         await().atMost(10, TimeUnit.SECONDS)
                 .pollInterval(Duration.ofSeconds(1l))
                 .until(() -> {
@@ -248,7 +248,7 @@ public class E2ETest {
                 .then()
                 .statusCode(200);
 
-        final Integer hostPort = OpenTelemetryLifecycleManager.jaegerTracingAllInOneContainer.getMappedPort(16686);
+        final Integer hostPort = OpenTelemetryLifecycleManager.getJaegerRestApiHostPort();
         await().atMost(15, TimeUnit.SECONDS)
                 .pollInterval(Duration.ofSeconds(1l))
                 .until(() -> {
@@ -288,7 +288,7 @@ public class E2ETest {
                 .then()
                 .statusCode(200);
 
-        final Integer hostPort = OpenTelemetryLifecycleManager.jaegerTracingAllInOneContainer.getMappedPort(16686);
+        final Integer hostPort = OpenTelemetryLifecycleManager.getJaegerRestApiHostPort();
         await().atMost(15, TimeUnit.SECONDS)
                 .pollInterval(Duration.ofSeconds(1l))
                 .until(() -> {
