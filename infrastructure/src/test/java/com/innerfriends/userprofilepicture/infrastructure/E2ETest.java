@@ -227,7 +227,7 @@ public class E2ETest {
                     }
                     return traces.getOperationNames().containsAll(List.of("users/{userPseudo}/featured", "S3ProfilePictureRepository.getLast"))
                             && traces.getHttpStatus().containsAll(List.of(404))
-                            && traces.getOperationNamesInError().containsAll(List.of("S3ProfilePictureRepository.getLast"));
+                            && traces.getOperationNamesInError().isEmpty();
         });
 
         final List<ObjectVersion> objectVersions = s3Client.listObjectVersions(ListObjectVersionsRequest

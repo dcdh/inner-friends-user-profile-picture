@@ -27,6 +27,12 @@ public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
     }
 
     @Override
+    public Response toResponse(final ProfilePictureIdentifier profilePictureIdentifiers) {
+        return Response.ok(new ProfilePictureIdentifierDTO(profilePictureIdentifiers))
+                .build();
+    }
+
+    @Override
     public Response toResponse(final List<ProfilePictureIdentifier> profilePictureIdentifiers) {
         return Response.ok(
                 profilePictureIdentifiers.stream()

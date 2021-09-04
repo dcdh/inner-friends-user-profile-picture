@@ -18,10 +18,10 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final UserPseudo userPseudo = mock(UserPseudo.class);
         final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
-        final ContentProfilePicture contentProfilePicture = mock(ContentProfilePicture.class);
-        doReturn(Uni.createFrom().item(contentProfilePicture)).when(profilePictureRepository).getLast(userPseudo, supportedMediaType);
+        final ProfilePictureIdentifier profilePictureIdentifier = mock(ProfilePictureIdentifier.class);
+        doReturn(Uni.createFrom().item(profilePictureIdentifier)).when(profilePictureRepository).getLast(userPseudo, supportedMediaType);
         final Response response = mock(Response.class);
-        doReturn(response).when(testResponseTransformer).toResponse(contentProfilePicture);
+        doReturn(response).when(testResponseTransformer).toResponse(profilePictureIdentifier);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getFeaturedUserProfilePictureUseCase.execute(
@@ -32,7 +32,7 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(profilePictureRepository, times(1)).getLast(any(), any());
-        verify(testResponseTransformer).toResponse(any(ContentProfilePicture.class));
+        verify(testResponseTransformer).toResponse(any(ProfilePictureIdentifier.class));
         verifyNoMoreInteractions(testResponseTransformer);
     }
 

@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "userPseudo": "pseudo",
+      "mediaType": "IMAGE_JPEG",
+      "versionId": "v0"
+    }
+  ],
+  "required": [
+    "userPseudo",
+    "mediaType",
+    "versionId"
+  ],
+  "properties": {
+    "userPseudo": {
+      "$id": "#/properties/userPseudo",
+      "type": "string",
+      "title": "The userPseudo schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "pseudo"
+      ]
+    },
+    "mediaType": {
+      "$id": "#/properties/mediaType",
+      "type": "string",
+      "title": "The mediaType schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "IMAGE_JPEG"
+      ]
+    },
+    "versionId": {
+      "$id": "#/properties/versionId",
+      "type": "string",
+      "title": "The versionId schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "v0"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

@@ -45,8 +45,8 @@ public class UserProfilePictureEndpoint {
     @GET
     @Consumes("image/*")
     @Path("/{userPseudo}/featured")
-    public Uni<Response> downloadFeaturedUserProfilePicture(@PathParam("userPseudo") final String userPseudo,
-                                                            @DefaultValue("image/jpeg; charset=ISO-8859-1") @HeaderParam("Content-Type") final String contentType) {
+    public Uni<Response> getFeaturedUserProfilePicture(@PathParam("userPseudo") final String userPseudo,
+                                                       @DefaultValue("image/jpeg; charset=ISO-8859-1") @HeaderParam("Content-Type") final String contentType) {
         return getFeaturedUserProfilePictureUseCase.execute(new GetFeaturedUserProfilePictureCommand(new JaxRsUserPseudo(userPseudo),
                         SupportedMediaType.fromContentType(
                                 new ImageContentType(contentType).imageContentType())),

@@ -12,11 +12,15 @@ import org.jboss.logging.Logger;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectVersionsRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -72,7 +76,7 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
     }
 
     @Override
-    public Uni<ContentProfilePicture> getLast(final UserPseudo userPseudo, final SupportedMediaType mediaType)
+    public Uni<ProfilePictureIdentifier> getLast(final UserPseudo userPseudo, final SupportedMediaType mediaType)
             throws ProfilePictureNotAvailableYetException, ProfilePictureRepositoryException {
         return Uni.createFrom()
                 .completionStage(() -> {
@@ -80,23 +84,26 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                     final SpanBuilder spanBuilder = tracer.spanBuilder("S3ProfilePictureRepository.getLast");
                     spanBuilder.setParent(Context.current().with(parentSpan));
                     final Span span = spanBuilder.startSpan();
-                    final GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketUserProfilePictureName)
-                            .key(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
+                    final ListObjectVersionsRequest listObjectVersionsRequest = ListObjectVersionsRequest.builder()
+                            .bucket(bucketUserProfilePictureName)
+                            .prefix(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
                             .build();
-                    return s3AsyncClient.getObject(getObjectRequest, AsyncResponseTransformer.toBytes())
-                            .handle((getObjectResponse, completionException) -> {
+                    return s3AsyncClient.listObjectVersions(listObjectVersionsRequest)
+                            .handle((listObjectVersionsResponse, completionException) -> {
                                 try {
                                     if (completionException != null) {
                                         LOG.error(completionException.getCause());
                                         span.setStatus(StatusCode.ERROR);
-                                        final Throwable cause = completionException.getCause();
-                                        if (cause instanceof NoSuchKeyException) {
-                                            throw new ProfilePictureNotAvailableYetException(userPseudo);
-                                        } else {
-                                            throw new ProfilePictureRepositoryException();
-                                        }
+                                        throw new ProfilePictureRepositoryException();
                                     } else {
-                                        return new S3ContentProfilePicture(userPseudo, getObjectResponse);
+                                        final Optional<ProfilePictureIdentifier> profilePictureIdentifier = listObjectVersionsResponse.versions()
+                                                .stream()
+                                                .findFirst()
+                                                .map(objectVersion -> new S3ProfilePictureIdentifier(userPseudo, mediaType, objectVersion));
+                                        if (!profilePictureIdentifier.isPresent()) {
+                                            throw new ProfilePictureNotAvailableYetException(userPseudo);
+                                        }
+                                        return profilePictureIdentifier.get();
                                     }
                                 } finally {
                                     span.end();

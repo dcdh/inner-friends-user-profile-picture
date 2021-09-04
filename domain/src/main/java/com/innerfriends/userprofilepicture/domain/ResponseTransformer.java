@@ -8,6 +8,8 @@ public interface ResponseTransformer<R> {
 
     R toResponse(ProfilePictureSaved profilePictureSaved);
 
+    R toResponse(ProfilePictureIdentifier profilePictureIdentifiers);
+
     R toResponse(List<ProfilePictureIdentifier> profilePictureIdentifiers);
 
     R toResponse(ProfilePictureNotAvailableYetException profilePictureNotAvailableYetException);

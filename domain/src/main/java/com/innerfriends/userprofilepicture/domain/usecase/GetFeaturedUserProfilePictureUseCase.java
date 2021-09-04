@@ -19,7 +19,7 @@ public class GetFeaturedUserProfilePictureUseCase<R> implements UseCase<R, GetFe
         return Uni.createFrom()
                 .deferred(() -> profilePictureRepository.getLast(command.userPseudo(), command.mediaType()))
                 .onItem()
-                .transform(contentProfilePicture -> responseTransformer.toResponse(contentProfilePicture))
+                .transform(profilePictureIdentifier -> responseTransformer.toResponse(profilePictureIdentifier))
                 .onFailure(ProfilePictureNotAvailableYetException.class)
                 .recoverWithItem(profilePictureNotAvailableYetException -> responseTransformer.toResponse((ProfilePictureNotAvailableYetException) profilePictureNotAvailableYetException))
                 .onFailure(ProfilePictureRepositoryException.class)

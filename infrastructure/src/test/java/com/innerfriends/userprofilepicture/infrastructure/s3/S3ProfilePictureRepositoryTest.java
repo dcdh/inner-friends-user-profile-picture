@@ -129,16 +129,14 @@ public class S3ProfilePictureRepositoryTest {
                 .subscribe().withSubscriber(UniAssertSubscriber.create()).awaitItem().assertCompleted();
 
         // When
-        final Uni<ContentProfilePicture> uni = s3ProfilePictureRepository.getLast(userPseudo, SupportedMediaType.IMAGE_JPEG);
+        final Uni<ProfilePictureIdentifier> uni = s3ProfilePictureRepository.getLast(userPseudo, SupportedMediaType.IMAGE_JPEG);
 
         // Then
-        final UniAssertSubscriber<ContentProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        final ContentProfilePicture contentProfilePicture = subscriber.awaitItem().assertCompleted().getItem();
-        assertThat(contentProfilePicture.userPseudo().pseudo()).isEqualTo("user");
-        assertThat(contentProfilePicture.picture()).isEqualTo("picture".getBytes());
-        assertThat(contentProfilePicture.mediaType()).isEqualTo(SupportedMediaType.IMAGE_JPEG);
-        assertThat(contentProfilePicture.contentLength()).isEqualTo(7l);
-        assertThat(contentProfilePicture.versionId()).isNotNull();
+        final UniAssertSubscriber<ProfilePictureIdentifier> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        final ProfilePictureIdentifier profilePictureIdentifier = subscriber.awaitItem().assertCompleted().getItem();
+        assertThat(profilePictureIdentifier.userPseudo().pseudo()).isEqualTo("user");
+        assertThat(profilePictureIdentifier.mediaType()).isEqualTo(SupportedMediaType.IMAGE_JPEG);
+        assertThat(profilePictureIdentifier.versionId()).isNotNull();
 
         final List<ObjectVersion> objectVersions = s3Client.listObjectVersions(ListObjectVersionsRequest
                 .builder()
@@ -146,7 +144,7 @@ public class S3ProfilePictureRepositoryTest {
                 .prefix("user")
                 .build()).versions();
         final ObjectVersion lastObjectVersion = objectVersions.get(0);
-        assertThat(lastObjectVersion.versionId()).isEqualTo(contentProfilePicture.versionId().version());
+        assertThat(lastObjectVersion.versionId()).isEqualTo(profilePictureIdentifier.versionId().version());
         assertThat(lastObjectVersion.isLatest()).isEqualTo(true);
         verify(s3ObjectKeyProvider, times(3)).objectKey(any(), any());
     }
@@ -159,28 +157,11 @@ public class S3ProfilePictureRepositoryTest {
                 .when(s3ObjectKeyProvider).objectKey(userPseudo, SupportedMediaType.IMAGE_JPEG);
 
         // When
-        final Uni<ContentProfilePicture> uni = s3ProfilePictureRepository.getLast(userPseudo, SupportedMediaType.IMAGE_JPEG);
+        final Uni<ProfilePictureIdentifier> uni = s3ProfilePictureRepository.getLast(userPseudo, SupportedMediaType.IMAGE_JPEG);
 
         // Then
-        final UniAssertSubscriber<ContentProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        final UniAssertSubscriber<ProfilePictureIdentifier> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
         subscriber.awaitFailure().assertFailedWith(ProfilePictureNotAvailableYetException.class);
-        verify(s3ObjectKeyProvider, times(1)).objectKey(any(), any());
-    }
-
-    @Test
-    public void should_get_last_return_profile_picture_repository_exception_when_object_key_value_is_invalid() {
-        // Given
-        final UserPseudo userPseudo = () -> "user";
-        final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
-        doReturn((ObjectKey) () -> null)
-                .when(s3ObjectKeyProvider).objectKey(userPseudo, supportedMediaType);
-
-        // When
-        final Uni<ContentProfilePicture> uni = s3ProfilePictureRepository.getLast(userPseudo, supportedMediaType);
-
-        // Then
-        final UniAssertSubscriber<ContentProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        subscriber.awaitFailure().assertFailedWith(ProfilePictureRepositoryException.class);
         verify(s3ObjectKeyProvider, times(1)).objectKey(any(), any());
     }
 

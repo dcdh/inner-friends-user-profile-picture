@@ -81,10 +81,10 @@ public class UserProfilePictureEndpointTest {
                 .then()
                 .log().headers()
                 .statusCode(200)
-                .header("Content-Disposition", "attachment;filename=pseudo.jpeg")
-                .header("Content-Type","image/jpeg")
-                .header("Content-Length","7")
-                .header("versionId","v0");
+                .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("expected/profilePictureIdentifier.json"))
+                .body("userPseudo", equalTo("pseudo"))
+                .body("mediaType", equalTo("IMAGE_JPEG"))
+                .body("versionId", equalTo("v0"));
         verify(profilePictureRepository, times(1)).getLast(any(), any());
     }
 
