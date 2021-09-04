@@ -47,13 +47,11 @@ public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
 
     @Override
     public Response toResponse(final ProfilePictureRepositoryException profilePictureRepositoryException) {
-        profilePictureRepositoryException.printStackTrace();
         return Response.serverError().build();
     }
 
     @Override
     public Response toResponse(final Throwable throwable) {
-        throwable.printStackTrace();
         return Response.serverError().build();
     }
 

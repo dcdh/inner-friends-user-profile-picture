@@ -8,6 +8,7 @@ import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
@@ -25,6 +26,8 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
     private final String bucketUserProfilePictureName;
     private final S3ObjectKeyProvider s3ObjectKeyProvider;
     private final Tracer tracer;
+
+    private static final Logger LOG = Logger.getLogger(S3ProfilePictureRepository.class);
 
     public S3ProfilePictureRepository(final S3AsyncClient s3AsyncClient,
                                       @ConfigProperty(name = "bucket.user.profile.picture.name") final String bucketUserProfilePictureName,
@@ -55,6 +58,7 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                             .handle((putObjectResponse, completionException) -> {
                                 try {
                                     if (completionException != null) {
+                                        LOG.error(completionException.getCause());
                                         span.setStatus(StatusCode.ERROR);
                                         throw new ProfilePictureRepositoryException();
                                     } else {
@@ -83,12 +87,12 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                             .handle((getObjectResponse, completionException) -> {
                                 try {
                                     if (completionException != null) {
+                                        LOG.error(completionException.getCause());
                                         span.setStatus(StatusCode.ERROR);
                                         final Throwable cause = completionException.getCause();
                                         if (cause instanceof NoSuchKeyException) {
                                             throw new ProfilePictureNotAvailableYetException(userPseudo);
                                         } else {
-                                            completionException.printStackTrace();
                                             throw new ProfilePictureRepositoryException();
                                         }
                                     } else {
@@ -119,8 +123,8 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                             .handle((listObjectVersionsResponse, completionException) -> {
                                 try {
                                     if (completionException != null) {
+                                        LOG.error(completionException.getCause());
                                         span.setStatus(StatusCode.ERROR);
-                                        completionException.printStackTrace();
                                         throw new ProfilePictureRepositoryException();
                                     } else {
                                         return listObjectVersionsResponse
@@ -153,6 +157,7 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                             .handle((getObjectResponse, completionException) -> {
                                 try {
                                     if (completionException != null) {
+                                        LOG.error(completionException.getCause());
                                         span.setStatus(StatusCode.ERROR);
                                         final Throwable cause = completionException.getCause();
                                         if (cause.getMessage().startsWith("Invalid version id specified")) {
@@ -160,7 +165,6 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                                         } else if (cause instanceof NoSuchKeyException) {
                                             throw new ProfilePictureVersionUnknownException(profilePictureIdentifier);
                                         } else {
-                                            completionException.printStackTrace();
                                             throw new ProfilePictureRepositoryException();
                                         }
                                     } else {
