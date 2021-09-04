@@ -5,7 +5,7 @@ import com.innerfriends.userprofilepicture.domain.UserPseudo;
 
 import java.util.Objects;
 
-public final class S3ObjectKey {
+public final class S3ObjectKey implements ObjectKey {
 
     private final UserPseudo userPseudo;
     private final SupportedMediaType supportedMediaType;
@@ -15,7 +15,8 @@ public final class S3ObjectKey {
         this.supportedMediaType = Objects.requireNonNull(supportedMediaType);
     }
 
-    public String objectKey() {
+    @Override
+    public String value() {
         return this.userPseudo.pseudo() + this.supportedMediaType.extension();
     }
 

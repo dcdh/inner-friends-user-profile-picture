@@ -37,7 +37,7 @@ public class S3ObjectKeyTest {
         doReturn(".jpeg").when(givenSupportedMediaType).extension();
 
         // When && Then
-        assertThat(new S3ObjectKey(givenUserPseudo, givenSupportedMediaType).objectKey())
+        assertThat(new S3ObjectKey(givenUserPseudo, givenSupportedMediaType).value())
                 .isEqualTo("pseudo.jpeg");
         verify(givenUserPseudo, times(1)).pseudo();
         verify(givenSupportedMediaType, times(1)).extension();

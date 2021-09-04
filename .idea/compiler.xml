@@ -6,9 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="domain" />
-        <module name="user-profile-picture-domain" />
         <module name="infrastructure" />
+        <module name="user-profile-picture-domain" />
+        <module name="domain" />
       </profile>
     </annotationProcessing>
   </component>

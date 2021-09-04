@@ -1,28 +1,29 @@
 package com.innerfriends.userprofilepicture.infrastructure.s3;
 
-import com.innerfriends.userprofilepicture.domain.ProfilePicture;
+import com.innerfriends.userprofilepicture.domain.ContentProfilePicture;
 import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
 import com.innerfriends.userprofilepicture.domain.UserPseudo;
+import com.innerfriends.userprofilepicture.domain.VersionId;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 import java.util.Arrays;
 import java.util.Objects;
 
-public final class S3ProfilePicture implements ProfilePicture {
+public final class S3ContentProfilePicture implements ContentProfilePicture {
 
     private final UserPseudo userPseudo;
     private final byte[] picture;
     private final SupportedMediaType mediaType;
     private final Long contentLength;
-    private final String versionId;
+    private final VersionId versionId;
 
-    public S3ProfilePicture(final UserPseudo userPseudo, final ResponseBytes<GetObjectResponse> getObjectResponse) {
+    public S3ContentProfilePicture(final UserPseudo userPseudo, final ResponseBytes<GetObjectResponse> getObjectResponse) {
         this.userPseudo = Objects.requireNonNull(userPseudo);
         this.picture = getObjectResponse.asByteArray();
         this.mediaType = SupportedMediaType.fromContentType(getObjectResponse.response().contentType());
         this.contentLength = getObjectResponse.response().contentLength();
-        this.versionId = getObjectResponse.response().versionId();
+        this.versionId = new S3VersionId(getObjectResponse.response().versionId());
     }
 
     @Override
@@ -46,15 +47,15 @@ public final class S3ProfilePicture implements ProfilePicture {
     }
 
     @Override
-    public String versionId() {
+    public VersionId versionId() {
         return versionId;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof S3ProfilePicture)) return false;
-        S3ProfilePicture that = (S3ProfilePicture) o;
+        if (!(o instanceof S3ContentProfilePicture)) return false;
+        S3ContentProfilePicture that = (S3ContentProfilePicture) o;
         return Objects.equals(userPseudo, that.userPseudo) &&
                 Arrays.equals(picture, that.picture) &&
                 mediaType == that.mediaType &&

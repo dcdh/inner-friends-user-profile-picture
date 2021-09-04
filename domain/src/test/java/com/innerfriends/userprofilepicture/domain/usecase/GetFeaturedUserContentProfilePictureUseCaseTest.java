@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class GetFeaturedUserProfilePictureUseCaseTest {
+public class GetFeaturedUserContentProfilePictureUseCaseTest {
 
     @Test
     public void should_get_featured_user_profile_picture() {
@@ -18,10 +18,10 @@ public class GetFeaturedUserProfilePictureUseCaseTest {
         final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final UserPseudo userPseudo = mock(UserPseudo.class);
         final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
-        final ProfilePicture profilePicture = mock(ProfilePicture.class);
-        doReturn(Uni.createFrom().item(profilePicture)).when(profilePictureRepository).getLast(userPseudo, supportedMediaType);
+        final ContentProfilePicture contentProfilePicture = mock(ContentProfilePicture.class);
+        doReturn(Uni.createFrom().item(contentProfilePicture)).when(profilePictureRepository).getLast(userPseudo, supportedMediaType);
         final Response response = mock(Response.class);
-        doReturn(response).when(testResponseTransformer).toResponse(profilePicture);
+        doReturn(response).when(testResponseTransformer).toResponse(contentProfilePicture);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getFeaturedUserProfilePictureUseCase.execute(
@@ -32,7 +32,7 @@ public class GetFeaturedUserProfilePictureUseCaseTest {
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(profilePictureRepository, times(1)).getLast(any(), any());
-        verify(testResponseTransformer).toResponse(any(ProfilePicture.class));
+        verify(testResponseTransformer).toResponse(any(ContentProfilePicture.class));
         verifyNoMoreInteractions(testResponseTransformer);
     }
 

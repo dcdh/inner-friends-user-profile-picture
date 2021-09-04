@@ -11,22 +11,22 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-public class S3ProfilePictureTest {
+public class S3ContentProfilePictureTest {
 
     @Test
     public void should_verify_equality() {
-        EqualsVerifier.forClass(S3ProfilePicture.class).verify();
+        EqualsVerifier.forClass(S3ContentProfilePicture.class).verify();
     }
 
     @Test
     public void should_fail_fast_when_user_pseudo_is_null() {
-        assertThatThrownBy(() -> new S3ProfilePicture(null, mock(ResponseBytes.class)))
+        assertThatThrownBy(() -> new S3ContentProfilePicture(null, mock(ResponseBytes.class)))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     public void should_fail_fast_when_get_object_response_is_null() {
-        assertThatThrownBy(() -> new S3ProfilePicture(mock(UserPseudo.class), null))
+        assertThatThrownBy(() -> new S3ContentProfilePicture(mock(UserPseudo.class), null))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -38,12 +38,14 @@ public class S3ProfilePictureTest {
         final GetObjectResponse givenGetObjectResponse = mock(GetObjectResponse.class);
         doReturn(givenGetObjectResponse).when(givenResponseBytes).response();
         doReturn("image/jpeg").when(givenGetObjectResponse).contentType();
+        doReturn("v0").when(givenGetObjectResponse).versionId();
 
         // When && Then
-        assertThat(new S3ProfilePicture(givenUserPseudo, givenResponseBytes).userPseudo())
+        assertThat(new S3ContentProfilePicture(givenUserPseudo, givenResponseBytes).userPseudo())
                 .isEqualTo(givenUserPseudo);
         verify(givenResponseBytes.response(), times(1)).contentType();
         verify(givenGetObjectResponse, times(1)).contentType();
+        verify(givenGetObjectResponse, times(1)).versionId();
     }
 
     @Test
@@ -55,13 +57,15 @@ public class S3ProfilePictureTest {
         doReturn(givenGetObjectResponse).when(givenResponseBytes).response();
         doReturn("image/jpeg").when(givenGetObjectResponse).contentType();
         doReturn("picture".getBytes()).when(givenResponseBytes).asByteArray();
+        doReturn("v0").when(givenGetObjectResponse).versionId();
 
         // When && Then
-        assertThat(new S3ProfilePicture(givenUserPseudo, givenResponseBytes).picture())
+        assertThat(new S3ContentProfilePicture(givenUserPseudo, givenResponseBytes).picture())
                 .isEqualTo("picture".getBytes());
         verify(givenResponseBytes.response(), times(1)).contentType();
         verify(givenGetObjectResponse, times(1)).contentType();
         verify(givenResponseBytes, times(1)).asByteArray();
+        verify(givenGetObjectResponse, times(1)).versionId();
     }
 
     @Test
@@ -72,12 +76,14 @@ public class S3ProfilePictureTest {
         final GetObjectResponse givenGetObjectResponse = mock(GetObjectResponse.class);
         doReturn(givenGetObjectResponse).when(givenResponseBytes).response();
         doReturn("image/jpeg").when(givenGetObjectResponse).contentType();
+        doReturn("v0").when(givenGetObjectResponse).versionId();
 
         // When && Then
-        assertThat(new S3ProfilePicture(givenUserPseudo, givenResponseBytes).mediaType())
+        assertThat(new S3ContentProfilePicture(givenUserPseudo, givenResponseBytes).mediaType())
                 .isEqualTo(SupportedMediaType.IMAGE_JPEG);
         verify(givenResponseBytes.response(), times(1)).contentType();
         verify(givenGetObjectResponse, times(1)).contentType();
+        verify(givenGetObjectResponse, times(1)).versionId();
     }
 
     @Test
@@ -89,13 +95,15 @@ public class S3ProfilePictureTest {
         doReturn(givenGetObjectResponse).when(givenResponseBytes).response();
         doReturn("image/jpeg").when(givenGetObjectResponse).contentType();
         doReturn(1L).when(givenGetObjectResponse).contentLength();
+        doReturn("v0").when(givenGetObjectResponse).versionId();
 
         // When && Then
-        assertThat(new S3ProfilePicture(givenUserPseudo, givenResponseBytes).contentLength())
+        assertThat(new S3ContentProfilePicture(givenUserPseudo, givenResponseBytes).contentLength())
                 .isEqualTo(1L);
         verify(givenResponseBytes.response(), times(1)).contentType();
         verify(givenGetObjectResponse, times(1)).contentType();
         verify(givenGetObjectResponse, times(1)).contentLength();
+        verify(givenGetObjectResponse, times(1)).versionId();
     }
 
     @Test
@@ -109,8 +117,8 @@ public class S3ProfilePictureTest {
         doReturn("v0").when(givenGetObjectResponse).versionId();
 
         // When && Then
-        assertThat(new S3ProfilePicture(givenUserPseudo, givenResponseBytes).versionId())
-                .isEqualTo("v0");
+        assertThat(new S3ContentProfilePicture(givenUserPseudo, givenResponseBytes).versionId())
+                .isEqualTo(new S3VersionId("v0"));
         verify(givenResponseBytes.response(), times(1)).contentType();
         verify(givenGetObjectResponse, times(1)).contentType();
         verify(givenGetObjectResponse, times(1)).versionId();

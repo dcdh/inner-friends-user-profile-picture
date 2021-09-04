@@ -16,13 +16,19 @@ public class UserProfilePictureEndpoint {
 
     private final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase;
     private final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase;
+    private final ListUserProfilPicturesUseCase<Response> listUserProfilPicturesUseCase;
+    private final GetUserProfilePictureByVersionUseCase<Response> getUserProfilePictureByVersionUseCase;
 
     private final ResponseTransformer<Response> jaxRsResponseTransformer;
 
     public UserProfilePictureEndpoint(final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase,
-                                      final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase) {
+                                      final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase,
+                                      final ListUserProfilPicturesUseCase<Response> listUserProfilPicturesUseCase,
+                                      final GetUserProfilePictureByVersionUseCase<Response> getUserProfilePictureByVersionUseCase) {
         this.saveUserProfilePictureUseCase = Objects.requireNonNull(saveUserProfilePictureUseCase);
         this.getFeaturedUserProfilePictureUseCase = Objects.requireNonNull(getFeaturedUserProfilePictureUseCase);
+        this.listUserProfilPicturesUseCase = Objects.requireNonNull(listUserProfilPicturesUseCase);
+        this.getUserProfilePictureByVersionUseCase = Objects.requireNonNull(getUserProfilePictureByVersionUseCase);
         this.jaxRsResponseTransformer = new JaxRsResponseTransformer();
     }
 
@@ -44,6 +50,31 @@ public class UserProfilePictureEndpoint {
         return getFeaturedUserProfilePictureUseCase.execute(new GetFeaturedUserProfilePictureCommand(new JaxRsUserPseudo(userPseudo),
                         SupportedMediaType.fromContentType(
                                 new ImageContentType(contentType).imageContentType())),
+                jaxRsResponseTransformer);
+    }
+
+    @GET
+    @Path("/{userPseudo}")
+    public Uni<Response> listUserProfilePictures(@PathParam("userPseudo") final String userPseudo,
+                                                 @DefaultValue("image/jpeg; charset=ISO-8859-1") @HeaderParam("Content-Type") final String contentType) {
+        return listUserProfilPicturesUseCase.execute(new ListUserProfilPicturesCommand(
+                        new JaxRsUserPseudo(userPseudo),
+                        SupportedMediaType.fromContentType(
+                                new ImageContentType(contentType).imageContentType())),
+                jaxRsResponseTransformer);
+    }
+
+    @GET
+    @Consumes("image/*")
+    @Path("/{userPseudo}/version/{versionId}")
+    public Uni<Response> downloadUserProfilePictureByVersion(@PathParam("userPseudo") final String userPseudo,
+                                                             @PathParam("versionId") final String versionId,
+                                                             @DefaultValue("image/jpeg; charset=ISO-8859-1") @HeaderParam("Content-Type") final String contentType) {
+        return getUserProfilePictureByVersionUseCase.execute(new GetUserProfilePictureByVersionCommand(
+                new JaxRsUserPseudo(userPseudo),
+                        SupportedMediaType.fromContentType(
+                                new ImageContentType(contentType).imageContentType()),
+                        new JaxRsVersionId(versionId)),
                 jaxRsResponseTransformer);
     }
 

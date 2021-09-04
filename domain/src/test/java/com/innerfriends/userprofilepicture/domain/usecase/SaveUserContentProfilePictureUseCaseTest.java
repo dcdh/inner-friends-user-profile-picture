@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
-public class SaveUserProfilePictureUseCaseTest {
+public class SaveUserContentProfilePictureUseCaseTest {
 
     @Test
     public void should_save_user_profile_picture() {

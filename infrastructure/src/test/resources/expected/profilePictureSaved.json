@@ -8,11 +8,13 @@
   "examples": [
     {
       "userPseudo": "pseudo",
+      "mediaType": "IMAGE_JPEG",
       "versionId": "v0"
     }
   ],
   "required": [
     "userPseudo",
+    "mediaType",
     "versionId"
   ],
   "properties": {
@@ -24,6 +26,16 @@
       "default": "",
       "examples": [
         "pseudo"
+      ]
+    },
+    "mediaType": {
+      "$id": "#/properties/mediaType",
+      "type": "string",
+      "title": "The mediaType schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "IMAGE_JPEG"
       ]
     },
     "versionId": {

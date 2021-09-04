@@ -238,6 +238,80 @@ public class E2ETest {
         assertThat(objectVersions.isEmpty()).isTrue();
     }
 
+    @Test
+    @Order(3)
+    public void should_list_user_profile_pictures() {
+        given()
+                .header("Content-Type", "image/jpeg")
+                .when()
+                .get("/users/pseudoE2E")
+                .then()
+                .statusCode(200);
+
+        final Integer hostPort = OpenTelemetryLifecycleManager.jaegerTracingAllInOneContainer.getMappedPort(16686);
+        await().atMost(15, TimeUnit.SECONDS)
+                .pollInterval(Duration.ofSeconds(1l))
+                .until(() -> {
+                    final Traces traces = given()
+                            .when()
+                            .queryParam("limit", "1")
+                            .queryParam("service", "user-profile-picture")
+                            .queryParam("tags", "{\"http.target\":\"/users/pseudoE2E\"}")
+                            .get(new URL(String.format("http://localhost:%d/api/traces", hostPort)))
+                            .then()
+                            .log().all()
+                            .contentType(ContentType.JSON)
+                            .extract()
+                            .body().as(Traces.class);
+                    if (traces.getOperationNames().isEmpty()) {
+                        return false;
+                    }
+                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}", "S3ProfilePictureRepository.listByUserPseudo"))
+                            && traces.getHttpStatus().containsAll(List.of(200))
+                            && traces.getOperationNamesInError().isEmpty();
+                });
+    }
+
+    @Test
+    @Order(4)
+    public void should_download_user_profile_picture_by_version_id() {
+        final String versionId = s3Client.listObjectVersions(ListObjectVersionsRequest
+                .builder()
+                .bucket(bucketUserProfilePictureName)
+                .prefix("pseudoE2E.jpeg")
+                .build()).versions().stream().map(ObjectVersion::versionId)
+                .findFirst().get();
+        given()
+                .header("Content-Type", "image/jpeg")
+                .when()
+                .get("/users/pseudoE2E/version/{versionId}", versionId)
+                .then()
+                .statusCode(200);
+
+        final Integer hostPort = OpenTelemetryLifecycleManager.jaegerTracingAllInOneContainer.getMappedPort(16686);
+        await().atMost(15, TimeUnit.SECONDS)
+                .pollInterval(Duration.ofSeconds(1l))
+                .until(() -> {
+                    final Traces traces = given()
+                            .when()
+                            .queryParam("limit", "1")
+                            .queryParam("service", "user-profile-picture")
+                            .queryParam("tags", String.format("{\"http.target\":\"/users/pseudoE2E/version/%s\"}", versionId))
+                            .get(new URL(String.format("http://localhost:%d/api/traces", hostPort)))
+                            .then()
+                            .log().all()
+                            .contentType(ContentType.JSON)
+                            .extract()
+                            .body().as(Traces.class);
+                    if (traces.getOperationNames().isEmpty()) {
+                        return false;
+                    }
+                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}/version/{versionId}", "S3ProfilePictureRepository.getContentByVersion"))
+                            && traces.getHttpStatus().containsAll(List.of(200))
+                            && traces.getOperationNamesInError().isEmpty();
+                });
+    }
+
     private File getFileFromResource(final String fileName) throws Exception {
         final ClassLoader classLoader = getClass().getClassLoader();
         final URL resource = classLoader.getResource(fileName);

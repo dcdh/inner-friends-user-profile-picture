@@ -1,15 +1,11 @@
 package com.innerfriends.userprofilepicture.domain;
 
-public interface ProfilePicture {
+public interface ProfilePictureIdentifier {
 
     UserPseudo userPseudo();
 
-    byte[] picture();
-
     SupportedMediaType mediaType();
 
-    Long contentLength();
-
-    String versionId();
+    VersionId versionId();
 
 }

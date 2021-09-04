@@ -1,9 +1,5 @@
 package com.innerfriends.userprofilepicture.domain;
 
-public interface ProfilePictureSaved {
-
-    UserPseudo userPseudo();
-
-    String versionId();
+public interface ProfilePictureSaved extends ProfilePictureIdentifier {
 
 }

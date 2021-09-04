@@ -1,20 +1,20 @@
 package com.innerfriends.userprofilepicture.infrastructure.interfaces;
 
-import com.innerfriends.userprofilepicture.domain.ProfilePictureSaved;
+import com.innerfriends.userprofilepicture.domain.ProfilePictureIdentifier;
 import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
-public class ProfilePictureSavedDTO {
+public class ProfilePictureIdentifierDTO {
 
     private final String userPseudo;
     private final SupportedMediaType mediaType;
     private final String versionId;
 
-    public ProfilePictureSavedDTO(final ProfilePictureSaved profilePictureSaved) {
-        this.userPseudo = profilePictureSaved.userPseudo().pseudo();
-        this.mediaType = profilePictureSaved.mediaType();
-        this.versionId = profilePictureSaved.versionId().version();
+    public ProfilePictureIdentifierDTO(final ProfilePictureIdentifier profilePictureIdentifier) {
+        this.userPseudo = profilePictureIdentifier.userPseudo().pseudo();
+        this.mediaType = profilePictureIdentifier.mediaType();
+        this.versionId = profilePictureIdentifier.versionId().version();
     }
 
     public String getUserPseudo() {

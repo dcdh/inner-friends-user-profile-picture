@@ -9,7 +9,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
-public class SaveUserProfilePictureCommandTest {
+public class SaveUserContentProfilePictureCommandTest {
 
     @Test
     public void should_verify_equality() {
