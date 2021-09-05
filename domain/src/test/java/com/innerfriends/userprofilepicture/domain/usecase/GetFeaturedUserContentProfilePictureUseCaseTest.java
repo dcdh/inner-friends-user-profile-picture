@@ -3,6 +3,7 @@ package com.innerfriends.userprofilepicture.domain.usecase;
 import com.innerfriends.userprofilepicture.domain.*;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -10,12 +11,20 @@ import static org.mockito.Mockito.*;
 
 public class GetFeaturedUserContentProfilePictureUseCaseTest {
 
+    private ProfilePictureRepository profilePictureRepository;
+    private GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase;
+    private TestResponseTransformer testResponseTransformer;
+
+    @BeforeEach
+    public void setup() {
+        profilePictureRepository = mock(ProfilePictureRepository.class);
+        getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
+        testResponseTransformer = mock(TestResponseTransformer.class);
+    }
+
     @Test
     public void should_get_featured_user_profile_picture() {
         // Given
-        final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
-        final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
-        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final UserPseudo userPseudo = mock(UserPseudo.class);
         final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
         final ProfilePictureIdentifier profilePictureIdentifier = mock(ProfilePictureIdentifier.class);
@@ -39,9 +48,6 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
     @Test
     public void should_handle_profile_picture_not_available_yet_exception() {
         // Given
-        final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
-        final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
-        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final ProfilePictureNotAvailableYetException profilePictureNotAvailableYetException = mock(ProfilePictureNotAvailableYetException.class);
         doReturn(Uni.createFrom().failure(profilePictureNotAvailableYetException)).when(profilePictureRepository).getLast(any(), any());
         final Response response = mock(Response.class);
@@ -63,9 +69,6 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
     @Test
     public void should_handle_profile_picture_repository_exception() {
         // Given
-        final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
-        final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
-        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final ProfilePictureRepositoryException profilePictureRepositoryException = mock(ProfilePictureRepositoryException.class);
         doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(profilePictureRepository).getLast(any(), any());
         final Response response = mock(Response.class);
@@ -87,9 +90,6 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
     @Test
     public void should_handle_runtime_exception() {
         // Given
-        final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
-        final GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
-        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final RuntimeException runtimeException = new RuntimeException();
         doReturn(Uni.createFrom().failure(runtimeException)).when(profilePictureRepository).getLast(any(), any());
         final Response response = mock(Response.class);

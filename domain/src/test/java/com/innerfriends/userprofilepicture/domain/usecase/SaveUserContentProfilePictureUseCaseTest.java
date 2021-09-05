@@ -3,18 +3,27 @@ package com.innerfriends.userprofilepicture.domain.usecase;
 import com.innerfriends.userprofilepicture.domain.*;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
 public class SaveUserContentProfilePictureUseCaseTest {
 
+    private ProfilePictureRepository profilePictureRepository;
+    private SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase;
+    private TestResponseTransformer testResponseTransformer;
+
+    @BeforeEach
+    public void setup() {
+        profilePictureRepository = mock(ProfilePictureRepository.class);
+        saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(profilePictureRepository);
+        testResponseTransformer = mock(TestResponseTransformer.class);
+    }
+
     @Test
     public void should_save_user_profile_picture() {
         // Given
-        final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
-        final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(profilePictureRepository);
-        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final UserPseudo userPseudo = mock(UserPseudo.class);
         final ProfilePictureSaved profilePictureSaved = mock(ProfilePictureSaved.class);
         doReturn(Uni.createFrom().item(profilePictureSaved)).when(profilePictureRepository).save(userPseudo, "content".getBytes(), SupportedMediaType.IMAGE_JPEG);
@@ -37,9 +46,6 @@ public class SaveUserContentProfilePictureUseCaseTest {
     @Test
     public void should_handle_profile_picture_repository_exception() {
         // Given
-        final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
-        final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(profilePictureRepository);
-        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final ProfilePictureRepositoryException profilePictureRepositoryException = mock(ProfilePictureRepositoryException.class);
         doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(profilePictureRepository).save(any(), any(), any());
         final Response response = mock(Response.class);
@@ -61,9 +67,6 @@ public class SaveUserContentProfilePictureUseCaseTest {
     @Test
     public void should_handle_runtime_exception() {
         // Given
-        final ProfilePictureRepository profilePictureRepository = mock(ProfilePictureRepository.class);
-        final SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(profilePictureRepository);
-        final TestResponseTransformer testResponseTransformer = mock(TestResponseTransformer.class);
         final RuntimeException runtimeException = new RuntimeException();
         doReturn(Uni.createFrom().failure(runtimeException)).when(profilePictureRepository).save(any(), any(), any());
         final Response response = mock(Response.class);
