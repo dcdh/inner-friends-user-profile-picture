@@ -5,7 +5,6 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.context.Context;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -49,9 +48,7 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                                          final SupportedMediaType mediaType) throws ProfilePictureRepositoryException {
         return Uni.createFrom()
                 .completionStage(() -> {
-                    final Span parentSpan = Objects.requireNonNull(Span.current());
                     final SpanBuilder spanBuilder = tracer.spanBuilder("S3ProfilePictureRepository.save");
-                    spanBuilder.setParent(Context.current().with(parentSpan));
                     final Span span = spanBuilder.startSpan();
                     final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                             .bucket(bucketUserProfilePictureName)
@@ -80,9 +77,7 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
             throws ProfilePictureNotAvailableYetException, ProfilePictureRepositoryException {
         return Uni.createFrom()
                 .completionStage(() -> {
-                    final Span parentSpan = Objects.requireNonNull(Span.current());
                     final SpanBuilder spanBuilder = tracer.spanBuilder("S3ProfilePictureRepository.getLast");
-                    spanBuilder.setParent(Context.current().with(parentSpan));
                     final Span span = spanBuilder.startSpan();
                     final ListObjectVersionsRequest listObjectVersionsRequest = ListObjectVersionsRequest.builder()
                             .bucket(bucketUserProfilePictureName)
@@ -118,9 +113,7 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
             throws ProfilePictureRepositoryException {
         return Uni.createFrom()
                 .completionStage(() -> {
-                    final Span parentSpan = Objects.requireNonNull(Span.current());
                     final SpanBuilder spanBuilder = tracer.spanBuilder("S3ProfilePictureRepository.listByUserPseudo");
-                    spanBuilder.setParent(Context.current().with(parentSpan));
                     final Span span = spanBuilder.startSpan();
                     final ListObjectVersionsRequest listObjectVersionsRequest = ListObjectVersionsRequest.builder()
                             .bucket(bucketUserProfilePictureName)
@@ -150,11 +143,10 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
     @Override
     public Uni<ContentProfilePicture> getContentByVersionId(final ProfilePictureIdentifier profilePictureIdentifier)
             throws ProfilePictureVersionUnknownException, ProfilePictureRepositoryException {
+
         return Uni.createFrom()
                 .completionStage(() -> {
-                    final Span parentSpan = Objects.requireNonNull(Span.current());
                     final SpanBuilder spanBuilder = tracer.spanBuilder("S3ProfilePictureRepository.getContentByVersion");
-                    spanBuilder.setParent(Context.current().with(parentSpan));
                     final Span span = spanBuilder.startSpan();
                     final GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketUserProfilePictureName)
                             .key(s3ObjectKeyProvider.objectKey(profilePictureIdentifier.userPseudo(), profilePictureIdentifier.mediaType()).value())
