@@ -176,11 +176,11 @@ public class S3ProfilePictureRepositoryTest {
                 .getItem();
 
         // When
-        final Uni<List<ProfilePictureIdentifier>> uni = s3ProfilePictureRepository.listByUserPseudo(userPseudo, SupportedMediaType.IMAGE_JPEG);
+        final Uni<List<? extends ProfilePictureIdentifier>> uni = s3ProfilePictureRepository.listByUserPseudo(userPseudo, SupportedMediaType.IMAGE_JPEG);
 
         // Then
-        final UniAssertSubscriber<List<ProfilePictureIdentifier>> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        final List<ProfilePictureIdentifier> profilePictureIdentifiers = subscriber.awaitItem().assertCompleted().getItem();
+        final UniAssertSubscriber<List<? extends ProfilePictureIdentifier>> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        final List<? extends ProfilePictureIdentifier> profilePictureIdentifiers = subscriber.awaitItem().assertCompleted().getItem();
         assertThat(profilePictureIdentifiers.size()).isEqualTo(1);
         assertThat(profilePictureIdentifiers.get(0).userPseudo().pseudo()).isEqualTo("user");
         assertThat(profilePictureIdentifiers.get(0).mediaType()).isEqualTo(SupportedMediaType.IMAGE_JPEG);

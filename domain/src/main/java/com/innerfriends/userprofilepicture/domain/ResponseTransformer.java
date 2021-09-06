@@ -10,7 +10,7 @@ public interface ResponseTransformer<R> {
 
     R toResponse(ProfilePictureIdentifier profilePictureIdentifiers);
 
-    R toResponse(List<ProfilePictureIdentifier> profilePictureIdentifiers);
+    R toResponse(List<? extends ProfilePictureIdentifier> profilePictureIdentifiers);
 
     R toResponse(ProfilePictureNotAvailableYetException profilePictureNotAvailableYetException);
 

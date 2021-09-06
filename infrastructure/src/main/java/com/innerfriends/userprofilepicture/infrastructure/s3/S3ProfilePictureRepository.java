@@ -10,11 +10,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
+import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectVersionsRequest;
-import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
@@ -47,7 +45,7 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                                          final byte[] picture,
                                          final SupportedMediaType mediaType) throws ProfilePictureRepositoryException {
         return Uni.createFrom()
-                .completionStage(() -> {
+                .deferred(() -> {
                     final SpanBuilder spanBuilder = tracer.spanBuilder("S3ProfilePictureRepository.save");
                     final Span span = spanBuilder.startSpan();
                     final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -55,19 +53,18 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                             .key(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
                             .contentType(mediaType.contentType())
                             .build();
-                    return this.s3AsyncClient.putObject(putObjectRequest, AsyncRequestBody.fromBytes(picture))
-                            .handle((putObjectResponse, completionException) -> {
-                                try {
-                                    if (completionException != null) {
-                                        LOG.error(completionException.getCause());
-                                        span.setStatus(StatusCode.ERROR);
-                                        throw new ProfilePictureRepositoryException();
-                                    } else {
-                                        return new S3ProfilePictureSaved(userPseudo, mediaType, putObjectResponse);
-                                    }
-                                } finally {
-                                    span.end();
-                                }
+                    return Uni.createFrom()
+                            .completionStage(() -> s3AsyncClient.putObject(putObjectRequest, AsyncRequestBody.fromBytes(picture)))
+                            .map(putObjectResponse -> {
+                                span.end();
+                                return new S3ProfilePictureSaved(userPseudo, mediaType, putObjectResponse);
+                            })
+                            .onFailure(SdkException.class)
+                            .transform(exception -> {
+                                LOG.error(exception);
+                                span.setStatus(StatusCode.ERROR);
+                                span.end();
+                                return new ProfilePictureRepositoryException();
                             });
                 });
     }
@@ -76,66 +73,63 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
     public Uni<ProfilePictureIdentifier> getLast(final UserPseudo userPseudo, final SupportedMediaType mediaType)
             throws ProfilePictureNotAvailableYetException, ProfilePictureRepositoryException {
         return Uni.createFrom()
-                .completionStage(() -> {
+                .deferred(() -> {
                     final SpanBuilder spanBuilder = tracer.spanBuilder("S3ProfilePictureRepository.getLast");
                     final Span span = spanBuilder.startSpan();
                     final ListObjectVersionsRequest listObjectVersionsRequest = ListObjectVersionsRequest.builder()
                             .bucket(bucketUserProfilePictureName)
                             .prefix(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
                             .build();
-                    return s3AsyncClient.listObjectVersions(listObjectVersionsRequest)
-                            .handle((listObjectVersionsResponse, completionException) -> {
-                                try {
-                                    if (completionException != null) {
-                                        LOG.error(completionException.getCause());
-                                        span.setStatus(StatusCode.ERROR);
-                                        throw new ProfilePictureRepositoryException();
-                                    } else {
-                                        final Optional<ProfilePictureIdentifier> profilePictureIdentifier = listObjectVersionsResponse.versions()
-                                                .stream()
-                                                .findFirst()
-                                                .map(objectVersion -> new S3ProfilePictureIdentifier(userPseudo, mediaType, objectVersion));
-                                        if (!profilePictureIdentifier.isPresent()) {
-                                            throw new ProfilePictureNotAvailableYetException(userPseudo);
-                                        }
-                                        return profilePictureIdentifier.get();
-                                    }
-                                } finally {
-                                    span.end();
+                    return Uni.createFrom()
+                            .completionStage(() -> s3AsyncClient.listObjectVersions(listObjectVersionsRequest))
+                            .map(listObjectVersionsResponse -> {
+                                span.end();
+                                final Optional<ProfilePictureIdentifier> profilePictureIdentifier = listObjectVersionsResponse.versions()
+                                        .stream()
+                                        .findFirst()
+                                        .map(objectVersion -> new S3ProfilePictureIdentifier(userPseudo, mediaType, objectVersion));
+                                if (!profilePictureIdentifier.isPresent()) {
+                                    throw new ProfilePictureNotAvailableYetException(userPseudo);
                                 }
+                                return profilePictureIdentifier.get();
+                            })
+                            .onFailure(SdkException.class)
+                            .transform(exception -> {
+                                LOG.error(exception);
+                                span.setStatus(StatusCode.ERROR);
+                                span.end();
+                                return new ProfilePictureRepositoryException();
                             });
                 });
     }
 
     @Override
-    public Uni<List<ProfilePictureIdentifier>> listByUserPseudo(final UserPseudo userPseudo,
+    public Uni<List<? extends ProfilePictureIdentifier>> listByUserPseudo(final UserPseudo userPseudo,
                                                                 final SupportedMediaType mediaType)
             throws ProfilePictureRepositoryException {
         return Uni.createFrom()
-                .completionStage(() -> {
+                .deferred(() -> {
                     final SpanBuilder spanBuilder = tracer.spanBuilder("S3ProfilePictureRepository.listByUserPseudo");
                     final Span span = spanBuilder.startSpan();
                     final ListObjectVersionsRequest listObjectVersionsRequest = ListObjectVersionsRequest.builder()
                             .bucket(bucketUserProfilePictureName)
                             .prefix(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
                             .build();
-                    return s3AsyncClient.listObjectVersions(listObjectVersionsRequest)
-                            .handle((listObjectVersionsResponse, completionException) -> {
-                                try {
-                                    if (completionException != null) {
-                                        LOG.error(completionException.getCause());
-                                        span.setStatus(StatusCode.ERROR);
-                                        throw new ProfilePictureRepositoryException();
-                                    } else {
-                                        return listObjectVersionsResponse
-                                                .versions()
-                                                .stream()
-                                                .map(objectVersion -> new S3ProfilePictureIdentifier(userPseudo, mediaType, objectVersion))
-                                                .collect(Collectors.toList());
-                                    }
-                                } finally {
-                                    span.end();
-                                }
+                    return Uni.createFrom()
+                            .completionStage(() -> s3AsyncClient.listObjectVersions(listObjectVersionsRequest))
+                            .map(listObjectVersionsResponse -> {
+                                span.end();
+                                return listObjectVersionsResponse
+                                        .versions()
+                                        .stream()
+                                        .map(objectVersion -> new S3ProfilePictureIdentifier(userPseudo, mediaType, objectVersion))
+                                        .collect(Collectors.toList());
+                            })
+                            .onFailure(SdkException.class)
+                            .transform(exception -> {
+                                LOG.error(exception);
+                                span.setStatus(StatusCode.ERROR);
+                                throw new ProfilePictureRepositoryException();
                             });
                 });
     }
@@ -143,35 +137,34 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
     @Override
     public Uni<ContentProfilePicture> getContentByVersionId(final ProfilePictureIdentifier profilePictureIdentifier)
             throws ProfilePictureVersionUnknownException, ProfilePictureRepositoryException {
-
         return Uni.createFrom()
-                .completionStage(() -> {
+                .deferred(() -> {
                     final SpanBuilder spanBuilder = tracer.spanBuilder("S3ProfilePictureRepository.getContentByVersion");
                     final Span span = spanBuilder.startSpan();
                     final GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketUserProfilePictureName)
                             .key(s3ObjectKeyProvider.objectKey(profilePictureIdentifier.userPseudo(), profilePictureIdentifier.mediaType()).value())
                             .versionId(profilePictureIdentifier.versionId().version())
                             .build();
-                    return s3AsyncClient.getObject(getObjectRequest, AsyncResponseTransformer.toBytes())
-                            .handle((getObjectResponse, completionException) -> {
-                                try {
-                                    if (completionException != null) {
-                                        LOG.error(completionException.getCause());
-                                        span.setStatus(StatusCode.ERROR);
-                                        final Throwable cause = completionException.getCause();
-                                        if (cause.getMessage().startsWith("Invalid version id specified")) {
-                                            throw new ProfilePictureVersionUnknownException(profilePictureIdentifier);
-                                        } else if (cause instanceof NoSuchKeyException) {
-                                            throw new ProfilePictureVersionUnknownException(profilePictureIdentifier);
-                                        } else {
-                                            throw new ProfilePictureRepositoryException();
-                                        }
-                                    } else {
-                                        return new S3ContentProfilePicture(profilePictureIdentifier.userPseudo(), getObjectResponse);
-                                    }
-                                } finally {
-                                    span.end();
+                    return Uni.createFrom()
+                            .completionStage(() -> s3AsyncClient.getObject(getObjectRequest, AsyncResponseTransformer.toBytes()))
+                            .map(getObjectResponse -> {
+                                span.end();
+                                return new S3ContentProfilePicture(profilePictureIdentifier.userPseudo(), getObjectResponse);
+                            })
+                            .onFailure(NoSuchKeyException.class)
+                            .transform(exception -> {
+                                span.setStatus(StatusCode.ERROR);
+                                span.end();
+                                return new ProfilePictureVersionUnknownException(profilePictureIdentifier);
+                            })
+                            .onFailure(SdkException.class)
+                            .transform(exception -> {
+                                span.setStatus(StatusCode.ERROR);
+                                span.end();
+                                if (exception.getMessage().startsWith("Invalid version id specified")) {
+                                    return new ProfilePictureVersionUnknownException(profilePictureIdentifier);
                                 }
+                                return new ProfilePictureRepositoryException();
                             });
                 });
     }

@@ -33,7 +33,7 @@ public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
     }
 
     @Override
-    public Response toResponse(final List<ProfilePictureIdentifier> profilePictureIdentifiers) {
+    public Response toResponse(final List<? extends ProfilePictureIdentifier> profilePictureIdentifiers) {
         return Response.ok(
                 profilePictureIdentifiers.stream()
                         .map(ProfilePictureIdentifierDTO::new)
