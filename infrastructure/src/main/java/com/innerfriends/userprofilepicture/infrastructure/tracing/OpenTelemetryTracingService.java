@@ -25,8 +25,8 @@ public class OpenTelemetryTracingService {
         span.end();
     }
 
-    public void endErrorSpan(final Span span) {
+    public void markSpanInError(final Span span) {
         span.setStatus(StatusCode.ERROR);
-        span.end();
     }
+
 }

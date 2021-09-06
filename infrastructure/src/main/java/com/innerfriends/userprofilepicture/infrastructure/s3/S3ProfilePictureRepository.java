@@ -55,16 +55,15 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                             .build();
                     return Uni.createFrom()
                             .completionStage(() -> s3AsyncClient.putObject(putObjectRequest, AsyncRequestBody.fromBytes(picture)))
-                            .map(putObjectResponse -> {
-                                openTelemetryTracingService.endSpan(span);
-                                return new S3ProfilePictureSaved(userPseudo, mediaType, putObjectResponse);
-                            })
+                            .map(putObjectResponse -> new S3ProfilePictureSaved(userPseudo, mediaType, putObjectResponse))
                             .onFailure(SdkException.class)
                             .transform(exception -> {
                                 LOG.error(exception);
-                                openTelemetryTracingService.endErrorSpan(span);
+                                openTelemetryTracingService.markSpanInError(span);
                                 return new ProfilePictureRepositoryException();
-                            });
+                            })
+                            .onTermination()
+                            .invoke(() -> openTelemetryTracingService.endSpan(span));
                 });
     }
 
@@ -81,7 +80,6 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                     return Uni.createFrom()
                             .completionStage(() -> s3AsyncClient.listObjectVersions(listObjectVersionsRequest))
                             .map(listObjectVersionsResponse -> {
-                                openTelemetryTracingService.endSpan(span);
                                 final Optional<ProfilePictureIdentifier> profilePictureIdentifier = listObjectVersionsResponse.versions()
                                         .stream()
                                         .findFirst()
@@ -94,9 +92,11 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                             .onFailure(SdkException.class)
                             .transform(exception -> {
                                 LOG.error(exception);
-                                openTelemetryTracingService.endErrorSpan(span);
+                                openTelemetryTracingService.markSpanInError(span);
                                 return new ProfilePictureRepositoryException();
-                            });
+                            })
+                            .onTermination()
+                            .invoke(() -> openTelemetryTracingService.endSpan(span));
                 });
     }
 
@@ -113,20 +113,20 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                             .build();
                     return Uni.createFrom()
                             .completionStage(() -> s3AsyncClient.listObjectVersions(listObjectVersionsRequest))
-                            .map(listObjectVersionsResponse -> {
-                                openTelemetryTracingService.endSpan(span);
-                                return listObjectVersionsResponse
+                            .map(listObjectVersionsResponse ->
+                                    listObjectVersionsResponse
                                         .versions()
                                         .stream()
                                         .map(objectVersion -> new S3ProfilePictureIdentifier(userPseudo, mediaType, objectVersion))
-                                        .collect(Collectors.toList());
-                            })
+                                        .collect(Collectors.toList()))
                             .onFailure(SdkException.class)
                             .transform(exception -> {
                                 LOG.error(exception);
-                                openTelemetryTracingService.endErrorSpan(span);
+                                openTelemetryTracingService.markSpanInError(span);
                                 throw new ProfilePictureRepositoryException();
-                            });
+                            })
+                            .onTermination()
+                            .invoke(() -> openTelemetryTracingService.endSpan(span));
                 });
     }
 
@@ -142,23 +142,22 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                             .build();
                     return Uni.createFrom()
                             .completionStage(() -> s3AsyncClient.getObject(getObjectRequest, AsyncResponseTransformer.toBytes()))
-                            .map(getObjectResponse -> {
-                                openTelemetryTracingService.endSpan(span);
-                                return new S3ContentProfilePicture(profilePictureIdentifier.userPseudo(), getObjectResponse);
-                            })
+                            .map(getObjectResponse -> new S3ContentProfilePicture(profilePictureIdentifier.userPseudo(), getObjectResponse))
                             .onFailure(NoSuchKeyException.class)
                             .transform(exception -> {
-                                openTelemetryTracingService.endErrorSpan(span);
+                                openTelemetryTracingService.markSpanInError(span);
                                 return new ProfilePictureVersionUnknownException(profilePictureIdentifier);
                             })
                             .onFailure(SdkException.class)
                             .transform(exception -> {
-                                openTelemetryTracingService.endErrorSpan(span);
+                                openTelemetryTracingService.markSpanInError(span);
                                 if (exception.getMessage().startsWith("Invalid version id specified")) {
                                     return new ProfilePictureVersionUnknownException(profilePictureIdentifier);
                                 }
                                 return new ProfilePictureRepositoryException();
-                            });
+                            })
+                            .onTermination()
+                            .invoke(() -> openTelemetryTracingService.endSpan(span));
                 });
     }
 
