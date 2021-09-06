@@ -1,6 +1,8 @@
 package com.innerfriends.userprofilepicture.infrastructure.s3;
 
 import com.innerfriends.userprofilepicture.domain.*;
+import com.innerfriends.userprofilepicture.infrastructure.tracing.OpenTelemetryTracingService;
+import io.opentelemetry.api.trace.Span;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.smallrye.mutiny.Uni;
@@ -33,6 +35,9 @@ public class S3ProfilePictureRepositoryTest {
     @InjectMock
     S3ObjectKeyProvider s3ObjectKeyProvider;
 
+    @InjectMock
+    OpenTelemetryTracingService openTelemetryTracingService;
+
     @BeforeEach
     @AfterEach
     public void flush() {
@@ -59,6 +64,8 @@ public class S3ProfilePictureRepositoryTest {
         final UserPseudo userPseudo = () -> "user";
         doReturn(new S3ObjectKey(userPseudo, SupportedMediaType.IMAGE_JPEG))
                 .when(s3ObjectKeyProvider).objectKey(userPseudo, SupportedMediaType.IMAGE_JPEG);
+        final Span span = mock(Span.class);
+        doReturn(span).when(openTelemetryTracingService).startANewSpan("S3ProfilePictureRepository.save");
 
         // When
         final Uni<ProfilePictureSaved> uni = s3ProfilePictureRepository.save(
@@ -72,6 +79,8 @@ public class S3ProfilePictureRepositoryTest {
         assertThat(profilePictureSaved.userPseudo().pseudo()).isEqualTo("user");
         assertThat(profilePictureSaved.versionId()).isNotNull();
         verify(s3ObjectKeyProvider, times(1)).objectKey(any(), any());
+        verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
+        verify(openTelemetryTracingService, times(1)).endSpan(span);
     }
 
     @Test
@@ -80,6 +89,8 @@ public class S3ProfilePictureRepositoryTest {
         final UserPseudo userPseudo = () -> "user";
         doReturn(new S3ObjectKey(userPseudo, SupportedMediaType.IMAGE_JPEG))
                 .when(s3ObjectKeyProvider).objectKey(userPseudo, SupportedMediaType.IMAGE_JPEG);
+        final Span span = mock(Span.class);
+        doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
         s3ProfilePictureRepository.save(userPseudo, "picture".getBytes(), SupportedMediaType.IMAGE_JPEG)
                 .subscribe().withSubscriber(UniAssertSubscriber.create()).awaitItem().assertCompleted();
 
@@ -95,6 +106,7 @@ public class S3ProfilePictureRepositoryTest {
                 .build()).versions();
         assertThat(objectVersions.size()).isEqualTo(2);
         verify(s3ObjectKeyProvider, times(2)).objectKey(any(), any());
+        verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
     }
 
     @Test
@@ -104,6 +116,8 @@ public class S3ProfilePictureRepositoryTest {
         final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
         doReturn((ObjectKey) () -> null)
                 .when(s3ObjectKeyProvider).objectKey(userPseudo, supportedMediaType);
+        final Span span = mock(Span.class);
+        doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
 
         // When
         final Uni<ProfilePictureSaved> uni = s3ProfilePictureRepository.save(
@@ -115,6 +129,8 @@ public class S3ProfilePictureRepositoryTest {
         final UniAssertSubscriber<ProfilePictureSaved> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
         subscriber.awaitFailure().assertFailedWith(ProfilePictureRepositoryException.class);
         verify(s3ObjectKeyProvider, times(1)).objectKey(any(), any());
+        verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
+        verify(openTelemetryTracingService, times(1)).endErrorSpan(span);
     }
 
     @Test
@@ -127,6 +143,8 @@ public class S3ProfilePictureRepositoryTest {
                 .subscribe().withSubscriber(UniAssertSubscriber.create()).awaitItem().assertCompleted();
         s3ProfilePictureRepository.save(userPseudo, "picture".getBytes(), SupportedMediaType.IMAGE_JPEG)
                 .subscribe().withSubscriber(UniAssertSubscriber.create()).awaitItem().assertCompleted();
+        final Span span = mock(Span.class);
+        doReturn(span).when(openTelemetryTracingService).startANewSpan("S3ProfilePictureRepository.getLast");
 
         // When
         final Uni<ProfilePictureIdentifier> uni = s3ProfilePictureRepository.getLast(userPseudo, SupportedMediaType.IMAGE_JPEG);
@@ -147,6 +165,8 @@ public class S3ProfilePictureRepositoryTest {
         assertThat(lastObjectVersion.versionId()).isEqualTo(profilePictureIdentifier.versionId().version());
         assertThat(lastObjectVersion.isLatest()).isEqualTo(true);
         verify(s3ObjectKeyProvider, times(3)).objectKey(any(), any());
+        verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
+        verify(openTelemetryTracingService, times(1)).endSpan(span);
     }
 
     @Test
@@ -155,6 +175,8 @@ public class S3ProfilePictureRepositoryTest {
         final UserPseudo userPseudo = () -> "user";
         doReturn(new S3ObjectKey(userPseudo, SupportedMediaType.IMAGE_JPEG))
                 .when(s3ObjectKeyProvider).objectKey(userPseudo, SupportedMediaType.IMAGE_JPEG);
+        final Span span = mock(Span.class);
+        doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
 
         // When
         final Uni<ProfilePictureIdentifier> uni = s3ProfilePictureRepository.getLast(userPseudo, SupportedMediaType.IMAGE_JPEG);
@@ -163,6 +185,8 @@ public class S3ProfilePictureRepositoryTest {
         final UniAssertSubscriber<ProfilePictureIdentifier> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
         subscriber.awaitFailure().assertFailedWith(ProfilePictureNotAvailableYetException.class);
         verify(s3ObjectKeyProvider, times(1)).objectKey(any(), any());
+        verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
+        verify(openTelemetryTracingService, times(1)).endSpan(span);
     }
 
     @Test
@@ -174,6 +198,8 @@ public class S3ProfilePictureRepositoryTest {
         final ProfilePictureSaved givenProfilePictureSaved = s3ProfilePictureRepository.save(userPseudo, "picture".getBytes(), SupportedMediaType.IMAGE_JPEG)
                 .subscribe().withSubscriber(UniAssertSubscriber.create()).awaitItem().assertCompleted()
                 .getItem();
+        final Span span = mock(Span.class);
+        doReturn(span).when(openTelemetryTracingService).startANewSpan("S3ProfilePictureRepository.listByUserPseudo");
 
         // When
         final Uni<List<? extends ProfilePictureIdentifier>> uni = s3ProfilePictureRepository.listByUserPseudo(userPseudo, SupportedMediaType.IMAGE_JPEG);
@@ -186,6 +212,8 @@ public class S3ProfilePictureRepositoryTest {
         assertThat(profilePictureIdentifiers.get(0).mediaType()).isEqualTo(SupportedMediaType.IMAGE_JPEG);
         assertThat(profilePictureIdentifiers.get(0).versionId()).isEqualTo(givenProfilePictureSaved.versionId());
         verify(s3ObjectKeyProvider, times(2)).objectKey(any(), any());
+        verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
+        verify(openTelemetryTracingService, times(1)).endSpan(span);
     }
 
     @Test
@@ -197,6 +225,8 @@ public class S3ProfilePictureRepositoryTest {
         final ProfilePictureSaved givenProfilePictureSaved = s3ProfilePictureRepository.save(userPseudo, "picture".getBytes(), SupportedMediaType.IMAGE_JPEG)
                 .subscribe().withSubscriber(UniAssertSubscriber.create()).awaitItem().assertCompleted()
                 .getItem();
+        final Span span = mock(Span.class);
+        doReturn(span).when(openTelemetryTracingService).startANewSpan("S3ProfilePictureRepository.getContentByVersion");
 
         // When
         final Uni<ContentProfilePicture> uni = s3ProfilePictureRepository.getContentByVersionId(new TestProfilePictureIdentifier(givenProfilePictureSaved));
@@ -210,6 +240,8 @@ public class S3ProfilePictureRepositoryTest {
         assertThat(contentProfilePicture.contentLength()).isEqualTo(7l);
         assertThat(contentProfilePicture.versionId()).isEqualTo(givenProfilePictureSaved.versionId());
         verify(s3ObjectKeyProvider, times(2)).objectKey(any(), any());
+        verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
+        verify(openTelemetryTracingService, times(1)).endSpan(span);
     }
 
     @Test
@@ -222,6 +254,8 @@ public class S3ProfilePictureRepositoryTest {
         doReturn(SupportedMediaType.IMAGE_JPEG).when(profilePictureIdentifier).mediaType();
         doReturn(new S3ObjectKey(userPseudo, SupportedMediaType.IMAGE_JPEG))
                 .when(s3ObjectKeyProvider).objectKey(userPseudo, SupportedMediaType.IMAGE_JPEG);
+        final Span span = mock(Span.class);
+        doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
 
         // When
         final Uni<ContentProfilePicture> uni = s3ProfilePictureRepository.getContentByVersionId(profilePictureIdentifier);
@@ -232,6 +266,8 @@ public class S3ProfilePictureRepositoryTest {
         verify(profilePictureIdentifier, times(1)).versionId();
         verify(profilePictureIdentifier, times(1)).mediaType();
         verify(profilePictureIdentifier, times(1)).userPseudo();
+        verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
+        verify(openTelemetryTracingService, times(1)).endErrorSpan(span);
     }
 
     @Test
@@ -244,6 +280,8 @@ public class S3ProfilePictureRepositoryTest {
         doReturn(SupportedMediaType.IMAGE_JPEG).when(profilePictureIdentifier).mediaType();
         doReturn((ObjectKey) () -> null)
                 .when(s3ObjectKeyProvider).objectKey(userPseudo, SupportedMediaType.IMAGE_JPEG);
+        final Span span = mock(Span.class);
+        doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
 
         // When
         final Uni<ContentProfilePicture> uni = s3ProfilePictureRepository.getContentByVersionId(profilePictureIdentifier);
@@ -254,6 +292,8 @@ public class S3ProfilePictureRepositoryTest {
         verify(profilePictureIdentifier, times(1)).versionId();
         verify(profilePictureIdentifier, times(1)).mediaType();
         verify(profilePictureIdentifier, times(1)).userPseudo();
+        verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
+        verify(openTelemetryTracingService, times(1)).endErrorSpan(span);
     }
 
 }
