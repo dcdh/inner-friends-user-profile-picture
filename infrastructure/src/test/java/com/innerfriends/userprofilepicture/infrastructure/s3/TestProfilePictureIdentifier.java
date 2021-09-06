@@ -4,24 +4,24 @@ import com.innerfriends.userprofilepicture.domain.*;
 
 public class TestProfilePictureIdentifier implements ProfilePictureIdentifier {
 
-    private final ProfilePictureSaved profilePictureSaved;
+    private final String versionId;
 
-    public TestProfilePictureIdentifier(final ProfilePictureSaved profilePictureSaved) {
-        this.profilePictureSaved = profilePictureSaved;
+    public TestProfilePictureIdentifier(final String versionId) {
+        this.versionId = versionId;
     }
 
     @Override
     public UserPseudo userPseudo() {
-        return profilePictureSaved.userPseudo();
+        return () -> "user";
     }
 
     @Override
     public SupportedMediaType mediaType() {
-        return profilePictureSaved.mediaType();
+        return SupportedMediaType.IMAGE_JPEG;
     }
 
     @Override
     public VersionId versionId() {
-        return profilePictureSaved.versionId();
+        return () -> versionId;
     }
 }
