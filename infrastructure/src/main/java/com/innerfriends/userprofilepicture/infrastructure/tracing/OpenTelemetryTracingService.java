@@ -3,6 +3,7 @@ package com.innerfriends.userprofilepicture.infrastructure.tracing;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Objects;

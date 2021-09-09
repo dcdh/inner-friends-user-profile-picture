@@ -1,6 +1,9 @@
 package com.innerfriends.userprofilepicture.infrastructure;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.hazelcast.core.HazelcastInstance;
+import com.innerfriends.userprofilepicture.infrastructure.hazelcast.HazelcastCachedUserProfilePicture;
+import com.innerfriends.userprofilepicture.infrastructure.hazelcast.HazelcastUserProfilePictureCacheRepository;
 import com.innerfriends.userprofilepicture.infrastructure.resources.OpenTelemetryLifecycleManager;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -120,6 +123,9 @@ public class E2ETest {
     @Inject
     S3Client s3Client;
 
+    @Inject
+    HazelcastInstance hazelcastInstance;
+
     @Test
     @Order(0)
     public void should_store_user_profile_picture() throws Exception {
@@ -150,7 +156,8 @@ public class E2ETest {
                     if (traces.getOperationNames().isEmpty()) {
                         return false;
                     }
-                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}/upload", "S3ProfilePictureRepository.save"))
+                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}/upload", "S3ProfilePictureRepository.save",
+                            "HazelcastUserProfilePictureCacheRepository.store"))
                             && traces.getHttpStatus().containsAll(List.of(201))
                             && traces.getOperationNamesInError().isEmpty();
         });
@@ -161,6 +168,10 @@ public class E2ETest {
                 .prefix("pseudoE2E.jpeg")
                 .build()).versions();
         assertThat(objectVersions.size()).isEqualTo(1);
+
+        assertThat(hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E")).isNotNull();
+        assertThat(((HazelcastCachedUserProfilePicture) hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E"))
+                .featuredProfilePictureIdentifier).isNotNull();
     }
 
     @Test
@@ -191,7 +202,8 @@ public class E2ETest {
                     if (traces.getOperationNames().isEmpty()) {
                         return false;
                     }
-                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}/featured", "S3ProfilePictureRepository.getLast"))
+                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}/featured", "S3ProfilePictureRepository.getLast",
+                            "HazelcastUserProfilePictureCacheRepository.get"))
                             && traces.getHttpStatus().containsAll(List.of(200))
                             && traces.getOperationNamesInError().isEmpty();
         });
@@ -225,7 +237,8 @@ public class E2ETest {
                     if (traces.getOperationNames().isEmpty()) {
                         return false;
                     }
-                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}/featured", "S3ProfilePictureRepository.getLast"))
+                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}/featured", "S3ProfilePictureRepository.getLast",
+                            "HazelcastUserProfilePictureCacheRepository.get"))
                             && traces.getHttpStatus().containsAll(List.of(404))
                             && traces.getOperationNamesInError().isEmpty();
         });
@@ -236,6 +249,8 @@ public class E2ETest {
                 .prefix("unknownPseudoE2E.jpeg")
                 .build()).versions();
         assertThat(objectVersions.isEmpty()).isTrue();
+
+        assertThat(hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("unknownPseudoE2E")).isNull();
     }
 
     @Test
@@ -266,10 +281,15 @@ public class E2ETest {
                     if (traces.getOperationNames().isEmpty()) {
                         return false;
                     }
-                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}", "S3ProfilePictureRepository.listByUserPseudo"))
+                    return traces.getOperationNames().containsAll(List.of("users/{userPseudo}", "S3ProfilePictureRepository.listByUserPseudo",
+                            "HazelcastUserProfilePictureCacheRepository.get"))
                             && traces.getHttpStatus().containsAll(List.of(200))
                             && traces.getOperationNamesInError().isEmpty();
                 });
+
+        assertThat(hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E")).isNotNull();
+        assertThat(((HazelcastCachedUserProfilePicture) hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E"))
+                .profilePictureIdentifiers).isNotNull();
     }
 
     @Test

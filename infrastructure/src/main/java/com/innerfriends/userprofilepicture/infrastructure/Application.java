@@ -1,6 +1,7 @@
 package com.innerfriends.userprofilepicture.infrastructure;
 
 import com.innerfriends.userprofilepicture.domain.ProfilePictureRepository;
+import com.innerfriends.userprofilepicture.domain.UserProfilePictureCacheRepository;
 import com.innerfriends.userprofilepicture.domain.usecase.GetFeaturedUserProfilePictureUseCase;
 import com.innerfriends.userprofilepicture.domain.usecase.GetUserProfilePictureByVersionUseCase;
 import com.innerfriends.userprofilepicture.domain.usecase.ListUserProfilPicturesUseCase;
@@ -16,20 +17,23 @@ public class Application {
 
     @ApplicationScoped
     @Produces
-    public GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCaseProducer(final ProfilePictureRepository profilePictureRepository) {
-        return new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository);
+    public GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCaseProducer(final ProfilePictureRepository profilePictureRepository,
+                                                                                                       final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
+        return new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository, userProfilePictureCacheRepository);
     }
 
     @ApplicationScoped
     @Produces
-    public SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCaseProducer(final ProfilePictureRepository profilePictureRepository) {
-        return new SaveUserProfilePictureUseCase<>(profilePictureRepository);
+    public SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCaseProducer(final ProfilePictureRepository profilePictureRepository,
+                                                                                         final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
+        return new SaveUserProfilePictureUseCase<>(profilePictureRepository, userProfilePictureCacheRepository);
     }
 
     @ApplicationScoped
     @Produces
-    public ListUserProfilPicturesUseCase<Response> listUserProfilPicturesUseCaseProducer(final ProfilePictureRepository profilePictureRepository) {
-        return new ListUserProfilPicturesUseCase<>(profilePictureRepository);
+    public ListUserProfilPicturesUseCase<Response> listUserProfilPicturesUseCaseProducer(final ProfilePictureRepository profilePictureRepository,
+                                                                                         final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
+        return new ListUserProfilPicturesUseCase<>(profilePictureRepository, userProfilePictureCacheRepository);
     }
 
     @ApplicationScoped

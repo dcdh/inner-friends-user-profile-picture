@@ -4,5 +4,6 @@ import io.quarkus.test.common.QuarkusTestResource;
 
 @QuarkusTestResource(OpenTelemetryLifecycleManager.class)
 @QuarkusTestResource(ZenkoTestResourceLifecycleManager.class)
+@QuarkusTestResource(HazelcastTestResourceLifecycleManager.class)
 public class QuarkusTestResources {
 }

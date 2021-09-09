@@ -33,6 +33,12 @@ services:
     depends_on:
       - jaeger-all-in-one
 
+  hazelcast:
+    image: hazelcast/hazelcast:4.1.5
+    ports:
+      - 5701:5701
+      - 8088:8080
+
   inner-friends-user-profile-picture:
     image: damdamdeo/inner-friends-user-profile-picture
     ports:
@@ -40,4 +46,6 @@ services:
     environment:
       - quarkus.s3.endpoint-override=http://zenko:8000
       - quarkus.opentelemetry.tracer.exporter.otlp.endpoint=http://otel-collector:55680
+      - quarkus.hazelcast-client.cluster-name=dev
+      - quarkus.hazelcast-client.cluster-members=hazelcast:5701
     restart: unless-stopped

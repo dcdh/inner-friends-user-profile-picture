@@ -8,24 +8,34 @@ import java.util.Objects;
 public class GetFeaturedUserProfilePictureUseCase<R> implements UseCase<R, GetFeaturedUserProfilePictureCommand> {
 
     private final ProfilePictureRepository profilePictureRepository;
+    private final UserProfilePictureCacheRepository userProfilePictureCacheRepository;
 
-    public GetFeaturedUserProfilePictureUseCase(final ProfilePictureRepository profilePictureRepository) {
+    public GetFeaturedUserProfilePictureUseCase(final ProfilePictureRepository profilePictureRepository,
+                                                final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
         this.profilePictureRepository = Objects.requireNonNull(profilePictureRepository);
+        this.userProfilePictureCacheRepository = Objects.requireNonNull(userProfilePictureCacheRepository);
     }
 
     @Override
     public Uni<R> execute(final GetFeaturedUserProfilePictureCommand command,
                           final ResponseTransformer<R> responseTransformer) {
         return Uni.createFrom()
-                .deferred(() -> profilePictureRepository.getLast(command.userPseudo(), command.mediaType()))
-                .onItem()
-                .transform(profilePictureIdentifier -> responseTransformer.toResponse(profilePictureIdentifier))
-                .onFailure(ProfilePictureNotAvailableYetException.class)
-                .recoverWithItem(profilePictureNotAvailableYetException -> responseTransformer.toResponse((ProfilePictureNotAvailableYetException) profilePictureNotAvailableYetException))
-                .onFailure(ProfilePictureRepositoryException.class)
-                .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((ProfilePictureRepositoryException) profilePictureRepositoryException))
+                .deferred(() -> userProfilePictureCacheRepository.get(command.userPseudo()))
+                .map(cachedUserProfilePicture -> responseTransformer.toResponse(cachedUserProfilePicture.featured()))
                 .onFailure()
-                .recoverWithItem(exception -> responseTransformer.toResponse(exception));
+                .recoverWithUni(() ->
+                        Uni.createFrom()
+                                .deferred(() -> profilePictureRepository.getLast(command.userPseudo(), command.mediaType()))
+                                .chain(profilePictureIdentifier -> userProfilePictureCacheRepository.storeFeatured(command.userPseudo(), profilePictureIdentifier)
+                                        .onItemOrFailure().transform((item, exception) -> profilePictureIdentifier))
+                                .map(profilePictureIdentifier -> responseTransformer.toResponse(profilePictureIdentifier))
+                                .onFailure(ProfilePictureNotAvailableYetException.class)
+                                .recoverWithItem(profilePictureNotAvailableYetException -> responseTransformer.toResponse((ProfilePictureNotAvailableYetException) profilePictureNotAvailableYetException))
+                                .onFailure(ProfilePictureRepositoryException.class)
+                                .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((ProfilePictureRepositoryException) profilePictureRepositoryException))
+                                .onFailure()
+                                .recoverWithItem(exception -> responseTransformer.toResponse(exception))
+                );
     }
 
 }
