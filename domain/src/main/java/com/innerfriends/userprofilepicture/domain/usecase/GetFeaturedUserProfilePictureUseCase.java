@@ -21,7 +21,7 @@ public class GetFeaturedUserProfilePictureUseCase<R> implements UseCase<R, GetFe
                           final ResponseTransformer<R> responseTransformer) {
         return Uni.createFrom()
                 .deferred(() -> userProfilePictureCacheRepository.get(command.userPseudo()))
-                .map(cachedUserProfilePicture -> responseTransformer.toResponse(cachedUserProfilePicture.featured()))
+                .map(cachedUserProfilePictures -> responseTransformer.toResponse(cachedUserProfilePictures.featured()))
                 .onFailure()
                 .recoverWithUni(() ->
                         Uni.createFrom()

@@ -33,10 +33,10 @@ public class ListUserProfilPicturesUseCaseTest {
         // Given
         final UserPseudo userPseudo = mock(UserPseudo.class);
         final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
-        final CachedUserProfilePicture cachedUserProfilePicture = mock(CachedUserProfilePicture.class);
+        final CachedUserProfilePictures cachedUserProfilePictures = mock(CachedUserProfilePictures.class);
         final List<ProfilePictureIdentifier> profilePictureIdentifiers = Collections.emptyList();
-        doReturn(profilePictureIdentifiers).when(cachedUserProfilePicture).profilePictureIdentifiers();
-        doReturn(Uni.createFrom().item(cachedUserProfilePicture)).when(userProfilePictureCacheRepository).get(userPseudo);
+        doReturn(profilePictureIdentifiers).when(cachedUserProfilePictures).profilePictureIdentifiers();
+        doReturn(Uni.createFrom().item(cachedUserProfilePictures)).when(userProfilePictureCacheRepository).get(userPseudo);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(profilePictureIdentifiers);
 
@@ -49,7 +49,7 @@ public class ListUserProfilPicturesUseCaseTest {
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(userProfilePictureCacheRepository, times(1)).get(any());
-        verify(cachedUserProfilePicture, times(1)).profilePictureIdentifiers();
+        verify(cachedUserProfilePictures, times(1)).profilePictureIdentifiers();
         verify(testResponseTransformer).toResponse(any(List.class));
         verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
     }

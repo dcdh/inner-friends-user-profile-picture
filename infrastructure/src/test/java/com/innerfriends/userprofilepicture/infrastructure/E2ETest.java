@@ -2,7 +2,7 @@ package com.innerfriends.userprofilepicture.infrastructure;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.hazelcast.core.HazelcastInstance;
-import com.innerfriends.userprofilepicture.infrastructure.hazelcast.HazelcastCachedUserProfilePicture;
+import com.innerfriends.userprofilepicture.infrastructure.hazelcast.HazelcastCachedUserProfilePictures;
 import com.innerfriends.userprofilepicture.infrastructure.hazelcast.HazelcastUserProfilePictureCacheRepository;
 import com.innerfriends.userprofilepicture.infrastructure.resources.OpenTelemetryLifecycleManager;
 import io.quarkus.test.junit.QuarkusTest;
@@ -170,7 +170,7 @@ public class E2ETest {
         assertThat(objectVersions.size()).isEqualTo(1);
 
         assertThat(hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E")).isNotNull();
-        assertThat(((HazelcastCachedUserProfilePicture) hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E"))
+        assertThat(((HazelcastCachedUserProfilePictures) hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E"))
                 .featuredProfilePictureIdentifier).isNotNull();
     }
 
@@ -288,7 +288,7 @@ public class E2ETest {
                 });
 
         assertThat(hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E")).isNotNull();
-        assertThat(((HazelcastCachedUserProfilePicture) hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E"))
+        assertThat(((HazelcastCachedUserProfilePictures) hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E"))
                 .profilePictureIdentifiers).isNotNull();
     }
 

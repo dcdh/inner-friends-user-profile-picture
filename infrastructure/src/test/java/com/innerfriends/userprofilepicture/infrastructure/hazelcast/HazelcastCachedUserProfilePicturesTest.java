@@ -4,11 +4,11 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Test;
 
-public class HazelcastCachedUserProfilePictureTest {
+public class HazelcastCachedUserProfilePicturesTest {
 
     @Test
     public void should_verify_partial_equality() {
-        EqualsVerifier.forClass(HazelcastCachedUserProfilePicture.class)
+        EqualsVerifier.forClass(HazelcastCachedUserProfilePictures.class)
                 .suppress(Warning.NONFINAL_FIELDS).verify();
     }
 

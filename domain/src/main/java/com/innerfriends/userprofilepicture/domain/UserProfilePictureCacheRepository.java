@@ -6,10 +6,10 @@ import java.util.List;
 
 public interface UserProfilePictureCacheRepository {
 
-    Uni<CachedUserProfilePicture> get(UserPseudo userPseudo) throws UserProfilePictureNotInCacheException;
+    Uni<CachedUserProfilePictures> get(UserPseudo userPseudo) throws UserProfilePictureNotInCacheException;
 
-    Uni<CachedUserProfilePicture> store(UserPseudo userPseudo, List<? extends ProfilePictureIdentifier> profilePictureIdentifier);
+    Uni<CachedUserProfilePictures> store(UserPseudo userPseudo, List<? extends ProfilePictureIdentifier> profilePictureIdentifier);
 
-    Uni<CachedUserProfilePicture> storeFeatured(UserPseudo userPseudo, ProfilePictureIdentifier featured);
+    Uni<CachedUserProfilePictures> storeFeatured(UserPseudo userPseudo, ProfilePictureIdentifier featured);
 
 }

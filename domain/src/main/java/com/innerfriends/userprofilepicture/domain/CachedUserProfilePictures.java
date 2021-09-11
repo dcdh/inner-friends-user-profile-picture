@@ -2,7 +2,7 @@ package com.innerfriends.userprofilepicture.domain;
 
 import java.util.List;
 
-public interface CachedUserProfilePicture {
+public interface CachedUserProfilePictures {
 
     UserPseudo userPseudo();
 

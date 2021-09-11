@@ -31,9 +31,9 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         final UserPseudo userPseudo = mock(UserPseudo.class);
         final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
         final ProfilePictureIdentifier profilePictureIdentifier = mock(ProfilePictureIdentifier.class);
-        final CachedUserProfilePicture cachedUserProfilePicture = mock(CachedUserProfilePicture.class);
-        doReturn(profilePictureIdentifier).when(cachedUserProfilePicture).featured();
-        doReturn(Uni.createFrom().item(cachedUserProfilePicture)).when(userProfilePictureCacheRepository).get(userPseudo);
+        final CachedUserProfilePictures cachedUserProfilePictures = mock(CachedUserProfilePictures.class);
+        doReturn(profilePictureIdentifier).when(cachedUserProfilePictures).featured();
+        doReturn(Uni.createFrom().item(cachedUserProfilePictures)).when(userProfilePictureCacheRepository).get(userPseudo);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(profilePictureIdentifier);
 
@@ -46,7 +46,7 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(userProfilePictureCacheRepository, times(1)).get(any());
-        verify(cachedUserProfilePicture, times(1)).featured();
+        verify(cachedUserProfilePictures, times(1)).featured();
         verify(testResponseTransformer).toResponse(any(ProfilePictureIdentifier.class));
         verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
     }
@@ -57,13 +57,13 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         final UserPseudo userPseudo = mock(UserPseudo.class);
         final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
         final ProfilePictureIdentifier profilePictureIdentifier = mock(ProfilePictureIdentifier.class);
-        final CachedUserProfilePicture cachedUserProfilePicture = mock(CachedUserProfilePicture.class);
+        final CachedUserProfilePictures cachedUserProfilePictures = mock(CachedUserProfilePictures.class);
         doReturn(Uni.createFrom().nullItem()).when(userProfilePictureCacheRepository).get(userPseudo);
         doReturn(Uni.createFrom().item(profilePictureIdentifier)).when(profilePictureRepository).getLast(userPseudo, supportedMediaType);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(profilePictureIdentifier);
         doReturn(Uni.createFrom().nullItem()).when(userProfilePictureCacheRepository).get(userPseudo);
-        doReturn(Uni.createFrom().item(cachedUserProfilePicture)).when(userProfilePictureCacheRepository).storeFeatured(userPseudo, profilePictureIdentifier);
+        doReturn(Uni.createFrom().item(cachedUserProfilePictures)).when(userProfilePictureCacheRepository).storeFeatured(userPseudo, profilePictureIdentifier);
         final InOrder inOrder = inOrder(testResponseTransformer, profilePictureRepository, userProfilePictureCacheRepository);
 
         // When

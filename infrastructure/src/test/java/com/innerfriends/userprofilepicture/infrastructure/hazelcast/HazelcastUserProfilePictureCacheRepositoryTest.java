@@ -1,7 +1,7 @@
 package com.innerfriends.userprofilepicture.infrastructure.hazelcast;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.innerfriends.userprofilepicture.domain.CachedUserProfilePicture;
+import com.innerfriends.userprofilepicture.domain.CachedUserProfilePictures;
 import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
 import com.innerfriends.userprofilepicture.domain.UserProfilePictureNotInCacheException;
 import com.innerfriends.userprofilepicture.infrastructure.tracing.OpenTelemetryTracingService;
@@ -47,7 +47,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         if (hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("user") != null) {
             throw new IllegalStateException("must be null !");
         }
-        final CachedUserProfilePicture givenCachedUserProfilePicture = HazelcastCachedUserProfilePicture.newBuilder()
+        final CachedUserProfilePictures givenCachedUserProfilePictures = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .setFeaturedProfilePictureIdentifier(
                         HazelcastProfilePictureIdentifier.newBuilder()
@@ -60,18 +60,18 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
                 .build();
-        hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).put("user", givenCachedUserProfilePicture);
+        hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).put("user", givenCachedUserProfilePictures);
         final InOrder inOrder = inOrder(openTelemetryTracingService);
         final Span span = mock(Span.class);
         doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
 
         // When
-        final Uni<CachedUserProfilePicture> uni = hazelcastUserProfilePictureCacheRepository.get(() -> "user");
+        final Uni<CachedUserProfilePictures> uni = hazelcastUserProfilePictureCacheRepository.get(() -> "user");
 
         // Then
-        final UniAssertSubscriber<CachedUserProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        final CachedUserProfilePicture cachedUserProfilePicture = subscriber.awaitItem().assertCompleted().getItem();
-        assertThat(cachedUserProfilePicture).isEqualTo(HazelcastCachedUserProfilePicture.newBuilder()
+        final UniAssertSubscriber<CachedUserProfilePictures> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        final CachedUserProfilePictures cachedUserProfilePictures = subscriber.awaitItem().assertCompleted().getItem();
+        assertThat(cachedUserProfilePictures).isEqualTo(HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .setFeaturedProfilePictureIdentifier(
                         HazelcastProfilePictureIdentifier.newBuilder()
@@ -100,10 +100,10 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
 
         // When
-        final Uni<CachedUserProfilePicture> uni = hazelcastUserProfilePictureCacheRepository.get(() -> "user");
+        final Uni<CachedUserProfilePictures> uni = hazelcastUserProfilePictureCacheRepository.get(() -> "user");
 
         // Then
-        final UniAssertSubscriber<CachedUserProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        final UniAssertSubscriber<CachedUserProfilePictures> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
         subscriber.awaitFailure().assertFailedWith(UserProfilePictureNotInCacheException.class);
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         // I cannot do @InjectSpy on hazelcastInstance to verify the call in order
@@ -119,25 +119,25 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         if (hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("user") != null) {
             throw new IllegalStateException("must be null !");
         }
-        final CachedUserProfilePicture givenCachedUserProfilePicture = HazelcastCachedUserProfilePicture.newBuilder()
+        final CachedUserProfilePictures givenCachedUserProfilePictures = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .build();
-        hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).put("user", givenCachedUserProfilePicture);
+        hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).put("user", givenCachedUserProfilePictures);
         final InOrder inOrder = inOrder(openTelemetryTracingService);
         final Span span = mock(Span.class);
         doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
 
         // When
-        final Uni<CachedUserProfilePicture> uni = hazelcastUserProfilePictureCacheRepository.storeFeatured(() -> "user",
+        final Uni<CachedUserProfilePictures> uni = hazelcastUserProfilePictureCacheRepository.storeFeatured(() -> "user",
                 HazelcastProfilePictureIdentifier.newBuilder()
                         .setUserPseudo("user")
                         .setMediaType(SupportedMediaType.IMAGE_JPEG)
                         .setVersionId("v0").build());
 
         // Then
-        final UniAssertSubscriber<CachedUserProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        final CachedUserProfilePicture cachedUserProfilePicture = subscriber.awaitItem().assertCompleted().getItem();
-        final HazelcastCachedUserProfilePicture expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePicture.newBuilder()
+        final UniAssertSubscriber<CachedUserProfilePictures> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        final CachedUserProfilePictures cachedUserProfilePictures = subscriber.awaitItem().assertCompleted().getItem();
+        final HazelcastCachedUserProfilePictures expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .setFeaturedProfilePictureIdentifier(
                         HazelcastProfilePictureIdentifier.newBuilder()
@@ -145,7 +145,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
                 .build();
-        assertThat(cachedUserProfilePicture).isEqualTo(expectedHazelcastCachedUserProfilePicture);
+        assertThat(cachedUserProfilePictures).isEqualTo(expectedHazelcastCachedUserProfilePicture);
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         // I cannot do @InjectSpy on hazelcastInstance to verify the call in order
         inOrder.verify(openTelemetryTracingService, times(1)).endSpan(span);
@@ -165,16 +165,16 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
 
         // When
-        final Uni<CachedUserProfilePicture> uni = hazelcastUserProfilePictureCacheRepository.storeFeatured(() -> "user",
+        final Uni<CachedUserProfilePictures> uni = hazelcastUserProfilePictureCacheRepository.storeFeatured(() -> "user",
                 HazelcastProfilePictureIdentifier.newBuilder()
                         .setUserPseudo("user")
                         .setMediaType(SupportedMediaType.IMAGE_JPEG)
                         .setVersionId("v0").build());
 
         // Then
-        final UniAssertSubscriber<CachedUserProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        final CachedUserProfilePicture cachedUserProfilePicture = subscriber.awaitItem().assertCompleted().getItem();
-        final HazelcastCachedUserProfilePicture expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePicture.newBuilder()
+        final UniAssertSubscriber<CachedUserProfilePictures> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        final CachedUserProfilePictures cachedUserProfilePictures = subscriber.awaitItem().assertCompleted().getItem();
+        final HazelcastCachedUserProfilePictures expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .setFeaturedProfilePictureIdentifier(
                         HazelcastProfilePictureIdentifier.newBuilder()
@@ -182,7 +182,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
                 .build();
-        assertThat(cachedUserProfilePicture).isEqualTo(expectedHazelcastCachedUserProfilePicture);
+        assertThat(cachedUserProfilePictures).isEqualTo(expectedHazelcastCachedUserProfilePicture);
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         // I cannot do @InjectSpy on hazelcastInstance to verify the call in order
         inOrder.verify(openTelemetryTracingService, times(1)).endSpan(span);
@@ -197,16 +197,16 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         if (hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("user") != null) {
             throw new IllegalStateException("must be null !");
         }
-        final CachedUserProfilePicture givenCachedUserProfilePicture = HazelcastCachedUserProfilePicture.newBuilder()
+        final CachedUserProfilePictures givenCachedUserProfilePictures = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .build();
-        hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).put("user", givenCachedUserProfilePicture);
+        hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).put("user", givenCachedUserProfilePictures);
         final InOrder inOrder = inOrder(openTelemetryTracingService);
         final Span span = mock(Span.class);
         doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
 
         // When
-        final Uni<CachedUserProfilePicture> uni = hazelcastUserProfilePictureCacheRepository.store(() -> "user",
+        final Uni<CachedUserProfilePictures> uni = hazelcastUserProfilePictureCacheRepository.store(() -> "user",
                 Collections.singletonList(
                         HazelcastProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
@@ -214,9 +214,9 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
                                 .setVersionId("v0").build()));
 
         // Then
-        final UniAssertSubscriber<CachedUserProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        final CachedUserProfilePicture cachedUserProfilePicture = subscriber.awaitItem().assertCompleted().getItem();
-        final HazelcastCachedUserProfilePicture expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePicture.newBuilder()
+        final UniAssertSubscriber<CachedUserProfilePictures> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        final CachedUserProfilePictures cachedUserProfilePictures = subscriber.awaitItem().assertCompleted().getItem();
+        final HazelcastCachedUserProfilePictures expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .addProfilePictureIdentifier(
                         HazelcastProfilePictureIdentifier.newBuilder()
@@ -224,7 +224,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
                 .build();
-        assertThat(cachedUserProfilePicture).isEqualTo(expectedHazelcastCachedUserProfilePicture);
+        assertThat(cachedUserProfilePictures).isEqualTo(expectedHazelcastCachedUserProfilePicture);
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         // I cannot do @InjectSpy on hazelcastInstance to verify the call in order
         inOrder.verify(openTelemetryTracingService, times(1)).endSpan(span);
@@ -244,7 +244,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
 
         // When
-        final Uni<CachedUserProfilePicture> uni = hazelcastUserProfilePictureCacheRepository.store(() -> "user",
+        final Uni<CachedUserProfilePictures> uni = hazelcastUserProfilePictureCacheRepository.store(() -> "user",
                 Collections.singletonList(
                         HazelcastProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
@@ -252,9 +252,9 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
                                 .setVersionId("v0").build()));
 
         // Then
-        final UniAssertSubscriber<CachedUserProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        final CachedUserProfilePicture cachedUserProfilePicture = subscriber.awaitItem().assertCompleted().getItem();
-        final HazelcastCachedUserProfilePicture expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePicture.newBuilder()
+        final UniAssertSubscriber<CachedUserProfilePictures> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        final CachedUserProfilePictures cachedUserProfilePictures = subscriber.awaitItem().assertCompleted().getItem();
+        final HazelcastCachedUserProfilePictures expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .addProfilePictureIdentifier(
                         HazelcastProfilePictureIdentifier.newBuilder()
@@ -262,7 +262,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
                 .build();
-        assertThat(cachedUserProfilePicture).isEqualTo(expectedHazelcastCachedUserProfilePicture);
+        assertThat(cachedUserProfilePictures).isEqualTo(expectedHazelcastCachedUserProfilePicture);
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         // I cannot do @InjectSpy on hazelcastInstance to verify the call in order
         inOrder.verify(openTelemetryTracingService, times(1)).endSpan(span);
