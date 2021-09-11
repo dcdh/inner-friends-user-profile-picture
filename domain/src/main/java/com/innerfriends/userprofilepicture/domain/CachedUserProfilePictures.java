@@ -6,7 +6,7 @@ public interface CachedUserProfilePictures {
 
     UserPseudo userPseudo();
 
-    List<? extends UserProfilePictureIdentifier> profilePictureIdentifiers();
+    List<? extends UserProfilePictureIdentifier> userProfilePictureIdentifiers();
 
     UserProfilePictureIdentifier featured();
 

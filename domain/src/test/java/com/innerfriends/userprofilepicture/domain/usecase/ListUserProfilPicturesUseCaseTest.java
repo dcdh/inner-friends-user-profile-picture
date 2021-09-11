@@ -35,7 +35,7 @@ public class ListUserProfilPicturesUseCaseTest {
         final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
         final CachedUserProfilePictures cachedUserProfilePictures = mock(CachedUserProfilePictures.class);
         final List<UserProfilePictureIdentifier> userProfilePictureIdentifiers = Collections.emptyList();
-        doReturn(userProfilePictureIdentifiers).when(cachedUserProfilePictures).profilePictureIdentifiers();
+        doReturn(userProfilePictureIdentifiers).when(cachedUserProfilePictures).userProfilePictureIdentifiers();
         doReturn(Uni.createFrom().item(cachedUserProfilePictures)).when(userProfilePictureCacheRepository).get(userPseudo);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureIdentifiers);
@@ -49,7 +49,7 @@ public class ListUserProfilPicturesUseCaseTest {
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(userProfilePictureCacheRepository, times(1)).get(any());
-        verify(cachedUserProfilePictures, times(1)).profilePictureIdentifiers();
+        verify(cachedUserProfilePictures, times(1)).userProfilePictureIdentifiers();
         verify(testResponseTransformer).toResponse(any(List.class));
         verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
     }

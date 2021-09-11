@@ -12,15 +12,15 @@ import java.util.Objects;
 public final class HazelcastCachedUserProfilePictures implements CachedUserProfilePictures, Serializable {
 
     public String userPseudo;
-    public List<HazelcastUserProfilePictureIdentifier> profilePictureIdentifiers;
-    public HazelcastUserProfilePictureIdentifier featuredProfilePictureIdentifier;
+    public List<HazelcastUserProfilePictureIdentifier> userProfilePictureIdentifiers;
+    public HazelcastUserProfilePictureIdentifier featuredUserProfilePictureIdentifier;
 
     public HazelcastCachedUserProfilePictures() {}
 
     private HazelcastCachedUserProfilePictures(final Builder builder) {
         this.userPseudo = builder.userPseudo;
-        this.profilePictureIdentifiers = builder.profilePictureIdentifiers;
-        this.featuredProfilePictureIdentifier = builder.featuredProfilePictureIdentifier;
+        this.userProfilePictureIdentifiers = builder.userProfilePictureIdentifiers;
+        this.featuredUserProfilePictureIdentifier = builder.featuredUserProfilePictureIdentifier;
     }
 
     public static Builder newBuilder() {
@@ -30,8 +30,8 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
     public static final class Builder {
 
         public String userPseudo;
-        public List<HazelcastUserProfilePictureIdentifier> profilePictureIdentifiers = new ArrayList<>();
-        public HazelcastUserProfilePictureIdentifier featuredProfilePictureIdentifier;
+        public List<HazelcastUserProfilePictureIdentifier> userProfilePictureIdentifiers = new ArrayList<>();
+        public HazelcastUserProfilePictureIdentifier featuredUserProfilePictureIdentifier;
 
         private Builder() {}
 
@@ -40,13 +40,13 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
             return this;
         }
 
-        public Builder addProfilePictureIdentifier(final HazelcastUserProfilePictureIdentifier profilePictureIdentifier) {
-            this.profilePictureIdentifiers.add(profilePictureIdentifier);
+        public Builder addProfilePictureIdentifier(final HazelcastUserProfilePictureIdentifier userProfilePictureIdentifier) {
+            this.userProfilePictureIdentifiers.add(userProfilePictureIdentifier);
             return this;
         }
 
-        public Builder setFeaturedProfilePictureIdentifier(final HazelcastUserProfilePictureIdentifier featuredProfilePictureIdentifier) {
-            this.featuredProfilePictureIdentifier = featuredProfilePictureIdentifier;
+        public Builder setFeaturedUserProfilePictureIdentifier(final HazelcastUserProfilePictureIdentifier featuredUserProfilePictureIdentifier) {
+            this.featuredUserProfilePictureIdentifier = featuredUserProfilePictureIdentifier;
             return this;
         }
 
@@ -55,13 +55,13 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
         }
     }
 
-    public HazelcastCachedUserProfilePictures replaceAllProfilePictureIdentifiers(final List<HazelcastUserProfilePictureIdentifier> profilePictureIdentifiers) {
-        this.profilePictureIdentifiers = profilePictureIdentifiers;
+    public HazelcastCachedUserProfilePictures replaceAllProfilePictureIdentifiers(final List<HazelcastUserProfilePictureIdentifier> userProfilePictureIdentifiers) {
+        this.userProfilePictureIdentifiers = userProfilePictureIdentifiers;
         return this;
     }
 
-    public HazelcastCachedUserProfilePictures setFeaturedProfilePictureIdentifier(final HazelcastUserProfilePictureIdentifier featuredProfilePictureIdentifier) {
-        this.featuredProfilePictureIdentifier = featuredProfilePictureIdentifier;
+    public HazelcastCachedUserProfilePictures setFeaturedUserProfilePictureIdentifier(final HazelcastUserProfilePictureIdentifier featuredUserProfilePictureIdentifier) {
+        this.featuredUserProfilePictureIdentifier = featuredUserProfilePictureIdentifier;
         return this;
     }
 
@@ -71,13 +71,13 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
     }
 
     @Override
-    public List<? extends UserProfilePictureIdentifier> profilePictureIdentifiers() {
-        return profilePictureIdentifiers;
+    public List<? extends UserProfilePictureIdentifier> userProfilePictureIdentifiers() {
+        return userProfilePictureIdentifiers;
     }
 
     @Override
     public UserProfilePictureIdentifier featured() {
-        return featuredProfilePictureIdentifier;
+        return featuredUserProfilePictureIdentifier;
     }
 
     @Override
@@ -86,21 +86,21 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
         if (!(o instanceof HazelcastCachedUserProfilePictures)) return false;
         HazelcastCachedUserProfilePictures that = (HazelcastCachedUserProfilePictures) o;
         return Objects.equals(userPseudo, that.userPseudo) &&
-                Objects.equals(profilePictureIdentifiers, that.profilePictureIdentifiers) &&
-                Objects.equals(featuredProfilePictureIdentifier, that.featuredProfilePictureIdentifier);
+                Objects.equals(userProfilePictureIdentifiers, that.userProfilePictureIdentifiers) &&
+                Objects.equals(featuredUserProfilePictureIdentifier, that.featuredUserProfilePictureIdentifier);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userPseudo, profilePictureIdentifiers, featuredProfilePictureIdentifier);
+        return Objects.hash(userPseudo, userProfilePictureIdentifiers, featuredUserProfilePictureIdentifier);
     }
 
     @Override
     public String toString() {
-        return "HazelcastCachedUserProfilePicture{" +
+        return "HazelcastCachedUserProfilePictures{" +
                 "userPseudo='" + userPseudo + '\'' +
-                ", profilePictureIdentifiers=" + profilePictureIdentifiers +
-                ", featuredProfilePictureIdentifier=" + featuredProfilePictureIdentifier +
+                ", userProfilePictureIdentifiers=" + userProfilePictureIdentifiers +
+                ", featuredProfilePictureIdentifier=" + featuredUserProfilePictureIdentifier +
                 '}';
     }
 }

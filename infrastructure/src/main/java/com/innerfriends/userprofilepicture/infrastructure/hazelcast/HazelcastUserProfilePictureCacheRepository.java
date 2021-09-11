@@ -50,7 +50,7 @@ public class HazelcastUserProfilePictureCacheRepository implements UserProfilePi
     }
 
     @Override
-    public Uni<CachedUserProfilePictures> store(final UserPseudo userPseudo, final List<? extends UserProfilePictureIdentifier> profilePictureIdentifiers) {
+    public Uni<CachedUserProfilePictures> store(final UserPseudo userPseudo, final List<? extends UserProfilePictureIdentifier> userProfilePictureIdentifiers) {
         return Uni.createFrom()
                 .deferred(() -> {
                     final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.store");
@@ -60,7 +60,7 @@ public class HazelcastUserProfilePictureCacheRepository implements UserProfilePi
                             .onItem().castTo(HazelcastCachedUserProfilePictures.class)
                             .chain(hazelcastCachedUserProfilePicture -> {
                                 hazelcastCachedUserProfilePicture.replaceAllProfilePictureIdentifiers(
-                                        profilePictureIdentifiers.stream()
+                                        userProfilePictureIdentifiers.stream()
                                                 .map(HazelcastUserProfilePictureIdentifier::new)
                                                 .collect(Collectors.toList())
                                 );
@@ -83,7 +83,7 @@ public class HazelcastUserProfilePictureCacheRepository implements UserProfilePi
                             .replaceIfNullWith(() -> HazelcastCachedUserProfilePictures.newBuilder().setUserPseudo(userPseudo.pseudo()).build())
                             .onItem().castTo(HazelcastCachedUserProfilePictures.class)
                             .chain(hazelcastCachedUserProfilePicture -> {
-                                hazelcastCachedUserProfilePicture.setFeaturedProfilePictureIdentifier(new HazelcastUserProfilePictureIdentifier(featured));
+                                hazelcastCachedUserProfilePicture.setFeaturedUserProfilePictureIdentifier(new HazelcastUserProfilePictureIdentifier(featured));
                                 return Uni.createFrom().completionStage(() -> hazelcastInstance.getMap(MAP_NAME).putAsync(userPseudo.pseudo(), hazelcastCachedUserProfilePicture))
                                         .map(response -> hazelcastCachedUserProfilePicture);
                             })

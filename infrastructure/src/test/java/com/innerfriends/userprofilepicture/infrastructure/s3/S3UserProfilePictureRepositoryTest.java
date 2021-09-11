@@ -251,11 +251,11 @@ public class S3UserProfilePictureRepositoryTest {
 
         // Then
         final UniAssertSubscriber<List<? extends UserProfilePictureIdentifier>> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        final List<? extends UserProfilePictureIdentifier> profilePictureIdentifiers = subscriber.awaitItem().assertCompleted().getItem();
-        assertThat(profilePictureIdentifiers.size()).isEqualTo(1);
-        assertThat(profilePictureIdentifiers.get(0).userPseudo().pseudo()).isEqualTo("user");
-        assertThat(profilePictureIdentifiers.get(0).mediaType()).isEqualTo(SupportedMediaType.IMAGE_JPEG);
-        assertThat(profilePictureIdentifiers.get(0).versionId().version()).isEqualTo(versionId);
+        final List<? extends UserProfilePictureIdentifier> userProfilePictureIdentifiers = subscriber.awaitItem().assertCompleted().getItem();
+        assertThat(userProfilePictureIdentifiers.size()).isEqualTo(1);
+        assertThat(userProfilePictureIdentifiers.get(0).userPseudo().pseudo()).isEqualTo("user");
+        assertThat(userProfilePictureIdentifiers.get(0).mediaType()).isEqualTo(SupportedMediaType.IMAGE_JPEG);
+        assertThat(userProfilePictureIdentifiers.get(0).versionId().version()).isEqualTo(versionId);
         verify(s3ObjectKeyProvider, times(1)).objectKey(any(), any());
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         inOrder.verify(s3AsyncClient, times(1)).listObjectVersions(any(ListObjectVersionsRequest.class));
@@ -283,12 +283,12 @@ public class S3UserProfilePictureRepositoryTest {
 
         // Then
         final UniAssertSubscriber<ContentUserProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        final ContentUserProfilePicture contentProfilePicture = subscriber.awaitItem().assertCompleted().getItem();
-        assertThat(contentProfilePicture.userPseudo().pseudo()).isEqualTo("user");
-        assertThat(contentProfilePicture.picture()).isEqualTo("picture".getBytes());
-        assertThat(contentProfilePicture.mediaType()).isEqualTo(SupportedMediaType.IMAGE_JPEG);
-        assertThat(contentProfilePicture.contentLength()).isEqualTo(7l);
-        assertThat(contentProfilePicture.versionId().version()).isEqualTo(versionId);
+        final ContentUserProfilePicture contentUserProfilePicture = subscriber.awaitItem().assertCompleted().getItem();
+        assertThat(contentUserProfilePicture.userPseudo().pseudo()).isEqualTo("user");
+        assertThat(contentUserProfilePicture.picture()).isEqualTo("picture".getBytes());
+        assertThat(contentUserProfilePicture.mediaType()).isEqualTo(SupportedMediaType.IMAGE_JPEG);
+        assertThat(contentUserProfilePicture.contentLength()).isEqualTo(7l);
+        assertThat(contentUserProfilePicture.versionId().version()).isEqualTo(versionId);
         verify(s3ObjectKeyProvider, times(1)).objectKey(any(), any());
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         inOrder.verify(s3AsyncClient, times(1)).getObject(any(GetObjectRequest.class), any(AsyncResponseTransformer.class));

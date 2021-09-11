@@ -49,7 +49,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         }
         final CachedUserProfilePictures givenCachedUserProfilePictures = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
-                .setFeaturedProfilePictureIdentifier(
+                .setFeaturedUserProfilePictureIdentifier(
                         HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
@@ -73,7 +73,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         final CachedUserProfilePictures cachedUserProfilePictures = subscriber.awaitItem().assertCompleted().getItem();
         assertThat(cachedUserProfilePictures).isEqualTo(HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
-                .setFeaturedProfilePictureIdentifier(
+                .setFeaturedUserProfilePictureIdentifier(
                         HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
@@ -139,7 +139,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         final CachedUserProfilePictures cachedUserProfilePictures = subscriber.awaitItem().assertCompleted().getItem();
         final HazelcastCachedUserProfilePictures expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
-                .setFeaturedProfilePictureIdentifier(
+                .setFeaturedUserProfilePictureIdentifier(
                         HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
@@ -176,7 +176,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         final CachedUserProfilePictures cachedUserProfilePictures = subscriber.awaitItem().assertCompleted().getItem();
         final HazelcastCachedUserProfilePictures expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
-                .setFeaturedProfilePictureIdentifier(
+                .setFeaturedUserProfilePictureIdentifier(
                         HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)

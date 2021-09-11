@@ -171,7 +171,7 @@ public class E2ETest {
 
         assertThat(hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E")).isNotNull();
         assertThat(((HazelcastCachedUserProfilePictures) hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E"))
-                .featuredProfilePictureIdentifier).isNotNull();
+                .featuredUserProfilePictureIdentifier).isNotNull();
     }
 
     @Test
@@ -289,7 +289,7 @@ public class E2ETest {
 
         assertThat(hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E")).isNotNull();
         assertThat(((HazelcastCachedUserProfilePictures) hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("pseudoE2E"))
-                .profilePictureIdentifiers).isNotNull();
+                .userProfilePictureIdentifiers).isNotNull();
     }
 
     @Test
