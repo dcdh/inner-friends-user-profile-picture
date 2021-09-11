@@ -52,10 +52,10 @@ public class SaveUserProfilePictureUseCaseTest {
     @Test
     public void should_handle_profile_picture_repository_exception() {
         // Given
-        final ProfilePictureRepositoryException profilePictureRepositoryException = mock(ProfilePictureRepositoryException.class);
-        doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(userProfilePictureRepository).save(any(), any(), any());
+        final UserProfilePictureRepositoryException userProfilePictureRepositoryException = mock(UserProfilePictureRepositoryException.class);
+        doReturn(Uni.createFrom().failure(userProfilePictureRepositoryException)).when(userProfilePictureRepository).save(any(), any(), any());
         final Response response = mock(Response.class);
-        doReturn(response).when(testResponseTransformer).toResponse(profilePictureRepositoryException);
+        doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureRepositoryException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = saveUserProfilePictureUseCase.execute(
@@ -66,7 +66,7 @@ public class SaveUserProfilePictureUseCaseTest {
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
-        verify(testResponseTransformer).toResponse(any(ProfilePictureRepositoryException.class));
+        verify(testResponseTransformer).toResponse(any(UserProfilePictureRepositoryException.class));
         verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
     }
 

@@ -29,8 +29,8 @@ public class ListUserProfilPicturesUseCase<R> implements UseCase<R, ListUserProf
                                 .chain(profilePictureIdentifiers -> userProfilePictureCacheRepository.store(command.userPseudo(), profilePictureIdentifiers)
                                         .onItemOrFailure().transform((item, exception) -> profilePictureIdentifiers))
                                 .map(profilePictureIdentifiers -> responseTransformer.toResponse(profilePictureIdentifiers))
-                                .onFailure(ProfilePictureRepositoryException.class)
-                                .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((ProfilePictureRepositoryException) profilePictureRepositoryException))
+                                .onFailure(UserProfilePictureRepositoryException.class)
+                                .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((UserProfilePictureRepositoryException) profilePictureRepositoryException))
                                 .onFailure()
                                 .recoverWithItem(exception -> responseTransformer.toResponse(exception))
                 );

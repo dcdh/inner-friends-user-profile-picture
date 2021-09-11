@@ -148,7 +148,7 @@ public class S3UserProfilePictureRepositoryTest {
 
         // Then
         final UniAssertSubscriber<UserProfilePictureSaved> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        subscriber.awaitFailure().assertFailedWith(ProfilePictureRepositoryException.class);
+        subscriber.awaitFailure().assertFailedWith(UserProfilePictureRepositoryException.class);
 
         final List<ObjectVersion> objectVersions = s3Client.listObjectVersions(ListObjectVersionsRequest
                 .builder()
@@ -222,7 +222,7 @@ public class S3UserProfilePictureRepositoryTest {
 
         // Then
         final UniAssertSubscriber<UserProfilePictureIdentifier> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        subscriber.awaitFailure().assertFailedWith(ProfilePictureNotAvailableYetException.class);
+        subscriber.awaitFailure().assertFailedWith(UserProfilePictureNotAvailableYetException.class);
         verify(s3ObjectKeyProvider, times(1)).objectKey(any(), any());
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         inOrder.verify(s3AsyncClient, times(1)).listObjectVersions(any(ListObjectVersionsRequest.class));
@@ -314,7 +314,7 @@ public class S3UserProfilePictureRepositoryTest {
 
         // Then
         final UniAssertSubscriber<ContentUserProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        subscriber.awaitFailure().assertFailedWith(ProfilePictureVersionUnknownException.class);
+        subscriber.awaitFailure().assertFailedWith(UserProfilePictureVersionUnknownException.class);
         verify(userProfilePictureIdentifier, times(1)).versionId();
         verify(userProfilePictureIdentifier, times(1)).mediaType();
         verify(userProfilePictureIdentifier, times(1)).userPseudo();
@@ -343,7 +343,7 @@ public class S3UserProfilePictureRepositoryTest {
 
         // Then
         final UniAssertSubscriber<ContentUserProfilePicture> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        subscriber.awaitFailure().assertFailedWith(ProfilePictureRepositoryException.class);
+        subscriber.awaitFailure().assertFailedWith(UserProfilePictureRepositoryException.class);
         verify(userProfilePictureIdentifier, times(1)).versionId();
         verify(userProfilePictureIdentifier, times(1)).mediaType();
         verify(userProfilePictureIdentifier, times(1)).userPseudo();

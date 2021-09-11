@@ -6,12 +6,12 @@ import java.util.List;
 
 public interface UserProfilePictureRepository {
 
-    Uni<UserProfilePictureSaved> save(UserPseudo userPseudo, byte[] picture, SupportedMediaType mediaType) throws ProfilePictureRepositoryException;
+    Uni<UserProfilePictureSaved> save(UserPseudo userPseudo, byte[] picture, SupportedMediaType mediaType) throws UserProfilePictureRepositoryException;
 
-    Uni<UserProfilePictureIdentifier> getLast(UserPseudo userPseudo, SupportedMediaType mediaType) throws ProfilePictureNotAvailableYetException, ProfilePictureRepositoryException;
+    Uni<UserProfilePictureIdentifier> getLast(UserPseudo userPseudo, SupportedMediaType mediaType) throws UserProfilePictureNotAvailableYetException, UserProfilePictureRepositoryException;
 
-    Uni<List<? extends UserProfilePictureIdentifier>> listByUserPseudo(UserPseudo userPseudo, SupportedMediaType mediaType) throws ProfilePictureRepositoryException;
+    Uni<List<? extends UserProfilePictureIdentifier>> listByUserPseudo(UserPseudo userPseudo, SupportedMediaType mediaType) throws UserProfilePictureRepositoryException;
 
-    Uni<ContentUserProfilePicture> getContentByVersionId(UserProfilePictureIdentifier userProfilePictureIdentifier) throws ProfilePictureVersionUnknownException, ProfilePictureRepositoryException;
+    Uni<ContentUserProfilePicture> getContentByVersionId(UserProfilePictureIdentifier userProfilePictureIdentifier) throws UserProfilePictureVersionUnknownException, UserProfilePictureRepositoryException;
 
 }

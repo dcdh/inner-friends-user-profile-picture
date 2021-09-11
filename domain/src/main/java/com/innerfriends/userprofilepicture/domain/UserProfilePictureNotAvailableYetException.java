@@ -2,11 +2,11 @@ package com.innerfriends.userprofilepicture.domain;
 
 import java.util.Objects;
 
-public class ProfilePictureNotAvailableYetException extends RuntimeException {
+public class UserProfilePictureNotAvailableYetException extends RuntimeException {
 
     private final UserPseudo userPseudo;
 
-    public ProfilePictureNotAvailableYetException(final UserPseudo userPseudo) {
+    public UserProfilePictureNotAvailableYetException(final UserPseudo userPseudo) {
         this.userPseudo = Objects.requireNonNull(userPseudo);
     }
 

@@ -12,11 +12,11 @@ public interface ResponseTransformer<R> {
 
     R toResponse(List<? extends UserProfilePictureIdentifier> profilePictureIdentifiers);
 
-    R toResponse(ProfilePictureNotAvailableYetException profilePictureNotAvailableYetException);
+    R toResponse(UserProfilePictureNotAvailableYetException userProfilePictureNotAvailableYetException);
 
-    R toResponse(ProfilePictureVersionUnknownException profilePictureVersionUnknownException);
+    R toResponse(UserProfilePictureVersionUnknownException userProfilePictureVersionUnknownException);
 
-    R toResponse(ProfilePictureRepositoryException profilePictureRepositoryException);
+    R toResponse(UserProfilePictureRepositoryException userProfilePictureRepositoryException);
 
     R toResponse(Throwable throwable);
 

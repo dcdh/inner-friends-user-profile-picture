@@ -9,13 +9,13 @@ import java.util.stream.Collectors;
 public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
 
     @Override
-    public Response toResponse(final ContentUserProfilePicture contentProfilePicture) {
-        return Response.ok(contentProfilePicture.picture())
+    public Response toResponse(final ContentUserProfilePicture contentUserProfilePicture) {
+        return Response.ok(contentUserProfilePicture.picture())
                 .header("Content-Disposition",
-                        String.format("attachment;filename=%s%s", contentProfilePicture.userPseudo().pseudo(), contentProfilePicture.mediaType().extension()))
-                .header("Content-Type", contentProfilePicture.mediaType().contentType())
-                .header("Content-Length", contentProfilePicture.contentLength())
-                .header("versionId", contentProfilePicture.versionId().version())
+                        String.format("attachment;filename=%s%s", contentUserProfilePicture.userPseudo().pseudo(), contentUserProfilePicture.mediaType().extension()))
+                .header("Content-Type", contentUserProfilePicture.mediaType().contentType())
+                .header("Content-Length", contentUserProfilePicture.contentLength())
+                .header("versionId", contentUserProfilePicture.versionId().version())
                 .build();
     }
 
@@ -33,26 +33,26 @@ public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
     }
 
     @Override
-    public Response toResponse(final List<? extends UserProfilePictureIdentifier> profilePictureIdentifiers) {
+    public Response toResponse(final List<? extends UserProfilePictureIdentifier> userProfilePictureIdentifiers) {
         return Response.ok(
-                profilePictureIdentifiers.stream()
+                userProfilePictureIdentifiers.stream()
                         .map(UserProfilePictureIdentifierDTO::new)
                         .collect(Collectors.toList()))
                 .build();
     }
 
     @Override
-    public Response toResponse(final ProfilePictureNotAvailableYetException profilePictureNotAvailableYetException) {
+    public Response toResponse(final UserProfilePictureNotAvailableYetException userProfilePictureNotAvailableYetException) {
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @Override
-    public Response toResponse(final ProfilePictureVersionUnknownException profilePictureVersionUnknownException) {
+    public Response toResponse(final UserProfilePictureVersionUnknownException userProfilePictureVersionUnknownException) {
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @Override
-    public Response toResponse(final ProfilePictureRepositoryException profilePictureRepositoryException) {
+    public Response toResponse(final UserProfilePictureRepositoryException userProfilePictureRepositoryException) {
         return Response.serverError().build();
     }
 

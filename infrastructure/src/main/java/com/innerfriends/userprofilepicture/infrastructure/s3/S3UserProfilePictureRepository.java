@@ -44,7 +44,7 @@ public class S3UserProfilePictureRepository implements UserProfilePictureReposit
     @Override
     public Uni<UserProfilePictureSaved> save(final UserPseudo userPseudo,
                                              final byte[] picture,
-                                             final SupportedMediaType mediaType) throws ProfilePictureRepositoryException {
+                                             final SupportedMediaType mediaType) throws UserProfilePictureRepositoryException {
         return Uni.createFrom()
                 .deferred(() -> {
                     final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.save");
@@ -60,7 +60,7 @@ public class S3UserProfilePictureRepository implements UserProfilePictureReposit
                             .transform(exception -> {
                                 LOG.error(exception);
                                 openTelemetryTracingService.markSpanInError(span);
-                                return new ProfilePictureRepositoryException();
+                                return new UserProfilePictureRepositoryException();
                             })
                             .onTermination()
                             .invoke(() -> openTelemetryTracingService.endSpan(span));
@@ -69,7 +69,7 @@ public class S3UserProfilePictureRepository implements UserProfilePictureReposit
 
     @Override
     public Uni<UserProfilePictureIdentifier> getLast(final UserPseudo userPseudo, final SupportedMediaType mediaType)
-            throws ProfilePictureNotAvailableYetException, ProfilePictureRepositoryException {
+            throws UserProfilePictureNotAvailableYetException, UserProfilePictureRepositoryException {
         return Uni.createFrom()
                 .deferred(() -> {
                     final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.getLast");
@@ -85,7 +85,7 @@ public class S3UserProfilePictureRepository implements UserProfilePictureReposit
                                         .findFirst()
                                         .map(objectVersion -> new S3UserProfilePictureIdentifier(userPseudo, mediaType, objectVersion));
                                 if (!profilePictureIdentifier.isPresent()) {
-                                    throw new ProfilePictureNotAvailableYetException(userPseudo);
+                                    throw new UserProfilePictureNotAvailableYetException(userPseudo);
                                 }
                                 return profilePictureIdentifier.get();
                             })
@@ -93,7 +93,7 @@ public class S3UserProfilePictureRepository implements UserProfilePictureReposit
                             .transform(exception -> {
                                 LOG.error(exception);
                                 openTelemetryTracingService.markSpanInError(span);
-                                return new ProfilePictureRepositoryException();
+                                return new UserProfilePictureRepositoryException();
                             })
                             .onTermination()
                             .invoke(() -> openTelemetryTracingService.endSpan(span));
@@ -103,7 +103,7 @@ public class S3UserProfilePictureRepository implements UserProfilePictureReposit
     @Override
     public Uni<List<? extends UserProfilePictureIdentifier>> listByUserPseudo(final UserPseudo userPseudo,
                                                                               final SupportedMediaType mediaType)
-            throws ProfilePictureRepositoryException {
+            throws UserProfilePictureRepositoryException {
         return Uni.createFrom()
                 .deferred(() -> {
                     final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.listByUserPseudo");
@@ -123,7 +123,7 @@ public class S3UserProfilePictureRepository implements UserProfilePictureReposit
                             .transform(exception -> {
                                 LOG.error(exception);
                                 openTelemetryTracingService.markSpanInError(span);
-                                throw new ProfilePictureRepositoryException();
+                                throw new UserProfilePictureRepositoryException();
                             })
                             .onTermination()
                             .invoke(() -> openTelemetryTracingService.endSpan(span));
@@ -132,7 +132,7 @@ public class S3UserProfilePictureRepository implements UserProfilePictureReposit
 
     @Override
     public Uni<ContentUserProfilePicture> getContentByVersionId(final UserProfilePictureIdentifier userProfilePictureIdentifier)
-            throws ProfilePictureVersionUnknownException, ProfilePictureRepositoryException {
+            throws UserProfilePictureVersionUnknownException, UserProfilePictureRepositoryException {
         return Uni.createFrom()
                 .deferred(() -> {
                     final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.getContentByVersion");
@@ -146,15 +146,15 @@ public class S3UserProfilePictureRepository implements UserProfilePictureReposit
                             .onFailure(NoSuchKeyException.class)
                             .transform(exception -> {
                                 openTelemetryTracingService.markSpanInError(span);
-                                return new ProfilePictureVersionUnknownException(userProfilePictureIdentifier);
+                                return new UserProfilePictureVersionUnknownException(userProfilePictureIdentifier);
                             })
                             .onFailure(SdkException.class)
                             .transform(exception -> {
                                 openTelemetryTracingService.markSpanInError(span);
                                 if (exception.getMessage().startsWith("Invalid version id specified")) {
-                                    return new ProfilePictureVersionUnknownException(userProfilePictureIdentifier);
+                                    return new UserProfilePictureVersionUnknownException(userProfilePictureIdentifier);
                                 }
-                                return new ProfilePictureRepositoryException();
+                                return new UserProfilePictureRepositoryException();
                             })
                             .onTermination()
                             .invoke(() -> openTelemetryTracingService.endSpan(span));

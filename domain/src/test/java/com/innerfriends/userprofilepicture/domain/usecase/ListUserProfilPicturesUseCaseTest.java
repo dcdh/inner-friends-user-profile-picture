@@ -87,10 +87,10 @@ public class ListUserProfilPicturesUseCaseTest {
     public void should_handle_profile_picture_repository_exception() {
         // Given
         doReturn(Uni.createFrom().nullItem()).when(userProfilePictureCacheRepository).get(any());
-        final ProfilePictureRepositoryException profilePictureRepositoryException = mock(ProfilePictureRepositoryException.class);
-        doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(userProfilePictureRepository).listByUserPseudo(any(), any());
+        final UserProfilePictureRepositoryException userProfilePictureRepositoryException = mock(UserProfilePictureRepositoryException.class);
+        doReturn(Uni.createFrom().failure(userProfilePictureRepositoryException)).when(userProfilePictureRepository).listByUserPseudo(any(), any());
         final Response response = mock(Response.class);
-        doReturn(response).when(testResponseTransformer).toResponse(profilePictureRepositoryException);
+        doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureRepositoryException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = listUserProfilPicturesUseCase.execute(
@@ -102,7 +102,7 @@ public class ListUserProfilPicturesUseCaseTest {
         subscriber.assertCompleted().assertItem(response);
         verify(userProfilePictureCacheRepository, times(1)).get(any());
         verify(userProfilePictureRepository, times(1)).listByUserPseudo(any(), any());
-        verify(testResponseTransformer).toResponse(any(ProfilePictureRepositoryException.class));
+        verify(testResponseTransformer).toResponse(any(UserProfilePictureRepositoryException.class));
         verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
     }
 

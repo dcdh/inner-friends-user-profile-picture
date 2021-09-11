@@ -24,8 +24,8 @@ public class SaveUserProfilePictureUseCase<R> implements UseCase<R, SaveUserProf
                 .chain(profilePictureSaved -> userProfilePictureCacheRepository.storeFeatured(command.userPseudo(), profilePictureSaved)
                         .onItemOrFailure().transform((item, exception) -> profilePictureSaved))
                 .map(profilePictureSaved -> responseTransformer.toResponse(profilePictureSaved))
-                .onFailure(ProfilePictureRepositoryException.class)
-                .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((ProfilePictureRepositoryException) profilePictureRepositoryException))
+                .onFailure(UserProfilePictureRepositoryException.class)
+                .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((UserProfilePictureRepositoryException) profilePictureRepositoryException))
                 .onFailure()
                 .recoverWithItem(exception -> responseTransformer.toResponse(exception));
     }

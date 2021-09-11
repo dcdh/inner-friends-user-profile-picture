@@ -2,11 +2,11 @@ package com.innerfriends.userprofilepicture.domain;
 
 import java.util.Objects;
 
-public class ProfilePictureVersionUnknownException extends RuntimeException {
+public class UserProfilePictureVersionUnknownException extends RuntimeException {
 
     private final UserProfilePictureIdentifier userProfilePictureIdentifier;
 
-    public ProfilePictureVersionUnknownException(final UserProfilePictureIdentifier userProfilePictureIdentifier) {
+    public UserProfilePictureVersionUnknownException(final UserProfilePictureIdentifier userProfilePictureIdentifier) {
         this.userProfilePictureIdentifier = Objects.requireNonNull(userProfilePictureIdentifier);
     }
 

@@ -20,10 +20,10 @@ public class GetUserProfilePictureByVersionUseCase<R> implements UseCase<R, GetU
                 .deferred(() -> userProfilePictureRepository.getContentByVersionId(command))
                 .onItem()
                 .transform(contentProfilePicture -> responseTransformer.toResponse(contentProfilePicture))
-                .onFailure(ProfilePictureVersionUnknownException.class)
-                .recoverWithItem(profilePictureVersionUnknownException -> responseTransformer.toResponse((ProfilePictureVersionUnknownException) profilePictureVersionUnknownException))
-                .onFailure(ProfilePictureRepositoryException.class)
-                .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((ProfilePictureRepositoryException) profilePictureRepositoryException))
+                .onFailure(UserProfilePictureVersionUnknownException.class)
+                .recoverWithItem(profilePictureVersionUnknownException -> responseTransformer.toResponse((UserProfilePictureVersionUnknownException) profilePictureVersionUnknownException))
+                .onFailure(UserProfilePictureRepositoryException.class)
+                .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((UserProfilePictureRepositoryException) profilePictureRepositoryException))
                 .onFailure()
                 .recoverWithItem(exception -> responseTransformer.toResponse(exception));
     }
