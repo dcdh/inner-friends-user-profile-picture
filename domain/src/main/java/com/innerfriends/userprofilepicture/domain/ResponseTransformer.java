@@ -4,13 +4,13 @@ import java.util.List;
 
 public interface ResponseTransformer<R> {
 
-    R toResponse(ContentProfilePicture contentProfilePicture);
+    R toResponse(ContentUserProfilePicture contentProfilePicture);
 
-    R toResponse(ProfilePictureSaved profilePictureSaved);
+    R toResponse(UserProfilePictureSaved profilePictureSaved);
 
-    R toResponse(ProfilePictureIdentifier profilePictureIdentifiers);
+    R toResponse(UserProfilePictureIdentifier userProfilePictureIdentifiers);
 
-    R toResponse(List<? extends ProfilePictureIdentifier> profilePictureIdentifiers);
+    R toResponse(List<? extends UserProfilePictureIdentifier> profilePictureIdentifiers);
 
     R toResponse(ProfilePictureNotAvailableYetException profilePictureNotAvailableYetException);
 

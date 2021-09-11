@@ -1,6 +1,6 @@
 package com.innerfriends.userprofilepicture.domain;
 
-public interface ContentProfilePicture extends ProfilePictureIdentifier {
+public interface ContentUserProfilePicture extends UserProfilePictureIdentifier {
 
     byte[] picture();
 

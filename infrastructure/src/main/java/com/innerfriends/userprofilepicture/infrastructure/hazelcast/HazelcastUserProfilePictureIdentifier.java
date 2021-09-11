@@ -1,6 +1,6 @@
 package com.innerfriends.userprofilepicture.infrastructure.hazelcast;
 
-import com.innerfriends.userprofilepicture.domain.ProfilePictureIdentifier;
+import com.innerfriends.userprofilepicture.domain.UserProfilePictureIdentifier;
 import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
 import com.innerfriends.userprofilepicture.domain.UserPseudo;
 import com.innerfriends.userprofilepicture.domain.VersionId;
@@ -8,21 +8,21 @@ import com.innerfriends.userprofilepicture.domain.VersionId;
 import java.io.Serializable;
 import java.util.Objects;
 
-public final class HazelcastProfilePictureIdentifier implements ProfilePictureIdentifier, Serializable {
+public final class HazelcastUserProfilePictureIdentifier implements UserProfilePictureIdentifier, Serializable {
 
     public String userPseudo;
     public SupportedMediaType mediaType;
     public String versionId;
 
-    public HazelcastProfilePictureIdentifier() {}
+    public HazelcastUserProfilePictureIdentifier() {}
 
-    public HazelcastProfilePictureIdentifier(final ProfilePictureIdentifier profilePictureIdentifier) {
-        this.userPseudo = profilePictureIdentifier.userPseudo().pseudo();
-        this.mediaType = profilePictureIdentifier.mediaType();
-        this.versionId = profilePictureIdentifier.versionId().version();
+    public HazelcastUserProfilePictureIdentifier(final UserProfilePictureIdentifier userProfilePictureIdentifier) {
+        this.userPseudo = userProfilePictureIdentifier.userPseudo().pseudo();
+        this.mediaType = userProfilePictureIdentifier.mediaType();
+        this.versionId = userProfilePictureIdentifier.versionId().version();
     }
 
-    private HazelcastProfilePictureIdentifier(final Builder builder) {
+    private HazelcastUserProfilePictureIdentifier(final Builder builder) {
         this.userPseudo = builder.userPseudo;
         this.mediaType = builder.mediaType;
         this.versionId = builder.versionId;
@@ -55,8 +55,8 @@ public final class HazelcastProfilePictureIdentifier implements ProfilePictureId
             return this;
         }
 
-        public HazelcastProfilePictureIdentifier build() {
-            return new HazelcastProfilePictureIdentifier(this);
+        public HazelcastUserProfilePictureIdentifier build() {
+            return new HazelcastUserProfilePictureIdentifier(this);
         }
 
     }
@@ -79,8 +79,8 @@ public final class HazelcastProfilePictureIdentifier implements ProfilePictureId
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof HazelcastProfilePictureIdentifier)) return false;
-        HazelcastProfilePictureIdentifier that = (HazelcastProfilePictureIdentifier) o;
+        if (!(o instanceof HazelcastUserProfilePictureIdentifier)) return false;
+        HazelcastUserProfilePictureIdentifier that = (HazelcastUserProfilePictureIdentifier) o;
         return Objects.equals(userPseudo, that.userPseudo) &&
                 mediaType == that.mediaType &&
                 Objects.equals(versionId, that.versionId);
@@ -93,7 +93,7 @@ public final class HazelcastProfilePictureIdentifier implements ProfilePictureId
 
     @Override
     public String toString() {
-        return "HazelcastProfilePictureIdentifier{" +
+        return "HazelcastUserProfilePictureIdentifier{" +
                 "userPseudo='" + userPseudo + '\'' +
                 ", mediaType=" + mediaType +
                 ", versionId='" + versionId + '\'' +

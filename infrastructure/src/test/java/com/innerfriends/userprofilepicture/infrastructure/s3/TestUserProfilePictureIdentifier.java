@@ -2,11 +2,11 @@ package com.innerfriends.userprofilepicture.infrastructure.s3;
 
 import com.innerfriends.userprofilepicture.domain.*;
 
-public class TestProfilePictureIdentifier implements ProfilePictureIdentifier {
+public class TestUserProfilePictureIdentifier implements UserProfilePictureIdentifier {
 
     private final String versionId;
 
-    public TestProfilePictureIdentifier(final String versionId) {
+    public TestUserProfilePictureIdentifier(final String versionId) {
         this.versionId = versionId;
     }
 

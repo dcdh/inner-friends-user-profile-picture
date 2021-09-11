@@ -1,6 +1,6 @@
 package com.innerfriends.userprofilepicture.domain;
 
-public interface ProfilePictureIdentifier {
+public interface UserProfilePictureIdentifier {
 
     UserPseudo userPseudo();
 

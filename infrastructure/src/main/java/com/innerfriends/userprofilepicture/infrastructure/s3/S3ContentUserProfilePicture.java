@@ -1,6 +1,6 @@
 package com.innerfriends.userprofilepicture.infrastructure.s3;
 
-import com.innerfriends.userprofilepicture.domain.ContentProfilePicture;
+import com.innerfriends.userprofilepicture.domain.ContentUserProfilePicture;
 import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
 import com.innerfriends.userprofilepicture.domain.UserPseudo;
 import com.innerfriends.userprofilepicture.domain.VersionId;
@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import java.util.Arrays;
 import java.util.Objects;
 
-public final class S3ContentProfilePicture implements ContentProfilePicture {
+public final class S3ContentUserProfilePicture implements ContentUserProfilePicture {
 
     private final UserPseudo userPseudo;
     private final byte[] picture;
@@ -18,7 +18,7 @@ public final class S3ContentProfilePicture implements ContentProfilePicture {
     private final Long contentLength;
     private final VersionId versionId;
 
-    public S3ContentProfilePicture(final UserPseudo userPseudo, final ResponseBytes<GetObjectResponse> getObjectResponse) {
+    public S3ContentUserProfilePicture(final UserPseudo userPseudo, final ResponseBytes<GetObjectResponse> getObjectResponse) {
         this.userPseudo = Objects.requireNonNull(userPseudo);
         this.picture = getObjectResponse.asByteArray();
         this.mediaType = SupportedMediaType.fromContentType(getObjectResponse.response().contentType());
@@ -54,8 +54,8 @@ public final class S3ContentProfilePicture implements ContentProfilePicture {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof S3ContentProfilePicture)) return false;
-        S3ContentProfilePicture that = (S3ContentProfilePicture) o;
+        if (!(o instanceof S3ContentUserProfilePicture)) return false;
+        S3ContentUserProfilePicture that = (S3ContentUserProfilePicture) o;
         return Objects.equals(userPseudo, that.userPseudo) &&
                 Arrays.equals(picture, that.picture) &&
                 mediaType == that.mediaType &&

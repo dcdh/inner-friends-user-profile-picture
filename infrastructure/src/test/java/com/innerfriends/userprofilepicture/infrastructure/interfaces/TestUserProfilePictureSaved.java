@@ -1,11 +1,11 @@
 package com.innerfriends.userprofilepicture.infrastructure.interfaces;
 
-import com.innerfriends.userprofilepicture.domain.ContentProfilePicture;
+import com.innerfriends.userprofilepicture.domain.UserProfilePictureSaved;
 import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
 import com.innerfriends.userprofilepicture.domain.UserPseudo;
 import com.innerfriends.userprofilepicture.domain.VersionId;
 
-public class TestContentProfilePicture implements ContentProfilePicture {
+public class TestUserProfilePictureSaved implements UserProfilePictureSaved {
 
     @Override
     public UserPseudo userPseudo() {
@@ -13,18 +13,8 @@ public class TestContentProfilePicture implements ContentProfilePicture {
     }
 
     @Override
-    public byte[] picture() {
-        return "picture".getBytes();
-    }
-
-    @Override
     public SupportedMediaType mediaType() {
         return SupportedMediaType.IMAGE_JPEG;
-    }
-
-    @Override
-    public Long contentLength() {
-        return 7L;
     }
 
     @Override

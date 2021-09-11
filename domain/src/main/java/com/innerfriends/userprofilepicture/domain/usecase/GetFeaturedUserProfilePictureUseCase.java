@@ -7,12 +7,12 @@ import java.util.Objects;
 
 public class GetFeaturedUserProfilePictureUseCase<R> implements UseCase<R, GetFeaturedUserProfilePictureCommand> {
 
-    private final ProfilePictureRepository profilePictureRepository;
+    private final UserProfilePictureRepository userProfilePictureRepository;
     private final UserProfilePictureCacheRepository userProfilePictureCacheRepository;
 
-    public GetFeaturedUserProfilePictureUseCase(final ProfilePictureRepository profilePictureRepository,
+    public GetFeaturedUserProfilePictureUseCase(final UserProfilePictureRepository userProfilePictureRepository,
                                                 final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
-        this.profilePictureRepository = Objects.requireNonNull(profilePictureRepository);
+        this.userProfilePictureRepository = Objects.requireNonNull(userProfilePictureRepository);
         this.userProfilePictureCacheRepository = Objects.requireNonNull(userProfilePictureCacheRepository);
     }
 
@@ -25,7 +25,7 @@ public class GetFeaturedUserProfilePictureUseCase<R> implements UseCase<R, GetFe
                 .onFailure()
                 .recoverWithUni(() ->
                         Uni.createFrom()
-                                .deferred(() -> profilePictureRepository.getLast(command.userPseudo(), command.mediaType()))
+                                .deferred(() -> userProfilePictureRepository.getLast(command.userPseudo(), command.mediaType()))
                                 .chain(profilePictureIdentifier -> userProfilePictureCacheRepository.storeFeatured(command.userPseudo(), profilePictureIdentifier)
                                         .onItemOrFailure().transform((item, exception) -> profilePictureIdentifier))
                                 .map(profilePictureIdentifier -> responseTransformer.toResponse(profilePictureIdentifier))

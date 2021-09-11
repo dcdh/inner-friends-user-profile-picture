@@ -14,24 +14,24 @@ public class S3ContentProfilePictureSavedTest {
 
     @Test
     public void should_verify_equality() {
-        EqualsVerifier.forClass(S3ProfilePictureSaved.class).verify();
+        EqualsVerifier.forClass(S3UserProfilePictureSaved.class).verify();
     }
 
     @Test
     public void should_fail_fast_when_user_pseudo_is_null() {
-        assertThatThrownBy(() -> new S3ProfilePictureSaved(null, mock(SupportedMediaType.class), mock(PutObjectResponse.class)))
+        assertThatThrownBy(() -> new S3UserProfilePictureSaved(null, mock(SupportedMediaType.class), mock(PutObjectResponse.class)))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     public void should_fail_fast_when_media_type_is_null() {
-        assertThatThrownBy(() -> new S3ProfilePictureSaved(mock(UserPseudo.class), null, mock(PutObjectResponse.class)))
+        assertThatThrownBy(() -> new S3UserProfilePictureSaved(mock(UserPseudo.class), null, mock(PutObjectResponse.class)))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     public void should_fail_fast_when_put_object_response_is_null() {
-        assertThatThrownBy(() -> new S3ProfilePictureSaved(mock(UserPseudo.class), mock(SupportedMediaType.class), null))
+        assertThatThrownBy(() -> new S3UserProfilePictureSaved(mock(UserPseudo.class), mock(SupportedMediaType.class), null))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -43,7 +43,7 @@ public class S3ContentProfilePictureSavedTest {
         doReturn("versionId").when(givenPutObjectResponse).versionId();
 
         // When && Then
-        assertThat(new S3ProfilePictureSaved(givenUserPseudo, mock(SupportedMediaType.class), givenPutObjectResponse).userPseudo())
+        assertThat(new S3UserProfilePictureSaved(givenUserPseudo, mock(SupportedMediaType.class), givenPutObjectResponse).userPseudo())
                 .isEqualTo(givenUserPseudo);
         verify(givenPutObjectResponse, times(1)).versionId();
     }
@@ -56,7 +56,7 @@ public class S3ContentProfilePictureSavedTest {
         doReturn("versionId").when(givenPutObjectResponse).versionId();
 
         // When && Then
-        assertThat(new S3ProfilePictureSaved(mock(UserPseudo.class), givenMediaType, givenPutObjectResponse).mediaType())
+        assertThat(new S3UserProfilePictureSaved(mock(UserPseudo.class), givenMediaType, givenPutObjectResponse).mediaType())
                 .isEqualTo(givenMediaType);
         verify(givenPutObjectResponse, times(1)).versionId();
     }
@@ -68,7 +68,7 @@ public class S3ContentProfilePictureSavedTest {
         doReturn("versionId").when(givenPutObjectResponse).versionId();
 
         // When && Then
-        assertThat(new S3ProfilePictureSaved(mock(UserPseudo.class), mock(SupportedMediaType.class), givenPutObjectResponse).versionId())
+        assertThat(new S3UserProfilePictureSaved(mock(UserPseudo.class), mock(SupportedMediaType.class), givenPutObjectResponse).versionId())
                 .isEqualTo(new S3VersionId("versionId"));
         verify(givenPutObjectResponse, times(1)).versionId();
     }

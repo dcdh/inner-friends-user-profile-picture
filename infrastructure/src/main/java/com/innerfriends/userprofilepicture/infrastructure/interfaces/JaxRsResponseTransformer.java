@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
 
     @Override
-    public Response toResponse(final ContentProfilePicture contentProfilePicture) {
+    public Response toResponse(final ContentUserProfilePicture contentProfilePicture) {
         return Response.ok(contentProfilePicture.picture())
                 .header("Content-Disposition",
                         String.format("attachment;filename=%s%s", contentProfilePicture.userPseudo().pseudo(), contentProfilePicture.mediaType().extension()))
@@ -20,23 +20,23 @@ public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
     }
 
     @Override
-    public Response toResponse(final ProfilePictureSaved profilePictureSaved) {
+    public Response toResponse(final UserProfilePictureSaved profilePictureSaved) {
         return Response.created(null)
-                .entity(new ProfilePictureSavedDTO(profilePictureSaved))
+                .entity(new UserProfilePictureSavedDTO(profilePictureSaved))
                 .build();
     }
 
     @Override
-    public Response toResponse(final ProfilePictureIdentifier profilePictureIdentifiers) {
-        return Response.ok(new ProfilePictureIdentifierDTO(profilePictureIdentifiers))
+    public Response toResponse(final UserProfilePictureIdentifier userProfilePictureIdentifiers) {
+        return Response.ok(new UserProfilePictureIdentifierDTO(userProfilePictureIdentifiers))
                 .build();
     }
 
     @Override
-    public Response toResponse(final List<? extends ProfilePictureIdentifier> profilePictureIdentifiers) {
+    public Response toResponse(final List<? extends UserProfilePictureIdentifier> profilePictureIdentifiers) {
         return Response.ok(
                 profilePictureIdentifiers.stream()
-                        .map(ProfilePictureIdentifierDTO::new)
+                        .map(UserProfilePictureIdentifierDTO::new)
                         .collect(Collectors.toList()))
                 .build();
     }

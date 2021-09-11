@@ -11,14 +11,14 @@ import static org.mockito.Mockito.*;
 
 public class GetUserProfilePictureByVersionUseCaseTest {
 
-    private ProfilePictureRepository profilePictureRepository;
+    private UserProfilePictureRepository userProfilePictureRepository;
     private GetUserProfilePictureByVersionUseCase<Response> getUserProfilePictureByVersionUseCase;
     private TestResponseTransformer testResponseTransformer;
 
     @BeforeEach
     public void setup() {
-        profilePictureRepository = mock(ProfilePictureRepository.class);
-        getUserProfilePictureByVersionUseCase = new GetUserProfilePictureByVersionUseCase<>(profilePictureRepository);
+        userProfilePictureRepository = mock(UserProfilePictureRepository.class);
+        getUserProfilePictureByVersionUseCase = new GetUserProfilePictureByVersionUseCase<>(userProfilePictureRepository);
         testResponseTransformer = mock(TestResponseTransformer.class);
     }
 
@@ -28,10 +28,10 @@ public class GetUserProfilePictureByVersionUseCaseTest {
         final UserPseudo userPseudo = mock(UserPseudo.class);
         final SupportedMediaType supportedMediaType = mock(SupportedMediaType.class);
         final VersionId versionId = mock(VersionId.class);
-        final GetUserProfilePictureByVersionCommand getUserProfilePictureByVersionCommand = new GetUserProfilePictureByVersionCommand(userPseudo, supportedMediaType, versionId);
-        final ContentProfilePicture contentProfilePicture = mock(ContentProfilePicture.class);
+        final GetUserUserProfilePictureByVersionCommand getUserProfilePictureByVersionCommand = new GetUserUserProfilePictureByVersionCommand(userPseudo, supportedMediaType, versionId);
+        final ContentUserProfilePicture contentProfilePicture = mock(ContentUserProfilePicture.class);
 
-        doReturn(Uni.createFrom().item(contentProfilePicture)).when(profilePictureRepository).getContentByVersionId(getUserProfilePictureByVersionCommand);
+        doReturn(Uni.createFrom().item(contentProfilePicture)).when(userProfilePictureRepository).getContentByVersionId(getUserProfilePictureByVersionCommand);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(contentProfilePicture);
 
@@ -43,8 +43,8 @@ public class GetUserProfilePictureByVersionUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).getContentByVersionId(any());
-        verify(testResponseTransformer).toResponse(any(ContentProfilePicture.class));
+        verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
+        verify(testResponseTransformer).toResponse(any(ContentUserProfilePicture.class));
         verifyNoMoreInteractions(testResponseTransformer);
     }
 
@@ -52,19 +52,19 @@ public class GetUserProfilePictureByVersionUseCaseTest {
     public void should_handle_profile_picture_version_unknown_exception() {
         // Given
         final ProfilePictureVersionUnknownException profilePictureVersionUnknownException = mock(ProfilePictureVersionUnknownException.class);
-        doReturn(Uni.createFrom().failure(profilePictureVersionUnknownException)).when(profilePictureRepository).getContentByVersionId(any());
+        doReturn(Uni.createFrom().failure(profilePictureVersionUnknownException)).when(userProfilePictureRepository).getContentByVersionId(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(profilePictureVersionUnknownException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getUserProfilePictureByVersionUseCase.execute(
-                new GetUserProfilePictureByVersionCommand(mock(UserPseudo.class), mock(SupportedMediaType.class), mock(VersionId.class)),
+                new GetUserUserProfilePictureByVersionCommand(mock(UserPseudo.class), mock(SupportedMediaType.class), mock(VersionId.class)),
                 testResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).getContentByVersionId(any());
+        verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
         verify(testResponseTransformer).toResponse(any(ProfilePictureVersionUnknownException.class));
         verifyNoMoreInteractions(testResponseTransformer);
     }
@@ -73,19 +73,19 @@ public class GetUserProfilePictureByVersionUseCaseTest {
     public void should_handle_profile_picture_repository_exception() {
         // Given
         final ProfilePictureRepositoryException profilePictureRepositoryException = mock(ProfilePictureRepositoryException.class);
-        doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(profilePictureRepository).getContentByVersionId(any());
+        doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(userProfilePictureRepository).getContentByVersionId(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(profilePictureRepositoryException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getUserProfilePictureByVersionUseCase.execute(
-                new GetUserProfilePictureByVersionCommand(mock(UserPseudo.class), mock(SupportedMediaType.class), mock(VersionId.class)),
+                new GetUserUserProfilePictureByVersionCommand(mock(UserPseudo.class), mock(SupportedMediaType.class), mock(VersionId.class)),
                 testResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).getContentByVersionId(any());
+        verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
         verify(testResponseTransformer).toResponse(any(ProfilePictureRepositoryException.class));
         verifyNoMoreInteractions(testResponseTransformer);
     }
@@ -94,19 +94,19 @@ public class GetUserProfilePictureByVersionUseCaseTest {
     public void should_handle_runtime_exception() {
         // Given
         final RuntimeException runtimeException = new RuntimeException();
-        doReturn(Uni.createFrom().failure(runtimeException)).when(profilePictureRepository).getContentByVersionId(any());
+        doReturn(Uni.createFrom().failure(runtimeException)).when(userProfilePictureRepository).getContentByVersionId(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(runtimeException);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getUserProfilePictureByVersionUseCase.execute(
-                new GetUserProfilePictureByVersionCommand(mock(UserPseudo.class), mock(SupportedMediaType.class), mock(VersionId.class)),
+                new GetUserUserProfilePictureByVersionCommand(mock(UserPseudo.class), mock(SupportedMediaType.class), mock(VersionId.class)),
                 testResponseTransformer)
                 .subscribe().withSubscriber(UniAssertSubscriber.create());
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).getContentByVersionId(any());
+        verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
         verify(testResponseTransformer).toResponse(any(RuntimeException.class));
         verifyNoMoreInteractions(testResponseTransformer);
     }

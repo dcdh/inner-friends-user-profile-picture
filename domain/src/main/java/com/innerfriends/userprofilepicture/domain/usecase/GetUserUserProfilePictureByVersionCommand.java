@@ -1,14 +1,10 @@
-package com.innerfriends.userprofilepicture.infrastructure.s3;
+package com.innerfriends.userprofilepicture.domain.usecase;
 
-import com.innerfriends.userprofilepicture.domain.ProfilePictureIdentifier;
-import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
-import com.innerfriends.userprofilepicture.domain.UserPseudo;
-import com.innerfriends.userprofilepicture.domain.VersionId;
-import software.amazon.awssdk.services.s3.model.ObjectVersion;
+import com.innerfriends.userprofilepicture.domain.*;
 
 import java.util.Objects;
 
-public class S3ProfilePictureIdentifier implements ProfilePictureIdentifier {
+public final class GetUserUserProfilePictureByVersionCommand implements UserProfilePictureIdentifier, UseCaseCommand {
 
     private final UserPseudo userPseudo;
 
@@ -16,12 +12,12 @@ public class S3ProfilePictureIdentifier implements ProfilePictureIdentifier {
 
     private final VersionId versionId;
 
-    public S3ProfilePictureIdentifier(final UserPseudo userPseudo,
-                                      final SupportedMediaType mediaType,
-                                      final ObjectVersion objectVersion) {
+    public GetUserUserProfilePictureByVersionCommand(final UserPseudo userPseudo,
+                                                     final SupportedMediaType mediaType,
+                                                     final VersionId versionId) {
         this.userPseudo = Objects.requireNonNull(userPseudo);
         this.mediaType = Objects.requireNonNull(mediaType);
-        this.versionId = new S3VersionId(objectVersion);
+        this.versionId = Objects.requireNonNull(versionId);
     }
 
     @Override
@@ -42,8 +38,8 @@ public class S3ProfilePictureIdentifier implements ProfilePictureIdentifier {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof S3ProfilePictureIdentifier)) return false;
-        S3ProfilePictureIdentifier that = (S3ProfilePictureIdentifier) o;
+        if (!(o instanceof GetUserUserProfilePictureByVersionCommand)) return false;
+        GetUserUserProfilePictureByVersionCommand that = (GetUserUserProfilePictureByVersionCommand) o;
         return Objects.equals(userPseudo, that.userPseudo) &&
                 mediaType == that.mediaType &&
                 Objects.equals(versionId, that.versionId);

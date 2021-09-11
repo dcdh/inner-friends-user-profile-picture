@@ -11,16 +11,16 @@ import static org.mockito.Mockito.*;
 
 public class SaveUserProfilePictureUseCaseTest {
 
-    private ProfilePictureRepository profilePictureRepository;
+    private UserProfilePictureRepository userProfilePictureRepository;
     private SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase;
     private TestResponseTransformer testResponseTransformer;
     private UserProfilePictureCacheRepository userProfilePictureCacheRepository;
 
     @BeforeEach
     public void setup() {
-        profilePictureRepository = mock(ProfilePictureRepository.class);
+        userProfilePictureRepository = mock(UserProfilePictureRepository.class);
         userProfilePictureCacheRepository = mock(UserProfilePictureCacheRepository.class);
-        saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(profilePictureRepository, userProfilePictureCacheRepository);
+        saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository);
         testResponseTransformer = mock(TestResponseTransformer.class);
     }
 
@@ -28,12 +28,12 @@ public class SaveUserProfilePictureUseCaseTest {
     public void should_save_user_profile_picture_and_cache_it() {
         // Given
         final UserPseudo userPseudo = mock(UserPseudo.class);
-        final ProfilePictureSaved profilePictureSaved = mock(ProfilePictureSaved.class);
-        doReturn(Uni.createFrom().item(profilePictureSaved)).when(profilePictureRepository).save(userPseudo, "content".getBytes(), SupportedMediaType.IMAGE_JPEG);
+        final UserProfilePictureSaved profilePictureSaved = mock(UserProfilePictureSaved.class);
+        doReturn(Uni.createFrom().item(profilePictureSaved)).when(userProfilePictureRepository).save(userPseudo, "content".getBytes(), SupportedMediaType.IMAGE_JPEG);
         doReturn(Uni.createFrom().nullItem()).when(userProfilePictureCacheRepository).storeFeatured(userPseudo, profilePictureSaved);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(profilePictureSaved);
-        final InOrder inOrder = inOrder(testResponseTransformer, profilePictureRepository, userProfilePictureCacheRepository);
+        final InOrder inOrder = inOrder(testResponseTransformer, userProfilePictureRepository, userProfilePictureCacheRepository);
 
         // When
         final UniAssertSubscriber<Response> subscriber = saveUserProfilePictureUseCase.execute(
@@ -43,9 +43,9 @@ public class SaveUserProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        inOrder.verify(profilePictureRepository, times(1)).save(any(), any(), any());
-        inOrder.verify(userProfilePictureCacheRepository, times(1)).storeFeatured(any(), any(ProfilePictureIdentifier.class));
-        inOrder.verify(testResponseTransformer).toResponse(any(ProfilePictureSaved.class));
+        inOrder.verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
+        inOrder.verify(userProfilePictureCacheRepository, times(1)).storeFeatured(any(), any(UserProfilePictureIdentifier.class));
+        inOrder.verify(testResponseTransformer).toResponse(any(UserProfilePictureSaved.class));
         verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
     }
 
@@ -53,7 +53,7 @@ public class SaveUserProfilePictureUseCaseTest {
     public void should_handle_profile_picture_repository_exception() {
         // Given
         final ProfilePictureRepositoryException profilePictureRepositoryException = mock(ProfilePictureRepositoryException.class);
-        doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(profilePictureRepository).save(any(), any(), any());
+        doReturn(Uni.createFrom().failure(profilePictureRepositoryException)).when(userProfilePictureRepository).save(any(), any(), any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(profilePictureRepositoryException);
 
@@ -65,7 +65,7 @@ public class SaveUserProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).save(any(), any(), any());
+        verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
         verify(testResponseTransformer).toResponse(any(ProfilePictureRepositoryException.class));
         verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
     }
@@ -74,7 +74,7 @@ public class SaveUserProfilePictureUseCaseTest {
     public void should_handle_runtime_exception() {
         // Given
         final RuntimeException runtimeException = new RuntimeException();
-        doReturn(Uni.createFrom().failure(runtimeException)).when(profilePictureRepository).save(any(), any(), any());
+        doReturn(Uni.createFrom().failure(runtimeException)).when(userProfilePictureRepository).save(any(), any(), any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(runtimeException);
 
@@ -86,7 +86,7 @@ public class SaveUserProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).save(any(), any(), any());
+        verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
         verify(testResponseTransformer).toResponse(any(RuntimeException.class));
         verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
     }
@@ -95,8 +95,8 @@ public class SaveUserProfilePictureUseCaseTest {
     public void should_save_user_profile_picture_when_cache_id_down() {
         // Given
         final UserPseudo userPseudo = mock(UserPseudo.class);
-        final ProfilePictureSaved profilePictureSaved = mock(ProfilePictureSaved.class);
-        doReturn(Uni.createFrom().item(profilePictureSaved)).when(profilePictureRepository).save(userPseudo, "content".getBytes(), SupportedMediaType.IMAGE_JPEG);
+        final UserProfilePictureSaved profilePictureSaved = mock(UserProfilePictureSaved.class);
+        doReturn(Uni.createFrom().item(profilePictureSaved)).when(userProfilePictureRepository).save(userPseudo, "content".getBytes(), SupportedMediaType.IMAGE_JPEG);
         doReturn(Uni.createFrom().failure(RuntimeException::new)).when(userProfilePictureCacheRepository).storeFeatured(userPseudo, profilePictureSaved);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(profilePictureSaved);
@@ -109,9 +109,9 @@ public class SaveUserProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(profilePictureRepository, times(1)).save(any(), any(), any());
-        verify(userProfilePictureCacheRepository, times(1)).storeFeatured(any(), any(ProfilePictureIdentifier.class));
-        verify(testResponseTransformer).toResponse(any(ProfilePictureSaved.class));
+        verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
+        verify(userProfilePictureCacheRepository, times(1)).storeFeatured(any(), any(UserProfilePictureIdentifier.class));
+        verify(testResponseTransformer).toResponse(any(UserProfilePictureSaved.class));
         verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
     }
 

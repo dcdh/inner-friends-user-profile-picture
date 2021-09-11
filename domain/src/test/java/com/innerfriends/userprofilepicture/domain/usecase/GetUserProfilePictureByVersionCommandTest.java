@@ -14,24 +14,24 @@ public class GetUserProfilePictureByVersionCommandTest {
 
     @Test
     public void should_verify_equality() {
-        EqualsVerifier.forClass(GetUserProfilePictureByVersionCommand.class).verify();
+        EqualsVerifier.forClass(GetUserUserProfilePictureByVersionCommand.class).verify();
     }
 
     @Test
     public void should_fail_fast_when_user_pseudo_is_null() {
-        assertThatThrownBy(() -> new GetUserProfilePictureByVersionCommand(null, mock(SupportedMediaType.class), mock(VersionId.class)))
+        assertThatThrownBy(() -> new GetUserUserProfilePictureByVersionCommand(null, mock(SupportedMediaType.class), mock(VersionId.class)))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     public void should_fail_fast_when_media_type_is_null() {
-        assertThatThrownBy(() -> new GetUserProfilePictureByVersionCommand(mock(UserPseudo.class), null, mock(VersionId.class)))
+        assertThatThrownBy(() -> new GetUserUserProfilePictureByVersionCommand(mock(UserPseudo.class), null, mock(VersionId.class)))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     public void should_fail_fast_when_version_id_is_null() {
-        assertThatThrownBy(() -> new GetUserProfilePictureByVersionCommand(mock(UserPseudo.class), mock(SupportedMediaType.class), null))
+        assertThatThrownBy(() -> new GetUserUserProfilePictureByVersionCommand(mock(UserPseudo.class), mock(SupportedMediaType.class), null))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -41,7 +41,7 @@ public class GetUserProfilePictureByVersionCommandTest {
         final UserPseudo givenUserPseudo = mock(UserPseudo.class);
 
         // When && Then
-        assertThat(new GetUserProfilePictureByVersionCommand(givenUserPseudo, mock(SupportedMediaType.class), mock(VersionId.class)).userPseudo())
+        assertThat(new GetUserUserProfilePictureByVersionCommand(givenUserPseudo, mock(SupportedMediaType.class), mock(VersionId.class)).userPseudo())
                 .isEqualTo(givenUserPseudo);
     }
 
@@ -51,7 +51,7 @@ public class GetUserProfilePictureByVersionCommandTest {
         final SupportedMediaType givenSupportedMediaType = mock(SupportedMediaType.class);
 
         // When && Then
-        assertThat(new GetUserProfilePictureByVersionCommand(mock(UserPseudo.class), givenSupportedMediaType, mock(VersionId.class)).mediaType())
+        assertThat(new GetUserUserProfilePictureByVersionCommand(mock(UserPseudo.class), givenSupportedMediaType, mock(VersionId.class)).mediaType())
                 .isEqualTo(givenSupportedMediaType);
     }
 
@@ -61,7 +61,7 @@ public class GetUserProfilePictureByVersionCommandTest {
         final VersionId givenVersionId = mock(VersionId.class);
 
         // When && Then
-        assertThat(new GetUserProfilePictureByVersionCommand(mock(UserPseudo.class), mock(SupportedMediaType.class), givenVersionId).versionId())
+        assertThat(new GetUserUserProfilePictureByVersionCommand(mock(UserPseudo.class), mock(SupportedMediaType.class), givenVersionId).versionId())
                 .isEqualTo(givenVersionId);
     }
 

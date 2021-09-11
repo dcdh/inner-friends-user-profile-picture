@@ -1,6 +1,6 @@
 package com.innerfriends.userprofilepicture.infrastructure;
 
-import com.innerfriends.userprofilepicture.domain.ProfilePictureRepository;
+import com.innerfriends.userprofilepicture.domain.UserProfilePictureRepository;
 import com.innerfriends.userprofilepicture.domain.UserProfilePictureCacheRepository;
 import com.innerfriends.userprofilepicture.domain.usecase.GetFeaturedUserProfilePictureUseCase;
 import com.innerfriends.userprofilepicture.domain.usecase.GetUserProfilePictureByVersionUseCase;
@@ -17,29 +17,29 @@ public class Application {
 
     @ApplicationScoped
     @Produces
-    public GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCaseProducer(final ProfilePictureRepository profilePictureRepository,
+    public GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository,
                                                                                                        final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
-        return new GetFeaturedUserProfilePictureUseCase<>(profilePictureRepository, userProfilePictureCacheRepository);
+        return new GetFeaturedUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository);
     }
 
     @ApplicationScoped
     @Produces
-    public SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCaseProducer(final ProfilePictureRepository profilePictureRepository,
+    public SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository,
                                                                                          final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
-        return new SaveUserProfilePictureUseCase<>(profilePictureRepository, userProfilePictureCacheRepository);
+        return new SaveUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository);
     }
 
     @ApplicationScoped
     @Produces
-    public ListUserProfilPicturesUseCase<Response> listUserProfilPicturesUseCaseProducer(final ProfilePictureRepository profilePictureRepository,
+    public ListUserProfilPicturesUseCase<Response> listUserProfilPicturesUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository,
                                                                                          final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
-        return new ListUserProfilPicturesUseCase<>(profilePictureRepository, userProfilePictureCacheRepository);
+        return new ListUserProfilPicturesUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository);
     }
 
     @ApplicationScoped
     @Produces
-    public GetUserProfilePictureByVersionUseCase<Response> getUserProfilePictureByVersionUseCaseProducer(final ProfilePictureRepository profilePictureRepository) {
-        return new GetUserProfilePictureByVersionUseCase<>(profilePictureRepository);
+    public GetUserProfilePictureByVersionUseCase<Response> getUserProfilePictureByVersionUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository) {
+        return new GetUserProfilePictureByVersionUseCase<>(userProfilePictureRepository);
     }
 
     @ApplicationScoped

@@ -5,19 +5,19 @@ import io.smallrye.mutiny.Uni;
 
 import java.util.Objects;
 
-public class GetUserProfilePictureByVersionUseCase<R> implements UseCase<R, GetUserProfilePictureByVersionCommand> {
+public class GetUserProfilePictureByVersionUseCase<R> implements UseCase<R, GetUserUserProfilePictureByVersionCommand> {
 
-    private final ProfilePictureRepository profilePictureRepository;
+    private final UserProfilePictureRepository userProfilePictureRepository;
 
-    public GetUserProfilePictureByVersionUseCase(final ProfilePictureRepository profilePictureRepository) {
-        this.profilePictureRepository = Objects.requireNonNull(profilePictureRepository);
+    public GetUserProfilePictureByVersionUseCase(final UserProfilePictureRepository userProfilePictureRepository) {
+        this.userProfilePictureRepository = Objects.requireNonNull(userProfilePictureRepository);
     }
 
     @Override
-    public Uni<R> execute(final GetUserProfilePictureByVersionCommand command,
+    public Uni<R> execute(final GetUserUserProfilePictureByVersionCommand command,
                           final ResponseTransformer<R> responseTransformer) {
         return Uni.createFrom()
-                .deferred(() -> profilePictureRepository.getContentByVersionId(command))
+                .deferred(() -> userProfilePictureRepository.getContentByVersionId(command))
                 .onItem()
                 .transform(contentProfilePicture -> responseTransformer.toResponse(contentProfilePicture))
                 .onFailure(ProfilePictureVersionUnknownException.class)

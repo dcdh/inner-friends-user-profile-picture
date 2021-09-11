@@ -22,19 +22,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class S3ProfilePictureRepository implements ProfilePictureRepository {
+public class S3UserProfilePictureRepository implements UserProfilePictureRepository {
 
     private final S3AsyncClient s3AsyncClient;
     private final String bucketUserProfilePictureName;
     private final S3ObjectKeyProvider s3ObjectKeyProvider;
     private final OpenTelemetryTracingService openTelemetryTracingService;
 
-    private static final Logger LOG = Logger.getLogger(S3ProfilePictureRepository.class);
+    private static final Logger LOG = Logger.getLogger(S3UserProfilePictureRepository.class);
 
-    public S3ProfilePictureRepository(final S3AsyncClient s3AsyncClient,
-                                      @ConfigProperty(name = "bucket.user.profile.picture.name") final String bucketUserProfilePictureName,
-                                      final S3ObjectKeyProvider s3ObjectKeyProvider,
-                                      final OpenTelemetryTracingService openTelemetryTracingService) {
+    public S3UserProfilePictureRepository(final S3AsyncClient s3AsyncClient,
+                                          @ConfigProperty(name = "bucket.user.profile.picture.name") final String bucketUserProfilePictureName,
+                                          final S3ObjectKeyProvider s3ObjectKeyProvider,
+                                          final OpenTelemetryTracingService openTelemetryTracingService) {
         this.s3AsyncClient = Objects.requireNonNull(s3AsyncClient);
         this.bucketUserProfilePictureName = Objects.requireNonNull(bucketUserProfilePictureName);
         this.s3ObjectKeyProvider = Objects.requireNonNull(s3ObjectKeyProvider);
@@ -42,9 +42,9 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
     }
 
     @Override
-    public Uni<ProfilePictureSaved> save(final UserPseudo userPseudo,
-                                         final byte[] picture,
-                                         final SupportedMediaType mediaType) throws ProfilePictureRepositoryException {
+    public Uni<UserProfilePictureSaved> save(final UserPseudo userPseudo,
+                                             final byte[] picture,
+                                             final SupportedMediaType mediaType) throws ProfilePictureRepositoryException {
         return Uni.createFrom()
                 .deferred(() -> {
                     final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.save");
@@ -55,7 +55,7 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                             .build();
                     return Uni.createFrom()
                             .completionStage(() -> s3AsyncClient.putObject(putObjectRequest, AsyncRequestBody.fromBytes(picture)))
-                            .map(putObjectResponse -> new S3ProfilePictureSaved(userPseudo, mediaType, putObjectResponse))
+                            .map(putObjectResponse -> new S3UserProfilePictureSaved(userPseudo, mediaType, putObjectResponse))
                             .onFailure(SdkException.class)
                             .transform(exception -> {
                                 LOG.error(exception);
@@ -68,7 +68,7 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
     }
 
     @Override
-    public Uni<ProfilePictureIdentifier> getLast(final UserPseudo userPseudo, final SupportedMediaType mediaType)
+    public Uni<UserProfilePictureIdentifier> getLast(final UserPseudo userPseudo, final SupportedMediaType mediaType)
             throws ProfilePictureNotAvailableYetException, ProfilePictureRepositoryException {
         return Uni.createFrom()
                 .deferred(() -> {
@@ -80,10 +80,10 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                     return Uni.createFrom()
                             .completionStage(() -> s3AsyncClient.listObjectVersions(listObjectVersionsRequest))
                             .map(listObjectVersionsResponse -> {
-                                final Optional<ProfilePictureIdentifier> profilePictureIdentifier = listObjectVersionsResponse.versions()
+                                final Optional<UserProfilePictureIdentifier> profilePictureIdentifier = listObjectVersionsResponse.versions()
                                         .stream()
                                         .findFirst()
-                                        .map(objectVersion -> new S3ProfilePictureIdentifier(userPseudo, mediaType, objectVersion));
+                                        .map(objectVersion -> new S3UserProfilePictureIdentifier(userPseudo, mediaType, objectVersion));
                                 if (!profilePictureIdentifier.isPresent()) {
                                     throw new ProfilePictureNotAvailableYetException(userPseudo);
                                 }
@@ -101,8 +101,8 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
     }
 
     @Override
-    public Uni<List<? extends ProfilePictureIdentifier>> listByUserPseudo(final UserPseudo userPseudo,
-                                                                final SupportedMediaType mediaType)
+    public Uni<List<? extends UserProfilePictureIdentifier>> listByUserPseudo(final UserPseudo userPseudo,
+                                                                              final SupportedMediaType mediaType)
             throws ProfilePictureRepositoryException {
         return Uni.createFrom()
                 .deferred(() -> {
@@ -117,7 +117,7 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
                                     listObjectVersionsResponse
                                         .versions()
                                         .stream()
-                                        .map(objectVersion -> new S3ProfilePictureIdentifier(userPseudo, mediaType, objectVersion))
+                                        .map(objectVersion -> new S3UserProfilePictureIdentifier(userPseudo, mediaType, objectVersion))
                                         .collect(Collectors.toList()))
                             .onFailure(SdkException.class)
                             .transform(exception -> {
@@ -131,28 +131,28 @@ public class S3ProfilePictureRepository implements ProfilePictureRepository {
     }
 
     @Override
-    public Uni<ContentProfilePicture> getContentByVersionId(final ProfilePictureIdentifier profilePictureIdentifier)
+    public Uni<ContentUserProfilePicture> getContentByVersionId(final UserProfilePictureIdentifier userProfilePictureIdentifier)
             throws ProfilePictureVersionUnknownException, ProfilePictureRepositoryException {
         return Uni.createFrom()
                 .deferred(() -> {
                     final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.getContentByVersion");
                     final GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketUserProfilePictureName)
-                            .key(s3ObjectKeyProvider.objectKey(profilePictureIdentifier.userPseudo(), profilePictureIdentifier.mediaType()).value())
-                            .versionId(profilePictureIdentifier.versionId().version())
+                            .key(s3ObjectKeyProvider.objectKey(userProfilePictureIdentifier.userPseudo(), userProfilePictureIdentifier.mediaType()).value())
+                            .versionId(userProfilePictureIdentifier.versionId().version())
                             .build();
                     return Uni.createFrom()
                             .completionStage(() -> s3AsyncClient.getObject(getObjectRequest, AsyncResponseTransformer.toBytes()))
-                            .map(getObjectResponse -> new S3ContentProfilePicture(profilePictureIdentifier.userPseudo(), getObjectResponse))
+                            .map(getObjectResponse -> new S3ContentUserProfilePicture(userProfilePictureIdentifier.userPseudo(), getObjectResponse))
                             .onFailure(NoSuchKeyException.class)
                             .transform(exception -> {
                                 openTelemetryTracingService.markSpanInError(span);
-                                return new ProfilePictureVersionUnknownException(profilePictureIdentifier);
+                                return new ProfilePictureVersionUnknownException(userProfilePictureIdentifier);
                             })
                             .onFailure(SdkException.class)
                             .transform(exception -> {
                                 openTelemetryTracingService.markSpanInError(span);
                                 if (exception.getMessage().startsWith("Invalid version id specified")) {
-                                    return new ProfilePictureVersionUnknownException(profilePictureIdentifier);
+                                    return new ProfilePictureVersionUnknownException(userProfilePictureIdentifier);
                                 }
                                 return new ProfilePictureRepositoryException();
                             })

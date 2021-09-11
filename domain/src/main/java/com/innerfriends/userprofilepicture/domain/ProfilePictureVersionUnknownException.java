@@ -4,13 +4,13 @@ import java.util.Objects;
 
 public class ProfilePictureVersionUnknownException extends RuntimeException {
 
-    private final ProfilePictureIdentifier profilePictureIdentifier;
+    private final UserProfilePictureIdentifier userProfilePictureIdentifier;
 
-    public ProfilePictureVersionUnknownException(final ProfilePictureIdentifier profilePictureIdentifier) {
-        this.profilePictureIdentifier = Objects.requireNonNull(profilePictureIdentifier);
+    public ProfilePictureVersionUnknownException(final UserProfilePictureIdentifier userProfilePictureIdentifier) {
+        this.userProfilePictureIdentifier = Objects.requireNonNull(userProfilePictureIdentifier);
     }
 
-    public ProfilePictureIdentifier profilePictureIdentifier() {
-        return profilePictureIdentifier;
+    public UserProfilePictureIdentifier profilePictureIdentifier() {
+        return userProfilePictureIdentifier;
     }
 }

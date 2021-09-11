@@ -70,7 +70,7 @@ public class UserProfilePictureEndpoint {
     public Uni<Response> downloadUserProfilePictureByVersion(@PathParam("userPseudo") final String userPseudo,
                                                              @PathParam("versionId") final String versionId,
                                                              @DefaultValue("image/jpeg; charset=ISO-8859-1") @HeaderParam("Content-Type") final String contentType) {
-        return getUserProfilePictureByVersionUseCase.execute(new GetUserProfilePictureByVersionCommand(
+        return getUserProfilePictureByVersionUseCase.execute(new GetUserUserProfilePictureByVersionCommand(
                 new JaxRsUserPseudo(userPseudo),
                         SupportedMediaType.fromContentType(
                                 new ImageContentType(contentType).imageContentType()),

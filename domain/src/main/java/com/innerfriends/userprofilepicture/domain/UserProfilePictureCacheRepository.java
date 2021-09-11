@@ -8,8 +8,8 @@ public interface UserProfilePictureCacheRepository {
 
     Uni<CachedUserProfilePictures> get(UserPseudo userPseudo) throws UserProfilePictureNotInCacheException;
 
-    Uni<CachedUserProfilePictures> store(UserPseudo userPseudo, List<? extends ProfilePictureIdentifier> profilePictureIdentifier);
+    Uni<CachedUserProfilePictures> store(UserPseudo userPseudo, List<? extends UserProfilePictureIdentifier> profilePictureIdentifier);
 
-    Uni<CachedUserProfilePictures> storeFeatured(UserPseudo userPseudo, ProfilePictureIdentifier featured);
+    Uni<CachedUserProfilePictures> storeFeatured(UserPseudo userPseudo, UserProfilePictureIdentifier featured);
 
 }

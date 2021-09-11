@@ -50,12 +50,12 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         final CachedUserProfilePictures givenCachedUserProfilePictures = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .setFeaturedProfilePictureIdentifier(
-                        HazelcastProfilePictureIdentifier.newBuilder()
+                        HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
                 .addProfilePictureIdentifier(
-                        HazelcastProfilePictureIdentifier.newBuilder()
+                        HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
@@ -74,12 +74,12 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         assertThat(cachedUserProfilePictures).isEqualTo(HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .setFeaturedProfilePictureIdentifier(
-                        HazelcastProfilePictureIdentifier.newBuilder()
+                        HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
                 .addProfilePictureIdentifier(
-                        HazelcastProfilePictureIdentifier.newBuilder()
+                        HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
@@ -129,7 +129,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
 
         // When
         final Uni<CachedUserProfilePictures> uni = hazelcastUserProfilePictureCacheRepository.storeFeatured(() -> "user",
-                HazelcastProfilePictureIdentifier.newBuilder()
+                HazelcastUserProfilePictureIdentifier.newBuilder()
                         .setUserPseudo("user")
                         .setMediaType(SupportedMediaType.IMAGE_JPEG)
                         .setVersionId("v0").build());
@@ -140,7 +140,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         final HazelcastCachedUserProfilePictures expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .setFeaturedProfilePictureIdentifier(
-                        HazelcastProfilePictureIdentifier.newBuilder()
+                        HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
@@ -166,7 +166,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
 
         // When
         final Uni<CachedUserProfilePictures> uni = hazelcastUserProfilePictureCacheRepository.storeFeatured(() -> "user",
-                HazelcastProfilePictureIdentifier.newBuilder()
+                HazelcastUserProfilePictureIdentifier.newBuilder()
                         .setUserPseudo("user")
                         .setMediaType(SupportedMediaType.IMAGE_JPEG)
                         .setVersionId("v0").build());
@@ -177,7 +177,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         final HazelcastCachedUserProfilePictures expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .setFeaturedProfilePictureIdentifier(
-                        HazelcastProfilePictureIdentifier.newBuilder()
+                        HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
@@ -208,7 +208,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         // When
         final Uni<CachedUserProfilePictures> uni = hazelcastUserProfilePictureCacheRepository.store(() -> "user",
                 Collections.singletonList(
-                        HazelcastProfilePictureIdentifier.newBuilder()
+                        HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build()));
@@ -219,7 +219,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         final HazelcastCachedUserProfilePictures expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .addProfilePictureIdentifier(
-                        HazelcastProfilePictureIdentifier.newBuilder()
+                        HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())
@@ -246,7 +246,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         // When
         final Uni<CachedUserProfilePictures> uni = hazelcastUserProfilePictureCacheRepository.store(() -> "user",
                 Collections.singletonList(
-                        HazelcastProfilePictureIdentifier.newBuilder()
+                        HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build()));
@@ -257,7 +257,7 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         final HazelcastCachedUserProfilePictures expectedHazelcastCachedUserProfilePicture = HazelcastCachedUserProfilePictures.newBuilder()
                 .setUserPseudo("user")
                 .addProfilePictureIdentifier(
-                        HazelcastProfilePictureIdentifier.newBuilder()
+                        HazelcastUserProfilePictureIdentifier.newBuilder()
                                 .setUserPseudo("user")
                                 .setMediaType(SupportedMediaType.IMAGE_JPEG)
                                 .setVersionId("v0").build())

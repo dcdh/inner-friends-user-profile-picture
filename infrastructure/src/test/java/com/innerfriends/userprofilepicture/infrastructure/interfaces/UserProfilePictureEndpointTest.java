@@ -1,7 +1,7 @@
 package com.innerfriends.userprofilepicture.infrastructure.interfaces;
 
 import com.innerfriends.userprofilepicture.domain.*;
-import com.innerfriends.userprofilepicture.domain.usecase.GetUserProfilePictureByVersionCommand;
+import com.innerfriends.userprofilepicture.domain.usecase.GetUserUserProfilePictureByVersionCommand;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.restassured.module.jsv.JsonSchemaValidator;
@@ -21,12 +21,12 @@ import static org.mockito.Mockito.*;
 public class UserProfilePictureEndpointTest {
 
     @InjectMock
-    private ProfilePictureRepository profilePictureRepository;
+    private UserProfilePictureRepository userProfilePictureRepository;
 
     @Test
     public void should_upload_user_profile_picture() throws Exception {
         // Given
-        doReturn(Uni.createFrom().item(new TestProfilePictureSaved())).when(profilePictureRepository).save(
+        doReturn(Uni.createFrom().item(new TestUserProfilePictureSaved())).when(userProfilePictureRepository).save(
                 new JaxRsUserPseudo("pseudo"),
                 Files.readAllBytes(getFileFromResource("given/1px_white.jpg").toPath()),
                 SupportedMediaType.IMAGE_JPEG);
@@ -44,13 +44,13 @@ public class UserProfilePictureEndpointTest {
                 .body("userPseudo", equalTo("pseudo"))
                 .body("mediaType", equalTo("IMAGE_JPEG"))
                 .body("versionId", equalTo("v0"));
-        verify(profilePictureRepository, times(1)).save(any(), any(), any());
+        verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
     }
 
     @Test
     public void should_upload_user_profile_picture_return_expected_response_when_profile_picture_repository_exception_is_thrown() throws Exception {
         // Given
-        doReturn(Uni.createFrom().failure(new ProfilePictureRepositoryException())).when(profilePictureRepository).save(
+        doReturn(Uni.createFrom().failure(new ProfilePictureRepositoryException())).when(userProfilePictureRepository).save(
                 new JaxRsUserPseudo("pseudo"),
                 Files.readAllBytes(getFileFromResource("given/1px_white.jpg").toPath()),
                 SupportedMediaType.IMAGE_JPEG);
@@ -64,13 +64,13 @@ public class UserProfilePictureEndpointTest {
                 .then()
                 .log().all()
                 .statusCode(500);
-        verify(profilePictureRepository, times(1)).save(any(), any(), any());
+        verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
     }
 
     @Test
     public void should_get_featured_user_profile_picture() {
         // Given
-        doReturn(Uni.createFrom().item(new TestContentProfilePicture())).when(profilePictureRepository)
+        doReturn(Uni.createFrom().item(new TestContentUserProfilePicture())).when(userProfilePictureRepository)
                 .getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
 
         // When && Then
@@ -85,14 +85,14 @@ public class UserProfilePictureEndpointTest {
                 .body("userPseudo", equalTo("pseudo"))
                 .body("mediaType", equalTo("IMAGE_JPEG"))
                 .body("versionId", equalTo("v0"));
-        verify(profilePictureRepository, times(1)).getLast(any(), any());
+        verify(userProfilePictureRepository, times(1)).getLast(any(), any());
     }
 
     @Test
     public void should_get_featured_user_profile_picture_return_expected_response_when_profile_picture_not_available_yet_is_thrown() {
         // Given
         doReturn(Uni.createFrom().failure(new ProfilePictureNotAvailableYetException(new JaxRsUserPseudo("pseudo"))))
-                .when(profilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
+                .when(userProfilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
 
         // When && Then
         given()
@@ -102,14 +102,14 @@ public class UserProfilePictureEndpointTest {
                 .then()
                 .log().all()
                 .statusCode(404);
-        verify(profilePictureRepository, times(1)).getLast(any(), any());
+        verify(userProfilePictureRepository, times(1)).getLast(any(), any());
     }
 
     @Test
     public void should_get_featured_user_profile_picture_return_expected_response_when_profile_picture_repository_exception_is_thrown() {
         // Given
         doReturn(Uni.createFrom().failure(new ProfilePictureRepositoryException()))
-                .when(profilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
+                .when(userProfilePictureRepository).getLast(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
 
         // When && Then
         given()
@@ -119,14 +119,14 @@ public class UserProfilePictureEndpointTest {
                 .then()
                 .log().all()
                 .statusCode(500);
-        verify(profilePictureRepository, times(1)).getLast(any(), any());
+        verify(userProfilePictureRepository, times(1)).getLast(any(), any());
     }
 
     @Test
     public void should_list_user_profile_pictures() {
         // Given
-        doReturn(Uni.createFrom().item(Collections.singletonList(new TestProfilePictureIdentifier())))
-                .when(profilePictureRepository)
+        doReturn(Uni.createFrom().item(Collections.singletonList(new TestUserProfilePictureIdentifier())))
+                .when(userProfilePictureRepository)
                 .listByUserPseudo(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
 
         // When && Then
@@ -142,14 +142,14 @@ public class UserProfilePictureEndpointTest {
                 .body("[0].mediaType", equalTo("IMAGE_JPEG"))
                 .body("[0].versionId", equalTo("v0"));
 
-        verify(profilePictureRepository, times(1)).listByUserPseudo(any(), any());
+        verify(userProfilePictureRepository, times(1)).listByUserPseudo(any(), any());
     }
 
     @Test
     public void should_list_user_profile_pictures_return_expected_response_when_profile_picture_repository_exception_is_thrown() {
         // Given
         doReturn(Uni.createFrom().failure(new ProfilePictureRepositoryException()))
-                .when(profilePictureRepository)
+                .when(userProfilePictureRepository)
                 .listByUserPseudo(new JaxRsUserPseudo("pseudo"), SupportedMediaType.IMAGE_JPEG);
 
         // When && Then
@@ -160,14 +160,14 @@ public class UserProfilePictureEndpointTest {
                 .then()
                 .log().all()
                 .statusCode(500);
-        verify(profilePictureRepository, times(1)).listByUserPseudo(any(), any());
+        verify(userProfilePictureRepository, times(1)).listByUserPseudo(any(), any());
     }
 
     @Test
     public void should_download_user_profile_picture_by_version() {
         // Given
-        doReturn(Uni.createFrom().item(new TestContentProfilePicture())).when(profilePictureRepository)
-                .getContentByVersionId(new GetUserProfilePictureByVersionCommand(
+        doReturn(Uni.createFrom().item(new TestContentUserProfilePicture())).when(userProfilePictureRepository)
+                .getContentByVersionId(new GetUserUserProfilePictureByVersionCommand(
                         new JaxRsUserPseudo("pseudo"),
                         SupportedMediaType.IMAGE_JPEG,
                         new JaxRsVersionId("v0")));
@@ -184,14 +184,14 @@ public class UserProfilePictureEndpointTest {
                 .header("Content-Type","image/jpeg")
                 .header("Content-Length","7")
                 .header("versionId","v0");
-        verify(profilePictureRepository, times(1)).getContentByVersionId(any());
+        verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
     }
 
     @Test
     public void should_download_user_profile_picture_by_version_return_expected_response_when_profile_picture_version_unknown_is_thrown() {
         // Given
-        doReturn(Uni.createFrom().failure(new ProfilePictureVersionUnknownException(mock(ProfilePictureIdentifier.class))))
-                .when(profilePictureRepository).getContentByVersionId(new GetUserProfilePictureByVersionCommand(
+        doReturn(Uni.createFrom().failure(new ProfilePictureVersionUnknownException(mock(UserProfilePictureIdentifier.class))))
+                .when(userProfilePictureRepository).getContentByVersionId(new GetUserUserProfilePictureByVersionCommand(
                 new JaxRsUserPseudo("pseudo"),
                 SupportedMediaType.IMAGE_JPEG,
                 new JaxRsVersionId("v0")));
@@ -204,14 +204,14 @@ public class UserProfilePictureEndpointTest {
                 .then()
                 .log().all()
                 .statusCode(404);
-        verify(profilePictureRepository, times(1)).getContentByVersionId(any());
+        verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
     }
 
     @Test
     public void should_download_user_profile_picture_by_version_return_expected_response_when_profile_picture_repository_exception_is_thrown() {
         // Given
-        doReturn(Uni.createFrom().failure(new ProfilePictureRepositoryException())).when(profilePictureRepository)
-                .getContentByVersionId(new GetUserProfilePictureByVersionCommand(
+        doReturn(Uni.createFrom().failure(new ProfilePictureRepositoryException())).when(userProfilePictureRepository)
+                .getContentByVersionId(new GetUserUserProfilePictureByVersionCommand(
                         new JaxRsUserPseudo("pseudo"),
                         SupportedMediaType.IMAGE_JPEG,
                         new JaxRsVersionId("v0")));
@@ -224,7 +224,7 @@ public class UserProfilePictureEndpointTest {
                 .then()
                 .log().all()
                 .statusCode(500);
-        verify(profilePictureRepository, times(1)).getContentByVersionId(any());
+        verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
     }
 
     private File getFileFromResource(final String fileName) throws Exception {

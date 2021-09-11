@@ -1,7 +1,7 @@
 package com.innerfriends.userprofilepicture.infrastructure.hazelcast;
 
 import com.innerfriends.userprofilepicture.domain.CachedUserProfilePictures;
-import com.innerfriends.userprofilepicture.domain.ProfilePictureIdentifier;
+import com.innerfriends.userprofilepicture.domain.UserProfilePictureIdentifier;
 import com.innerfriends.userprofilepicture.domain.UserPseudo;
 
 import java.io.Serializable;
@@ -12,8 +12,8 @@ import java.util.Objects;
 public final class HazelcastCachedUserProfilePictures implements CachedUserProfilePictures, Serializable {
 
     public String userPseudo;
-    public List<HazelcastProfilePictureIdentifier> profilePictureIdentifiers;
-    public HazelcastProfilePictureIdentifier featuredProfilePictureIdentifier;
+    public List<HazelcastUserProfilePictureIdentifier> profilePictureIdentifiers;
+    public HazelcastUserProfilePictureIdentifier featuredProfilePictureIdentifier;
 
     public HazelcastCachedUserProfilePictures() {}
 
@@ -30,8 +30,8 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
     public static final class Builder {
 
         public String userPseudo;
-        public List<HazelcastProfilePictureIdentifier> profilePictureIdentifiers = new ArrayList<>();
-        public HazelcastProfilePictureIdentifier featuredProfilePictureIdentifier;
+        public List<HazelcastUserProfilePictureIdentifier> profilePictureIdentifiers = new ArrayList<>();
+        public HazelcastUserProfilePictureIdentifier featuredProfilePictureIdentifier;
 
         private Builder() {}
 
@@ -40,12 +40,12 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
             return this;
         }
 
-        public Builder addProfilePictureIdentifier(final HazelcastProfilePictureIdentifier profilePictureIdentifier) {
+        public Builder addProfilePictureIdentifier(final HazelcastUserProfilePictureIdentifier profilePictureIdentifier) {
             this.profilePictureIdentifiers.add(profilePictureIdentifier);
             return this;
         }
 
-        public Builder setFeaturedProfilePictureIdentifier(final HazelcastProfilePictureIdentifier featuredProfilePictureIdentifier) {
+        public Builder setFeaturedProfilePictureIdentifier(final HazelcastUserProfilePictureIdentifier featuredProfilePictureIdentifier) {
             this.featuredProfilePictureIdentifier = featuredProfilePictureIdentifier;
             return this;
         }
@@ -55,12 +55,12 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
         }
     }
 
-    public HazelcastCachedUserProfilePictures replaceAllProfilePictureIdentifiers(final List<HazelcastProfilePictureIdentifier> profilePictureIdentifiers) {
+    public HazelcastCachedUserProfilePictures replaceAllProfilePictureIdentifiers(final List<HazelcastUserProfilePictureIdentifier> profilePictureIdentifiers) {
         this.profilePictureIdentifiers = profilePictureIdentifiers;
         return this;
     }
 
-    public HazelcastCachedUserProfilePictures setFeaturedProfilePictureIdentifier(final HazelcastProfilePictureIdentifier featuredProfilePictureIdentifier) {
+    public HazelcastCachedUserProfilePictures setFeaturedProfilePictureIdentifier(final HazelcastUserProfilePictureIdentifier featuredProfilePictureIdentifier) {
         this.featuredProfilePictureIdentifier = featuredProfilePictureIdentifier;
         return this;
     }
@@ -71,12 +71,12 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
     }
 
     @Override
-    public List<? extends ProfilePictureIdentifier> profilePictureIdentifiers() {
+    public List<? extends UserProfilePictureIdentifier> profilePictureIdentifiers() {
         return profilePictureIdentifiers;
     }
 
     @Override
-    public ProfilePictureIdentifier featured() {
+    public UserProfilePictureIdentifier featured() {
         return featuredProfilePictureIdentifier;
     }
 
