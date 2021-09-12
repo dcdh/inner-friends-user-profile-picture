@@ -45,120 +45,110 @@ public class S3UserProfilePictureRepository implements UserProfilePictureReposit
     public Uni<UserProfilePictureSaved> save(final UserPseudo userPseudo,
                                              final byte[] picture,
                                              final SupportedMediaType mediaType) throws UserProfilePictureRepositoryException {
+        final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.save");
+        final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketUserProfilePictureName)
+                .key(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
+                .contentType(mediaType.contentType())
+                .build();
         return Uni.createFrom()
-                .deferred(() -> {
-                    final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.save");
-                    final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                            .bucket(bucketUserProfilePictureName)
-                            .key(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
-                            .contentType(mediaType.contentType())
-                            .build();
-                    return Uni.createFrom()
-                            .completionStage(() -> s3AsyncClient.putObject(putObjectRequest, AsyncRequestBody.fromBytes(picture)))
-                            .map(putObjectResponse -> new S3UserProfilePictureSaved(userPseudo, mediaType, putObjectResponse))
-                            .onFailure(SdkException.class)
-                            .transform(exception -> {
-                                LOG.error(exception);
-                                openTelemetryTracingService.markSpanInError(span);
-                                return new UserProfilePictureRepositoryException();
-                            })
-                            .onTermination()
-                            .invoke(() -> openTelemetryTracingService.endSpan(span));
-                });
+                .completionStage(() -> s3AsyncClient.putObject(putObjectRequest, AsyncRequestBody.fromBytes(picture)))
+                .map(putObjectResponse -> new S3UserProfilePictureSaved(userPseudo, mediaType, putObjectResponse))
+                .onFailure(SdkException.class)
+                .transform(exception -> {
+                    LOG.error(exception);
+                    openTelemetryTracingService.markSpanInError(span);
+                    return new UserProfilePictureRepositoryException();
+                })
+                .onItem().castTo(UserProfilePictureSaved.class)
+                .onTermination()
+                .invoke(() -> openTelemetryTracingService.endSpan(span));
     }
 
     @Override
     public Uni<UserProfilePictureIdentifier> getLast(final UserPseudo userPseudo, final SupportedMediaType mediaType)
             throws UserProfilePictureNotAvailableYetException, UserProfilePictureRepositoryException {
+        final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.getLast");
+        final ListObjectVersionsRequest listObjectVersionsRequest = ListObjectVersionsRequest.builder()
+                .bucket(bucketUserProfilePictureName)
+                .prefix(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
+                .build();
         return Uni.createFrom()
-                .deferred(() -> {
-                    final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.getLast");
-                    final ListObjectVersionsRequest listObjectVersionsRequest = ListObjectVersionsRequest.builder()
-                            .bucket(bucketUserProfilePictureName)
-                            .prefix(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
-                            .build();
-                    return Uni.createFrom()
-                            .completionStage(() -> s3AsyncClient.listObjectVersions(listObjectVersionsRequest))
-                            .map(listObjectVersionsResponse -> {
-                                final Optional<UserProfilePictureIdentifier> profilePictureIdentifier = listObjectVersionsResponse.versions()
-                                        .stream()
-                                        .findFirst()
-                                        .map(objectVersion -> new S3UserProfilePictureIdentifier(userPseudo, mediaType, objectVersion));
-                                if (!profilePictureIdentifier.isPresent()) {
-                                    throw new UserProfilePictureNotAvailableYetException(userPseudo);
-                                }
-                                return profilePictureIdentifier.get();
-                            })
-                            .onFailure(SdkException.class)
-                            .transform(exception -> {
-                                LOG.error(exception);
-                                openTelemetryTracingService.markSpanInError(span);
-                                return new UserProfilePictureRepositoryException();
-                            })
-                            .onTermination()
-                            .invoke(() -> openTelemetryTracingService.endSpan(span));
-                });
+                .completionStage(() -> s3AsyncClient.listObjectVersions(listObjectVersionsRequest))
+                .map(listObjectVersionsResponse -> {
+                    final Optional<UserProfilePictureIdentifier> profilePictureIdentifier = listObjectVersionsResponse.versions()
+                            .stream()
+                            .findFirst()
+                            .map(objectVersion -> new S3UserProfilePictureIdentifier(userPseudo, mediaType, objectVersion));
+                    if (!profilePictureIdentifier.isPresent()) {
+                        throw new UserProfilePictureNotAvailableYetException(userPseudo);
+                    }
+                    return profilePictureIdentifier.get();
+                })
+                .onFailure(SdkException.class)
+                .transform(exception -> {
+                    LOG.error(exception);
+                    openTelemetryTracingService.markSpanInError(span);
+                    return new UserProfilePictureRepositoryException();
+                })
+                .onTermination()
+                .invoke(() -> openTelemetryTracingService.endSpan(span));
     }
 
     @Override
-    public Uni<List<? extends UserProfilePictureIdentifier>> listByUserPseudo(final UserPseudo userPseudo,
-                                                                              final SupportedMediaType mediaType)
+    public Uni<List<UserProfilePictureIdentifier>> listByUserPseudo(final UserPseudo userPseudo,
+                                                                    final SupportedMediaType mediaType)
             throws UserProfilePictureRepositoryException {
+        final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.listByUserPseudo");
+        final ListObjectVersionsRequest listObjectVersionsRequest = ListObjectVersionsRequest.builder()
+                .bucket(bucketUserProfilePictureName)
+                .prefix(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
+                .build();
         return Uni.createFrom()
-                .deferred(() -> {
-                    final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.listByUserPseudo");
-                    final ListObjectVersionsRequest listObjectVersionsRequest = ListObjectVersionsRequest.builder()
-                            .bucket(bucketUserProfilePictureName)
-                            .prefix(s3ObjectKeyProvider.objectKey(userPseudo, mediaType).value())
-                            .build();
-                    return Uni.createFrom()
-                            .completionStage(() -> s3AsyncClient.listObjectVersions(listObjectVersionsRequest))
-                            .map(listObjectVersionsResponse ->
-                                    listObjectVersionsResponse
-                                        .versions()
-                                        .stream()
-                                        .map(objectVersion -> new S3UserProfilePictureIdentifier(userPseudo, mediaType, objectVersion))
-                                        .collect(Collectors.toList()))
-                            .onFailure(SdkException.class)
-                            .transform(exception -> {
-                                LOG.error(exception);
-                                openTelemetryTracingService.markSpanInError(span);
-                                throw new UserProfilePictureRepositoryException();
-                            })
-                            .onTermination()
-                            .invoke(() -> openTelemetryTracingService.endSpan(span));
-                });
+                .completionStage(() -> s3AsyncClient.listObjectVersions(listObjectVersionsRequest))
+                .map(listObjectVersionsResponse ->
+                        listObjectVersionsResponse
+                                .versions()
+                                .stream()
+                                .map(objectVersion -> (UserProfilePictureIdentifier) new S3UserProfilePictureIdentifier(userPseudo, mediaType, objectVersion))
+                                .collect(Collectors.toList()))
+                .onFailure(SdkException.class)
+                .transform(exception -> {
+                    LOG.error(exception);
+                    openTelemetryTracingService.markSpanInError(span);
+                    throw new UserProfilePictureRepositoryException();
+                })
+                .onTermination()
+                .invoke(() -> openTelemetryTracingService.endSpan(span));
     }
 
     @Override
     public Uni<ContentUserProfilePicture> getContentByVersionId(final UserProfilePictureIdentifier userProfilePictureIdentifier)
             throws UserProfilePictureVersionUnknownException, UserProfilePictureRepositoryException {
+        final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.getContentByVersion");
+        final GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketUserProfilePictureName)
+                .key(s3ObjectKeyProvider.objectKey(userProfilePictureIdentifier.userPseudo(), userProfilePictureIdentifier.mediaType()).value())
+                .versionId(userProfilePictureIdentifier.versionId().version())
+                .build();
         return Uni.createFrom()
-                .deferred(() -> {
-                    final Span span = openTelemetryTracingService.startANewSpan("S3ProfilePictureRepository.getContentByVersion");
-                    final GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketUserProfilePictureName)
-                            .key(s3ObjectKeyProvider.objectKey(userProfilePictureIdentifier.userPseudo(), userProfilePictureIdentifier.mediaType()).value())
-                            .versionId(userProfilePictureIdentifier.versionId().version())
-                            .build();
-                    return Uni.createFrom()
-                            .completionStage(() -> s3AsyncClient.getObject(getObjectRequest, AsyncResponseTransformer.toBytes()))
-                            .map(getObjectResponse -> new S3ContentUserProfilePicture(userProfilePictureIdentifier.userPseudo(), getObjectResponse))
-                            .onFailure(NoSuchKeyException.class)
-                            .transform(exception -> {
-                                openTelemetryTracingService.markSpanInError(span);
-                                return new UserProfilePictureVersionUnknownException(userProfilePictureIdentifier);
-                            })
-                            .onFailure(SdkException.class)
-                            .transform(exception -> {
-                                openTelemetryTracingService.markSpanInError(span);
-                                if (exception.getMessage().startsWith("Invalid version id specified")) {
-                                    return new UserProfilePictureVersionUnknownException(userProfilePictureIdentifier);
-                                }
-                                return new UserProfilePictureRepositoryException();
-                            })
-                            .onTermination()
-                            .invoke(() -> openTelemetryTracingService.endSpan(span));
-                });
+                .completionStage(() -> s3AsyncClient.getObject(getObjectRequest, AsyncResponseTransformer.toBytes()))
+                .map(getObjectResponse -> new S3ContentUserProfilePicture(userProfilePictureIdentifier.userPseudo(), getObjectResponse))
+                .onFailure(NoSuchKeyException.class)
+                .transform(exception -> {
+                    openTelemetryTracingService.markSpanInError(span);
+                    return new UserProfilePictureVersionUnknownException(userProfilePictureIdentifier);
+                })
+                .onFailure(SdkException.class)
+                .transform(exception -> {
+                    openTelemetryTracingService.markSpanInError(span);
+                    if (exception.getMessage().startsWith("Invalid version id specified")) {
+                        return new UserProfilePictureVersionUnknownException(userProfilePictureIdentifier);
+                    }
+                    return new UserProfilePictureRepositoryException();
+                })
+                .onItem().castTo(ContentUserProfilePicture.class)
+                .onTermination()
+                .invoke(() -> openTelemetryTracingService.endSpan(span));
     }
 
 }

@@ -247,11 +247,11 @@ public class S3UserProfilePictureRepositoryTest {
         final InOrder inOrder = inOrder(openTelemetryTracingService, s3AsyncClient);
 
         // When
-        final Uni<List<? extends UserProfilePictureIdentifier>> uni = s3UserProfilePictureRepository.listByUserPseudo(userPseudo, SupportedMediaType.IMAGE_JPEG);
+        final Uni<List<UserProfilePictureIdentifier>> uni = s3UserProfilePictureRepository.listByUserPseudo(userPseudo, SupportedMediaType.IMAGE_JPEG);
 
         // Then
-        final UniAssertSubscriber<List<? extends UserProfilePictureIdentifier>> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        final List<? extends UserProfilePictureIdentifier> userProfilePictureIdentifiers = subscriber.awaitItem().assertCompleted().getItem();
+        final UniAssertSubscriber<List<UserProfilePictureIdentifier>> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        final List<UserProfilePictureIdentifier> userProfilePictureIdentifiers = subscriber.awaitItem().assertCompleted().getItem();
         assertThat(userProfilePictureIdentifiers.size()).isEqualTo(1);
         assertThat(userProfilePictureIdentifiers.get(0).userPseudo().pseudo()).isEqualTo("user");
         assertThat(userProfilePictureIdentifiers.get(0).mediaType()).isEqualTo(SupportedMediaType.IMAGE_JPEG);

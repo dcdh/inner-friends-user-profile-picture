@@ -10,7 +10,7 @@ public interface UserProfilePictureRepository {
 
     Uni<UserProfilePictureIdentifier> getLast(UserPseudo userPseudo, SupportedMediaType mediaType) throws UserProfilePictureNotAvailableYetException, UserProfilePictureRepositoryException;
 
-    Uni<List<? extends UserProfilePictureIdentifier>> listByUserPseudo(UserPseudo userPseudo, SupportedMediaType mediaType) throws UserProfilePictureRepositoryException;
+    Uni<List<UserProfilePictureIdentifier>> listByUserPseudo(UserPseudo userPseudo, SupportedMediaType mediaType) throws UserProfilePictureRepositoryException;
 
     Uni<ContentUserProfilePicture> getContentByVersionId(UserProfilePictureIdentifier userProfilePictureIdentifier) throws UserProfilePictureVersionUnknownException, UserProfilePictureRepositoryException;
 

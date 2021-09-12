@@ -34,78 +34,66 @@ public class HazelcastUserProfilePictureCacheRepository implements UserProfilePi
 
     @Override
     public Uni<CachedUserProfilePictures> get(final UserPseudo userPseudo) throws UserProfileNotInCacheException {
+        final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.get");
         return Uni.createFrom()
-                .deferred(() -> {
-                    final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.get");
-                    return Uni.createFrom()
-                            .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).getAsync(userPseudo.pseudo()))
-                            .map(cachedUserProfilePicture -> cachedUserProfilePicture)
-                            .onItem()
-                            .castTo(CachedUserProfilePictures.class)
-                            .replaceIfNullWith(() -> {
-                                throw new UserProfilePicturesNotInCacheException(userPseudo);
-                            })
-                            .onTermination()
-                            .invoke(() -> openTelemetryTracingService.endSpan(span));
-                });
+                .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).getAsync(userPseudo.pseudo()))
+                .map(cachedUserProfilePicture -> cachedUserProfilePicture)
+                .onItem()
+                .castTo(CachedUserProfilePictures.class)
+                .replaceIfNullWith(() -> {
+                    throw new UserProfilePicturesNotInCacheException(userPseudo);
+                })
+                .onTermination()
+                .invoke(() -> openTelemetryTracingService.endSpan(span));
     }
 
     @Override
-    public Uni<CachedUserProfilePictures> store(final UserPseudo userPseudo, final List<? extends UserProfilePictureIdentifier> userProfilePictureIdentifiers) {
+    public Uni<CachedUserProfilePictures> store(final UserPseudo userPseudo, final List<UserProfilePictureIdentifier> userProfilePictureIdentifiers) {
+        final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.store");
         return Uni.createFrom()
-                .deferred(() -> {
-                    final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.store");
-                    return Uni.createFrom()
-                            .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).getAsync(userPseudo.pseudo()))
-                            .replaceIfNullWith(() -> HazelcastCachedUserProfilePictures.newBuilder().setUserPseudo(userPseudo.pseudo()).build())
-                            .onItem().castTo(HazelcastCachedUserProfilePictures.class)
-                            .chain(hazelcastCachedUserProfilePicture -> {
-                                hazelcastCachedUserProfilePicture.replaceAllProfilePictureIdentifiers(
-                                        userProfilePictureIdentifiers.stream()
-                                                .map(HazelcastUserProfilePictureIdentifier::new)
-                                                .collect(Collectors.toList())
-                                );
-                                return Uni.createFrom().completionStage(() -> hazelcastInstance.getMap(MAP_NAME).putAsync(userPseudo.pseudo(), hazelcastCachedUserProfilePicture))
-                                        .map(response -> hazelcastCachedUserProfilePicture);
-                            })
-                            .onItem().castTo(HazelcastCachedUserProfilePictures.class)
-                            .onTermination()
-                            .invoke(() -> openTelemetryTracingService.endSpan(span));
-                });
+                .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).getAsync(userPseudo.pseudo()))
+                .replaceIfNullWith(() -> HazelcastCachedUserProfilePictures.newBuilder().setUserPseudo(userPseudo.pseudo()).build())
+                .onItem().castTo(HazelcastCachedUserProfilePictures.class)
+                .chain(hazelcastCachedUserProfilePicture -> {
+                    hazelcastCachedUserProfilePicture.replaceAllProfilePictureIdentifiers(
+                            userProfilePictureIdentifiers.stream()
+                                    .map(HazelcastUserProfilePictureIdentifier::new)
+                                    .collect(Collectors.toList())
+                    );
+                    return Uni.createFrom().completionStage(() -> hazelcastInstance.getMap(MAP_NAME).putAsync(userPseudo.pseudo(), hazelcastCachedUserProfilePicture))
+                            .map(response -> hazelcastCachedUserProfilePicture);
+                })
+                .onItem().castTo(CachedUserProfilePictures.class)
+                .onTermination()
+                .invoke(() -> openTelemetryTracingService.endSpan(span));
     }
 
     @Override
     public Uni<CachedUserProfilePictures> storeFeatured(final UserPseudo userPseudo, final UserProfilePictureIdentifier featured) {
+        final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.store");
         return Uni.createFrom()
-                .deferred(() -> {
-                    final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.store");
-                    return Uni.createFrom()
-                            .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).getAsync(userPseudo.pseudo()))
-                            .replaceIfNullWith(() -> HazelcastCachedUserProfilePictures.newBuilder().setUserPseudo(userPseudo.pseudo()).build())
-                            .onItem().castTo(HazelcastCachedUserProfilePictures.class)
-                            .chain(hazelcastCachedUserProfilePicture -> {
-                                hazelcastCachedUserProfilePicture.setFeaturedUserProfilePictureIdentifier(new HazelcastUserProfilePictureIdentifier(featured));
-                                return Uni.createFrom().completionStage(() -> hazelcastInstance.getMap(MAP_NAME).putAsync(userPseudo.pseudo(), hazelcastCachedUserProfilePicture))
-                                        .map(response -> hazelcastCachedUserProfilePicture);
-                            })
-                            .onItem().castTo(HazelcastCachedUserProfilePictures.class)
-                            .onTermination()
-                            .invoke(() -> openTelemetryTracingService.endSpan(span));
-                });
+                .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).getAsync(userPseudo.pseudo()))
+                .replaceIfNullWith(() -> HazelcastCachedUserProfilePictures.newBuilder().setUserPseudo(userPseudo.pseudo()).build())
+                .onItem().castTo(HazelcastCachedUserProfilePictures.class)
+                .chain(hazelcastCachedUserProfilePicture -> {
+                    hazelcastCachedUserProfilePicture.setFeaturedUserProfilePictureIdentifier(new HazelcastUserProfilePictureIdentifier(featured));
+                    return Uni.createFrom().completionStage(() -> hazelcastInstance.getMap(MAP_NAME).putAsync(userPseudo.pseudo(), hazelcastCachedUserProfilePicture))
+                            .map(response -> hazelcastCachedUserProfilePicture);
+                })
+                .onItem().castTo(CachedUserProfilePictures.class)
+                .onTermination()
+                .invoke(() -> openTelemetryTracingService.endSpan(span));
     }
 
     @Override
     public Uni<Void> evict(final UserPseudo userPseudo) {
+        final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.evict");
         return Uni.createFrom()
-                .deferred(() -> {
-                    final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.evict");
-                    return Uni.createFrom()
-                            .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).removeAsync(userPseudo.pseudo()))
-                            .onItemOrFailure()
-                            .transform((item, exception) -> (Void) null)
-                            .onTermination()
-                            .invoke(() -> openTelemetryTracingService.endSpan(span));
-                });
+                .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).removeAsync(userPseudo.pseudo()))
+                .onItemOrFailure()
+                .transform((item, exception) -> (Void) null)
+                .onTermination()
+                .invoke(() -> openTelemetryTracingService.endSpan(span));
     }
 
 }
