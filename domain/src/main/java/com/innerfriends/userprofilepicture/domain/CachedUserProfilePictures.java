@@ -10,4 +10,12 @@ public interface CachedUserProfilePictures {
 
     UserProfilePictureIdentifier featured();
 
+    default boolean hasFeaturedInCache() {
+        return featured() != null;
+    }
+
+    default boolean hasUserProfilePictureIdentifiersInCache() {
+        return userProfilePictureIdentifiers() != null;
+    }
+
 }

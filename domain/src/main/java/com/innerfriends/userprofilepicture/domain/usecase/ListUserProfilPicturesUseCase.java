@@ -21,7 +21,12 @@ public class ListUserProfilPicturesUseCase<R> implements UseCase<R, ListUserProf
                           final ResponseTransformer<R> responseTransformer) {
         return Uni.createFrom()
                 .deferred(() -> userProfilePictureCacheRepository.get(command.userPseudo()))
-                .map(cachedUserProfilePictures -> responseTransformer.toResponse(cachedUserProfilePictures.userProfilePictureIdentifiers()))
+                .map(cachedUserProfilePictures -> {
+                    if (cachedUserProfilePictures.hasUserProfilePictureIdentifiersInCache()) {
+                        return responseTransformer.toResponse(cachedUserProfilePictures.userProfilePictureIdentifiers());
+                    }
+                    throw new UserProfilePicturesNotInCacheException(command.userPseudo());
+                })
                 .onFailure()
                 .recoverWithUni(() ->
                         Uni.createFrom()

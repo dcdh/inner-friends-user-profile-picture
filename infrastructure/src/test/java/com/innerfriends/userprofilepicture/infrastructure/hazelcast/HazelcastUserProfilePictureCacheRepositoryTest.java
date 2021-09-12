@@ -3,7 +3,7 @@ package com.innerfriends.userprofilepicture.infrastructure.hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.innerfriends.userprofilepicture.domain.CachedUserProfilePictures;
 import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
-import com.innerfriends.userprofilepicture.domain.UserProfilePictureNotInCacheException;
+import com.innerfriends.userprofilepicture.domain.UserProfilePicturesNotInCacheException;
 import com.innerfriends.userprofilepicture.infrastructure.tracing.OpenTelemetryTracingService;
 import io.opentelemetry.api.trace.Span;
 import io.quarkus.test.junit.QuarkusTest;
@@ -104,10 +104,9 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
 
         // Then
         final UniAssertSubscriber<CachedUserProfilePictures> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-        subscriber.awaitFailure().assertFailedWith(UserProfilePictureNotInCacheException.class);
+        subscriber.awaitFailure().assertFailedWith(UserProfilePicturesNotInCacheException.class);
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         // I cannot do @InjectSpy on hazelcastInstance to verify the call in order
-        inOrder.verify(openTelemetryTracingService, times(1)).markSpanInError(span);
         inOrder.verify(openTelemetryTracingService, times(1)).endSpan(span);
 
         assertThat(hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("user")).isNull();
@@ -270,4 +269,33 @@ public class HazelcastUserProfilePictureCacheRepositoryTest {
         assertThat(hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("user"))
                 .isEqualTo(expectedHazelcastCachedUserProfilePicture);
     }
+
+    @Test
+    public void should_evict_user_profile_pictures() {
+        // Given
+        if (hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("user") != null) {
+            throw new IllegalStateException("must be null !");
+        }
+        final CachedUserProfilePictures givenCachedUserProfilePictures = HazelcastCachedUserProfilePictures.newBuilder()
+                .setUserPseudo("user")
+                .build();
+        hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).put("user", givenCachedUserProfilePictures);
+        final InOrder inOrder = inOrder(openTelemetryTracingService);
+        final Span span = mock(Span.class);
+        doReturn(span).when(openTelemetryTracingService).startANewSpan("HazelcastUserProfilePictureCacheRepository.evict");
+
+        // When
+        final Uni<Void> uni = hazelcastUserProfilePictureCacheRepository.evict(() -> "user");
+
+        // Then
+        final UniAssertSubscriber<Void> subscriber = uni.subscribe().withSubscriber(UniAssertSubscriber.create());
+        subscriber.awaitItem().assertCompleted();
+
+        assertThat(hazelcastInstance.getMap(HazelcastUserProfilePictureCacheRepository.MAP_NAME).get("user")).isNull();
+
+        inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
+        // I cannot do @InjectSpy on hazelcastInstance to verify the call in order
+        inOrder.verify(openTelemetryTracingService, times(1)).endSpan(span);
+    }
+
 }

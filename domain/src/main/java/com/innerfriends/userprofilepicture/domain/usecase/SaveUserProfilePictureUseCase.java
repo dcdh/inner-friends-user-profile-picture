@@ -21,7 +21,7 @@ public class SaveUserProfilePictureUseCase<R> implements UseCase<R, SaveUserProf
                           final ResponseTransformer<R> responseTransformer) {
         return Uni.createFrom()
                 .deferred(() -> userProfilePictureRepository.save(command.userPseudo(), command.picture(), command.mediaType()))
-                .chain(profilePictureSaved -> userProfilePictureCacheRepository.storeFeatured(command.userPseudo(), profilePictureSaved)
+                .chain(profilePictureSaved -> userProfilePictureCacheRepository.evict(command.userPseudo())
                         .onItemOrFailure().transform((item, exception) -> profilePictureSaved))
                 .map(profilePictureSaved -> responseTransformer.toResponse(profilePictureSaved))
                 .onFailure(UserProfilePictureRepositoryException.class)

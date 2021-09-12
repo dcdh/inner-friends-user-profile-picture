@@ -33,16 +33,17 @@ public class HazelcastUserProfilePictureCacheRepository implements UserProfilePi
      */
 
     @Override
-    public Uni<CachedUserProfilePictures> get(final UserPseudo userPseudo) throws UserProfilePictureNotInCacheException {
+    public Uni<CachedUserProfilePictures> get(final UserPseudo userPseudo) throws UserProfileNotInCacheException {
         return Uni.createFrom()
                 .deferred(() -> {
                     final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.get");
                     return Uni.createFrom()
                             .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).getAsync(userPseudo.pseudo()))
-                            .map(cachedUserProfilePicture -> (CachedUserProfilePictures) cachedUserProfilePicture)
+                            .map(cachedUserProfilePicture -> cachedUserProfilePicture)
+                            .onItem()
+                            .castTo(CachedUserProfilePictures.class)
                             .replaceIfNullWith(() -> {
-                                openTelemetryTracingService.markSpanInError(span);
-                                throw new UserProfilePictureNotInCacheException(userPseudo);
+                                throw new UserProfilePicturesNotInCacheException(userPseudo);
                             })
                             .onTermination()
                             .invoke(() -> openTelemetryTracingService.endSpan(span));
@@ -88,6 +89,20 @@ public class HazelcastUserProfilePictureCacheRepository implements UserProfilePi
                                         .map(response -> hazelcastCachedUserProfilePicture);
                             })
                             .onItem().castTo(HazelcastCachedUserProfilePictures.class)
+                            .onTermination()
+                            .invoke(() -> openTelemetryTracingService.endSpan(span));
+                });
+    }
+
+    @Override
+    public Uni<Void> evict(final UserPseudo userPseudo) {
+        return Uni.createFrom()
+                .deferred(() -> {
+                    final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.evict");
+                    return Uni.createFrom()
+                            .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).removeAsync(userPseudo.pseudo()))
+                            .onItemOrFailure()
+                            .transform((item, exception) -> (Void) null)
                             .onTermination()
                             .invoke(() -> openTelemetryTracingService.endSpan(span));
                 });

@@ -30,7 +30,7 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
     public static final class Builder {
 
         public String userPseudo;
-        public List<HazelcastUserProfilePictureIdentifier> userProfilePictureIdentifiers = new ArrayList<>();
+        public List<HazelcastUserProfilePictureIdentifier> userProfilePictureIdentifiers;
         public HazelcastUserProfilePictureIdentifier featuredUserProfilePictureIdentifier;
 
         private Builder() {}
@@ -41,6 +41,9 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
         }
 
         public Builder addProfilePictureIdentifier(final HazelcastUserProfilePictureIdentifier userProfilePictureIdentifier) {
+            if (userProfilePictureIdentifiers == null) {
+                userProfilePictureIdentifiers = new ArrayList<>();
+            }
             this.userProfilePictureIdentifiers.add(userProfilePictureIdentifier);
             return this;
         }
