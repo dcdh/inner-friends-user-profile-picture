@@ -1,0 +1,9 @@
+hazelcast:
+  map:
+    default:
+      time-to-live-seconds: 600
+      max-idle-seconds: 600
+      eviction:
+        eviction-policy: LRU
+        max-size-policy: PER_NODE
+        size: 5000
