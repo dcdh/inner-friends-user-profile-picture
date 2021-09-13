@@ -5,6 +5,7 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -14,11 +15,13 @@ public class GetUserProfilePictureByVersionUseCaseTest {
     private UserProfilePictureRepository userProfilePictureRepository;
     private GetUserProfilePictureByVersionUseCase<Response> getUserProfilePictureByVersionUseCase;
     private TestResponseTransformer testResponseTransformer;
+    private LockMechanism lockMechanism;
 
     @BeforeEach
     public void setup() {
         userProfilePictureRepository = mock(UserProfilePictureRepository.class);
-        getUserProfilePictureByVersionUseCase = new GetUserProfilePictureByVersionUseCase<>(userProfilePictureRepository);
+        lockMechanism = mock(LockMechanism.class);
+        getUserProfilePictureByVersionUseCase = new GetUserProfilePictureByVersionUseCase<>(userProfilePictureRepository, lockMechanism);
         testResponseTransformer = mock(TestResponseTransformer.class);
     }
 
@@ -34,6 +37,8 @@ public class GetUserProfilePictureByVersionUseCaseTest {
         doReturn(Uni.createFrom().item(contentProfilePicture)).when(userProfilePictureRepository).getContentByVersionId(getUserProfilePictureByVersionCommand);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(contentProfilePicture);
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(userPseudo);
+        final InOrder inOrder = inOrder(testResponseTransformer, userProfilePictureRepository, lockMechanism);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getUserProfilePictureByVersionUseCase.execute(
@@ -43,9 +48,11 @@ public class GetUserProfilePictureByVersionUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
-        verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
-        verify(testResponseTransformer).toResponse(any(ContentUserProfilePicture.class));
-        verifyNoMoreInteractions(testResponseTransformer);
+        inOrder.verify(lockMechanism, times(1)).lock(userPseudo);
+        inOrder.verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
+        inOrder.verify(testResponseTransformer).toResponse(any(ContentUserProfilePicture.class));
+        inOrder.verify(lockMechanism, times(1)).unlock(userPseudo);
+        verifyNoMoreInteractions(testResponseTransformer, lockMechanism);
     }
 
     @Test
@@ -53,6 +60,7 @@ public class GetUserProfilePictureByVersionUseCaseTest {
         // Given
         final UserProfilePictureVersionUnknownException userProfilePictureVersionUnknownException = mock(UserProfilePictureVersionUnknownException.class);
         doReturn(Uni.createFrom().failure(userProfilePictureVersionUnknownException)).when(userProfilePictureRepository).getContentByVersionId(any());
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureVersionUnknownException);
 
@@ -64,9 +72,11 @@ public class GetUserProfilePictureByVersionUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(any());
         verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
         verify(testResponseTransformer).toResponse(any(UserProfilePictureVersionUnknownException.class));
-        verifyNoMoreInteractions(testResponseTransformer);
+        verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, lockMechanism);
     }
 
     @Test
@@ -74,6 +84,7 @@ public class GetUserProfilePictureByVersionUseCaseTest {
         // Given
         final UserProfilePictureRepositoryException userProfilePictureRepositoryException = mock(UserProfilePictureRepositoryException.class);
         doReturn(Uni.createFrom().failure(userProfilePictureRepositoryException)).when(userProfilePictureRepository).getContentByVersionId(any());
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureRepositoryException);
 
@@ -85,9 +96,11 @@ public class GetUserProfilePictureByVersionUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(any());
         verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
         verify(testResponseTransformer).toResponse(any(UserProfilePictureRepositoryException.class));
-        verifyNoMoreInteractions(testResponseTransformer);
+        verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, lockMechanism);
     }
 
     @Test
@@ -95,6 +108,7 @@ public class GetUserProfilePictureByVersionUseCaseTest {
         // Given
         final RuntimeException runtimeException = new RuntimeException();
         doReturn(Uni.createFrom().failure(runtimeException)).when(userProfilePictureRepository).getContentByVersionId(any());
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(runtimeException);
 
@@ -106,9 +120,11 @@ public class GetUserProfilePictureByVersionUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(any());
         verify(userProfilePictureRepository, times(1)).getContentByVersionId(any());
         verify(testResponseTransformer).toResponse(any(RuntimeException.class));
-        verifyNoMoreInteractions(testResponseTransformer);
+        verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, lockMechanism);
     }
 
 }

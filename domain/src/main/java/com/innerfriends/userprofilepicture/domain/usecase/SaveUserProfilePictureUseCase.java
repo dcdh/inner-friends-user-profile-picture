@@ -9,25 +9,31 @@ public class SaveUserProfilePictureUseCase<R> implements UseCase<R, SaveUserProf
 
     private final UserProfilePictureRepository userProfilePictureRepository;
     private final UserProfilePictureCacheRepository userProfilePictureCacheRepository;
+    private final LockMechanism lockMechanism;
 
     public SaveUserProfilePictureUseCase(final UserProfilePictureRepository userProfilePictureRepository,
-                                         final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
+                                         final UserProfilePictureCacheRepository userProfilePictureCacheRepository,
+                                         final LockMechanism lockMechanism) {
         this.userProfilePictureRepository = Objects.requireNonNull(userProfilePictureRepository);
         this.userProfilePictureCacheRepository = Objects.requireNonNull(userProfilePictureCacheRepository);
+        this.lockMechanism = Objects.requireNonNull(lockMechanism);
     }
 
     @Override
     public Uni<R> execute(final SaveUserProfilePictureCommand command,
                           final ResponseTransformer<R> responseTransformer) {
         return Uni.createFrom()
-                .deferred(() -> userProfilePictureRepository.save(command.userPseudo(), command.picture(), command.mediaType()))
+                .deferred(() -> lockMechanism.lock(command.userPseudo()))
+                .chain(() -> userProfilePictureRepository.save(command.userPseudo(), command.picture(), command.mediaType()))
                 .chain(profilePictureSaved -> userProfilePictureCacheRepository.evict(command.userPseudo())
                         .onItemOrFailure().transform((item, exception) -> profilePictureSaved))
                 .map(profilePictureSaved -> responseTransformer.toResponse(profilePictureSaved))
                 .onFailure(UserProfilePictureRepositoryException.class)
                 .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((UserProfilePictureRepositoryException) profilePictureRepositoryException))
                 .onFailure()
-                .recoverWithItem(exception -> responseTransformer.toResponse(exception));
+                .recoverWithItem(exception -> responseTransformer.toResponse(exception))
+                .onTermination()
+                .invoke(() -> lockMechanism.unlock(command.userPseudo()));
     }
 
 }

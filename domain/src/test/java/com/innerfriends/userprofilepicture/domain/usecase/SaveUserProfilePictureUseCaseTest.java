@@ -15,12 +15,14 @@ public class SaveUserProfilePictureUseCaseTest {
     private SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCase;
     private TestResponseTransformer testResponseTransformer;
     private UserProfilePictureCacheRepository userProfilePictureCacheRepository;
+    private LockMechanism lockMechanism;
 
     @BeforeEach
     public void setup() {
         userProfilePictureRepository = mock(UserProfilePictureRepository.class);
         userProfilePictureCacheRepository = mock(UserProfilePictureCacheRepository.class);
-        saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository);
+        lockMechanism = mock(LockMechanism.class);
+        saveUserProfilePictureUseCase = new SaveUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism);
         testResponseTransformer = mock(TestResponseTransformer.class);
     }
 
@@ -31,9 +33,10 @@ public class SaveUserProfilePictureUseCaseTest {
         final UserProfilePictureSaved profilePictureSaved = mock(UserProfilePictureSaved.class);
         doReturn(Uni.createFrom().item(profilePictureSaved)).when(userProfilePictureRepository).save(userPseudo, "content".getBytes(), SupportedMediaType.IMAGE_JPEG);
         doReturn(Uni.createFrom().nullItem()).when(userProfilePictureCacheRepository).evict(userPseudo);
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(userPseudo);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(profilePictureSaved);
-        final InOrder inOrder = inOrder(testResponseTransformer, userProfilePictureRepository, userProfilePictureCacheRepository);
+        final InOrder inOrder = inOrder(testResponseTransformer, userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism);
 
         // When
         final UniAssertSubscriber<Response> subscriber = saveUserProfilePictureUseCase.execute(
@@ -43,10 +46,12 @@ public class SaveUserProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        inOrder.verify(lockMechanism, times(1)).lock(userPseudo);
         inOrder.verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
         inOrder.verify(userProfilePictureCacheRepository, times(1)).evict(any());
         inOrder.verify(testResponseTransformer).toResponse(any(UserProfilePictureSaved.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        inOrder.verify(lockMechanism, times(1)).unlock(userPseudo);
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @Test
@@ -54,6 +59,7 @@ public class SaveUserProfilePictureUseCaseTest {
         // Given
         final UserProfilePictureRepositoryException userProfilePictureRepositoryException = mock(UserProfilePictureRepositoryException.class);
         doReturn(Uni.createFrom().failure(userProfilePictureRepositoryException)).when(userProfilePictureRepository).save(any(), any(), any());
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureRepositoryException);
 
@@ -65,9 +71,11 @@ public class SaveUserProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(any());
         verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
         verify(testResponseTransformer).toResponse(any(UserProfilePictureRepositoryException.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @Test
@@ -75,6 +83,7 @@ public class SaveUserProfilePictureUseCaseTest {
         // Given
         final RuntimeException runtimeException = new RuntimeException();
         doReturn(Uni.createFrom().failure(runtimeException)).when(userProfilePictureRepository).save(any(), any(), any());
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(runtimeException);
 
@@ -86,9 +95,11 @@ public class SaveUserProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(any());
         verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
         verify(testResponseTransformer).toResponse(any(RuntimeException.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @Test
@@ -98,6 +109,7 @@ public class SaveUserProfilePictureUseCaseTest {
         final UserProfilePictureSaved profilePictureSaved = mock(UserProfilePictureSaved.class);
         doReturn(Uni.createFrom().item(profilePictureSaved)).when(userProfilePictureRepository).save(userPseudo, "content".getBytes(), SupportedMediaType.IMAGE_JPEG);
         doReturn(Uni.createFrom().failure(RuntimeException::new)).when(userProfilePictureCacheRepository).evict(userPseudo);
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(userPseudo);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(profilePictureSaved);
 
@@ -109,10 +121,12 @@ public class SaveUserProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(any());
         verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
         verify(userProfilePictureCacheRepository, times(1)).evict(any());
         verify(testResponseTransformer).toResponse(any(UserProfilePictureSaved.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
 }

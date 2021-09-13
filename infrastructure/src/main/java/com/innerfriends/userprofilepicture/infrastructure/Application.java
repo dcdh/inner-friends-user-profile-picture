@@ -1,5 +1,6 @@
 package com.innerfriends.userprofilepicture.infrastructure;
 
+import com.innerfriends.userprofilepicture.domain.LockMechanism;
 import com.innerfriends.userprofilepicture.domain.UserProfilePictureRepository;
 import com.innerfriends.userprofilepicture.domain.UserProfilePictureCacheRepository;
 import com.innerfriends.userprofilepicture.domain.usecase.GetFeaturedUserProfilePictureUseCase;
@@ -18,28 +19,32 @@ public class Application {
     @ApplicationScoped
     @Produces
     public GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository,
-                                                                                                       final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
-        return new GetFeaturedUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository);
+                                                                                                       final UserProfilePictureCacheRepository userProfilePictureCacheRepository,
+                                                                                                       final LockMechanism lockMechanism) {
+        return new GetFeaturedUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @ApplicationScoped
     @Produces
     public SaveUserProfilePictureUseCase<Response> saveUserProfilePictureUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository,
-                                                                                         final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
-        return new SaveUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository);
+                                                                                         final UserProfilePictureCacheRepository userProfilePictureCacheRepository,
+                                                                                         final LockMechanism lockMechanism) {
+        return new SaveUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @ApplicationScoped
     @Produces
     public ListUserProfilPicturesUseCase<Response> listUserProfilPicturesUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository,
-                                                                                         final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
-        return new ListUserProfilPicturesUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository);
+                                                                                         final UserProfilePictureCacheRepository userProfilePictureCacheRepository,
+                                                                                         final LockMechanism lockMechanism) {
+        return new ListUserProfilPicturesUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @ApplicationScoped
     @Produces
-    public GetUserProfilePictureByVersionUseCase<Response> getUserProfilePictureByVersionUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository) {
-        return new GetUserProfilePictureByVersionUseCase<>(userProfilePictureRepository);
+    public GetUserProfilePictureByVersionUseCase<Response> getUserProfilePictureByVersionUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository,
+                                                                                                         final LockMechanism lockMechanism) {
+        return new GetUserProfilePictureByVersionUseCase<>(userProfilePictureRepository, lockMechanism);
     }
 
     @ApplicationScoped

@@ -9,18 +9,22 @@ public class ListUserProfilPicturesUseCase<R> implements UseCase<R, ListUserProf
 
     private final UserProfilePictureRepository userProfilePictureRepository;
     private final UserProfilePictureCacheRepository userProfilePictureCacheRepository;
+    private final LockMechanism lockMechanism;
 
     public ListUserProfilPicturesUseCase(final UserProfilePictureRepository userProfilePictureRepository,
-                                         final UserProfilePictureCacheRepository userProfilePictureCacheRepository) {
+                                         final UserProfilePictureCacheRepository userProfilePictureCacheRepository,
+                                         final LockMechanism lockMechanism) {
         this.userProfilePictureRepository = Objects.requireNonNull(userProfilePictureRepository);
         this.userProfilePictureCacheRepository = Objects.requireNonNull(userProfilePictureCacheRepository);
+        this.lockMechanism = Objects.requireNonNull(lockMechanism);
     }
 
     @Override
     public Uni<R> execute(final ListUserProfilPicturesCommand command,
                           final ResponseTransformer<R> responseTransformer) {
         return Uni.createFrom()
-                .deferred(() -> userProfilePictureCacheRepository.get(command.userPseudo()))
+                .deferred(() -> lockMechanism.lock(command.userPseudo()))
+                .chain(() -> userProfilePictureCacheRepository.get(command.userPseudo()))
                 .map(cachedUserProfilePictures -> {
                     if (cachedUserProfilePictures.hasUserProfilePictureIdentifiersInCache()) {
                         return responseTransformer.toResponse(cachedUserProfilePictures.userProfilePictureIdentifiers());
@@ -38,7 +42,9 @@ public class ListUserProfilPicturesUseCase<R> implements UseCase<R, ListUserProf
                                 .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((UserProfilePictureRepositoryException) profilePictureRepositoryException))
                                 .onFailure()
                                 .recoverWithItem(exception -> responseTransformer.toResponse(exception))
-                );
+                )
+                .onTermination()
+                .invoke(() -> lockMechanism.unlock(command.userPseudo()));
     }
 
 }

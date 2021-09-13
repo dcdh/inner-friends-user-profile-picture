@@ -16,12 +16,14 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
     private GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCase;
     private TestResponseTransformer testResponseTransformer;
     private UserProfilePictureCacheRepository userProfilePictureCacheRepository;
+    private LockMechanism lockMechanism;
 
     @BeforeEach
     public void setup() {
         userProfilePictureRepository = mock(UserProfilePictureRepository.class);
         userProfilePictureCacheRepository = mock(UserProfilePictureCacheRepository.class);
-        getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository);
+        lockMechanism = mock(LockMechanism.class);
+        getFeaturedUserProfilePictureUseCase = new GetFeaturedUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism);
         testResponseTransformer = mock(TestResponseTransformer.class);
     }
 
@@ -37,6 +39,7 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         doReturn(Uni.createFrom().item(cachedUserProfilePictures)).when(userProfilePictureCacheRepository).get(userPseudo);
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureIdentifier);
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(userPseudo);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getFeaturedUserProfilePictureUseCase.execute(
@@ -46,11 +49,13 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(userPseudo);
         verify(userProfilePictureCacheRepository, times(1)).get(any());
         verify(cachedUserProfilePictures, times(1)).hasFeaturedInCache();
         verify(cachedUserProfilePictures, times(1)).featured();
         verify(testResponseTransformer).toResponse(any(UserProfilePictureIdentifier.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        verify(lockMechanism, times(1)).unlock(userPseudo);
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @Test
@@ -66,7 +71,8 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureIdentifier);
         doReturn(Uni.createFrom().nullItem()).when(userProfilePictureCacheRepository).get(userPseudo);
         doReturn(Uni.createFrom().item(cachedUserProfilePictures)).when(userProfilePictureCacheRepository).storeFeatured(userPseudo, userProfilePictureIdentifier);
-        final InOrder inOrder = inOrder(testResponseTransformer, userProfilePictureRepository, userProfilePictureCacheRepository);
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(userPseudo);
+        final InOrder inOrder = inOrder(testResponseTransformer, userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getFeaturedUserProfilePictureUseCase.execute(
@@ -76,11 +82,13 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        inOrder.verify(lockMechanism, times(1)).lock(userPseudo);
         inOrder.verify(userProfilePictureCacheRepository, times(1)).get(any());
         inOrder.verify(userProfilePictureRepository, times(1)).getLast(any(), any());
         inOrder.verify(userProfilePictureCacheRepository, times(1)).storeFeatured(any(), any(UserProfilePictureIdentifier.class));
         inOrder.verify(testResponseTransformer).toResponse(any(UserProfilePictureIdentifier.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        inOrder.verify(lockMechanism, times(1)).unlock(userPseudo);
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @Test
@@ -96,7 +104,8 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureIdentifier);
         doReturn(Uni.createFrom().item(cachedUserProfilePictures)).when(userProfilePictureCacheRepository).storeFeatured(userPseudo, userProfilePictureIdentifier);
-        final InOrder inOrder = inOrder(testResponseTransformer, userProfilePictureRepository, userProfilePictureCacheRepository);
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(userPseudo);
+        final InOrder inOrder = inOrder(testResponseTransformer, userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getFeaturedUserProfilePictureUseCase.execute(
@@ -107,11 +116,13 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         // Then
         subscriber.assertCompleted().assertItem(response);
         verify(cachedUserProfilePictures, times(1)).hasFeaturedInCache();
+        inOrder.verify(lockMechanism, times(1)).lock(userPseudo);
         inOrder.verify(userProfilePictureCacheRepository, times(1)).get(any());
         inOrder.verify(userProfilePictureRepository, times(1)).getLast(any(), any());
         inOrder.verify(userProfilePictureCacheRepository, times(1)).storeFeatured(any(), any(UserProfilePictureIdentifier.class));
         inOrder.verify(testResponseTransformer).toResponse(any(UserProfilePictureIdentifier.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        inOrder.verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @Test
@@ -120,6 +131,7 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         final UserProfilePictureNotAvailableYetException userProfilePictureNotAvailableYetException = mock(UserProfilePictureNotAvailableYetException.class);
         doReturn(Uni.createFrom().nullItem()).when(userProfilePictureCacheRepository).get(any());
         doReturn(Uni.createFrom().failure(userProfilePictureNotAvailableYetException)).when(userProfilePictureRepository).getLast(any(), any());
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureNotAvailableYetException);
 
@@ -131,10 +143,12 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(any());
         verify(userProfilePictureCacheRepository, times(1)).get(any());
         verify(userProfilePictureRepository, times(1)).getLast(any(), any());
         verify(testResponseTransformer).toResponse(any(UserProfilePictureNotAvailableYetException.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @Test
@@ -143,6 +157,7 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         final UserProfilePictureRepositoryException userProfilePictureRepositoryException = mock(UserProfilePictureRepositoryException.class);
         doReturn(Uni.createFrom().nullItem()).when(userProfilePictureCacheRepository).get(any());
         doReturn(Uni.createFrom().failure(userProfilePictureRepositoryException)).when(userProfilePictureRepository).getLast(any(), any());
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureRepositoryException);
 
@@ -154,10 +169,12 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(any());
         verify(userProfilePictureCacheRepository, times(1)).get(any());
         verify(userProfilePictureRepository, times(1)).getLast(any(), any());
         verify(testResponseTransformer).toResponse(any(UserProfilePictureRepositoryException.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @Test
@@ -166,6 +183,7 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         final RuntimeException runtimeException = new RuntimeException();
         doReturn(Uni.createFrom().nullItem()).when(userProfilePictureCacheRepository).get(any());
         doReturn(Uni.createFrom().failure(runtimeException)).when(userProfilePictureRepository).getLast(any(), any());
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(any());
         final Response response = mock(Response.class);
         doReturn(response).when(testResponseTransformer).toResponse(runtimeException);
 
@@ -177,10 +195,12 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(any());
         verify(userProfilePictureCacheRepository, times(1)).get(any());
         verify(userProfilePictureRepository, times(1)).getLast(any(), any());
         verify(testResponseTransformer).toResponse(any(RuntimeException.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @Test
@@ -195,6 +215,7 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
         doReturn(response).when(testResponseTransformer).toResponse(userProfilePictureIdentifier);
         doReturn(Uni.createFrom().failure(new UserProfilePicturesNotInCacheException(userPseudo))).when(userProfilePictureCacheRepository).get(any());
         doReturn(Uni.createFrom().failure(RuntimeException::new)).when(userProfilePictureCacheRepository).storeFeatured(any(), any(UserProfilePictureIdentifier.class));
+        doReturn(Uni.createFrom().nullItem()).when(lockMechanism).lock(userPseudo);
 
         // When
         final UniAssertSubscriber<Response> subscriber = getFeaturedUserProfilePictureUseCase.execute(
@@ -204,11 +225,13 @@ public class GetFeaturedUserContentProfilePictureUseCaseTest {
 
         // Then
         subscriber.assertCompleted().assertItem(response);
+        verify(lockMechanism, times(1)).lock(any());
         verify(userProfilePictureCacheRepository, times(1)).get(any());
         verify(userProfilePictureRepository, times(1)).getLast(any(), any());
         verify(userProfilePictureCacheRepository, times(1)).storeFeatured(any(), any(UserProfilePictureIdentifier.class));
         verify(testResponseTransformer).toResponse(any(UserProfilePictureIdentifier.class));
-        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository);
+        verify(lockMechanism, times(1)).unlock(any());
+        verifyNoMoreInteractions(testResponseTransformer, userProfilePictureCacheRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
 }
