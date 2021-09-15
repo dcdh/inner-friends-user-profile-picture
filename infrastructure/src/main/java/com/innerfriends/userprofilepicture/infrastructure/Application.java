@@ -11,7 +11,7 @@ import com.innerfriends.userprofilepicture.infrastructure.s3.S3ObjectKey;
 import com.innerfriends.userprofilepicture.infrastructure.s3.S3ObjectKeyProvider;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.Produces;
+import javax.enterprise.inject.Produces;
 import javax.ws.rs.core.Response;
 
 public class Application {
