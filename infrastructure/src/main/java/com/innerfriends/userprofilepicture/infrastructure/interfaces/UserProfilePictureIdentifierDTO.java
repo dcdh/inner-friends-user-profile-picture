@@ -1,11 +1,13 @@
 package com.innerfriends.userprofilepicture.infrastructure.interfaces;
 
-import com.innerfriends.userprofilepicture.domain.UserProfilePictureIdentifier;
 import com.innerfriends.userprofilepicture.domain.SupportedMediaType;
+import com.innerfriends.userprofilepicture.domain.UserProfilePictureIdentifier;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
+import java.util.Objects;
+
 @RegisterForReflection
-public class UserProfilePictureIdentifierDTO {
+public final class UserProfilePictureIdentifierDTO {
 
     private final String userPseudo;
     private final SupportedMediaType mediaType;
@@ -27,5 +29,20 @@ public class UserProfilePictureIdentifierDTO {
 
     public String getVersionId() {
         return versionId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserProfilePictureIdentifierDTO)) return false;
+        UserProfilePictureIdentifierDTO that = (UserProfilePictureIdentifierDTO) o;
+        return Objects.equals(userPseudo, that.userPseudo) &&
+                mediaType == that.mediaType &&
+                Objects.equals(versionId, that.versionId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userPseudo, mediaType, versionId);
     }
 }

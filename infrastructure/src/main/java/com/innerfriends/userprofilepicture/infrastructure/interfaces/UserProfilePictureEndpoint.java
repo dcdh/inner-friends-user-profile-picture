@@ -78,4 +78,13 @@ public class UserProfilePictureEndpoint {
                 jaxRsResponseTransformer);
     }
 
+//    @POST
+//    @Path("/{userPseudo}/markUserProfilePictureAsFeatured")
+//    @Consumes(MediaType.MULTIPART_FORM_DATA)
+//    public Uni<Response> toto(@PathParam("userPseudo") final String userPseudo,
+//                              @FormParam("versionId") final String versionId,
+//                              @DefaultValue("image/jpeg; charset=ISO-8859-1") @HeaderParam("Content-Type") final String contentType) {
+//
+//    }
+
 }

@@ -7,7 +7,6 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
-import java.util.Collections;
 import java.util.Map;
 
 public class HazelcastTestResourceLifecycleManager implements QuarkusTestResourceLifecycleManager {
@@ -27,16 +26,14 @@ public class HazelcastTestResourceLifecycleManager implements QuarkusTestResourc
         hazelcastContainer.start();
         hazelcastContainer.followOutput(logConsumer);
 
-        System.setProperty("quarkus.hazelcast-client.cluster-name", "dev");
-        System.setProperty("quarkus.hazelcast-client.cluster-members", String.format("localhost:%d", hazelcastContainer.getMappedPort(5701)));
-        return Collections.emptyMap();
+        return Map.of(
+                "quarkus.hazelcast-client.cluster-name", "dev",
+                "quarkus.hazelcast-client.cluster-members", String.format("localhost:%d", hazelcastContainer.getMappedPort(5701))
+        );
     }
 
     @Override
     public void stop() {
-        System.clearProperty("quarkus.hazelcast-client.cluster-name");
-        System.clearProperty("quarkus.hazelcast-client.cluster-members");
-
         if (hazelcastContainer != null) {
             hazelcastContainer.close();
         }

@@ -43,7 +43,8 @@ public class UserProfilePictureEndpointTest {
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("expected/profilePictureSaved.json"))
                 .body("userPseudo", equalTo("pseudo"))
                 .body("mediaType", equalTo("IMAGE_JPEG"))
-                .body("versionId", equalTo("v0"));
+                .body("versionId", equalTo("v0"))
+                .body("featured", equalTo(false));
         verify(userProfilePictureRepository, times(1)).save(any(), any(), any());
     }
 
@@ -138,9 +139,11 @@ public class UserProfilePictureEndpointTest {
                 .log().all()
                 .statusCode(200)
                 .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("expected/profilePictures.json"))
-                .body("[0].userPseudo", equalTo("pseudo"))
-                .body("[0].mediaType", equalTo("IMAGE_JPEG"))
-                .body("[0].versionId", equalTo("v0"));
+                .body("featureState", equalTo("NOT_SELECTED_YET"))
+                .body("userProfilePictures[0].userPseudo", equalTo("pseudo"))
+                .body("userProfilePictures[0].mediaType", equalTo("IMAGE_JPEG"))
+                .body("userProfilePictures[0].versionId", equalTo("v0"))
+                .body("userProfilePictures[0].featured", equalTo(true));
 
         verify(userProfilePictureRepository, times(1)).listByUserPseudo(any(), any());
     }

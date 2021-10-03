@@ -27,6 +27,11 @@ public final class HazelcastCachedUserProfilePictures implements CachedUserProfi
         return new Builder();
     }
 
+    @Override
+    public FeatureState featureState() {
+        return featuredUserProfilePictureIdentifier == null ? FeatureState.NOT_SELECTED_YET : FeatureState.SELECTED;
+    }
+
     public static final class Builder {
 
         public String userPseudo;

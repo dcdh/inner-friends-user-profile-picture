@@ -39,6 +39,14 @@ services:
       - 5701:5701
       - 8088:8080
 
+  arangodb:
+    image: arangodb:3.7.11
+    ports:
+      - 8529:8529
+    environment:
+      - ARANGO_ROOT_PASSWORD=password
+      - ARANGODB_OVERRIDE_DETECTED_TOTAL_MEMORY=100m
+
   inner-friends-user-profile-picture:
     image: damdamdeo/inner-friends-user-profile-picture
     ports:
@@ -48,4 +56,15 @@ services:
       - quarkus.opentelemetry.tracer.exporter.otlp.endpoint=http://otel-collector:55680
       - quarkus.hazelcast-client.cluster-name=dev
       - quarkus.hazelcast-client.cluster-members=hazelcast:5701
+      - arangodb.host=arangodb
+      - arangodb.port=8529
+      - arangodb.user=root
+      - arangodb.password=password
+      - arangodb.dbName=friends
+    depends_on:
+      - zenko
+      - jaeger-all-in-one
+      - otel-collector
+      - hazelcast
+      - arangodb
     restart: unless-stopped

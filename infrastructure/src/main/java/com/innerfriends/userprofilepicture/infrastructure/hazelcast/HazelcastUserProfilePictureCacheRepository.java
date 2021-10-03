@@ -7,7 +7,6 @@ import io.opentelemetry.api.trace.Span;
 import io.smallrye.mutiny.Uni;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -48,29 +47,32 @@ public class HazelcastUserProfilePictureCacheRepository implements UserProfilePi
     }
 
     @Override
-    public Uni<CachedUserProfilePictures> store(final UserPseudo userPseudo, final List<UserProfilePictureIdentifier> userProfilePictureIdentifiers) {
-        final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.store");
-        return Uni.createFrom()
-                .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).getAsync(userPseudo.pseudo()))
-                .replaceIfNullWith(() -> HazelcastCachedUserProfilePictures.newBuilder().setUserPseudo(userPseudo.pseudo()).build())
-                .onItem().castTo(HazelcastCachedUserProfilePictures.class)
-                .chain(hazelcastCachedUserProfilePicture -> {
-                    hazelcastCachedUserProfilePicture.replaceAllProfilePictureIdentifiers(
-                            userProfilePictureIdentifiers.stream()
-                                    .map(HazelcastUserProfilePictureIdentifier::new)
-                                    .collect(Collectors.toList())
-                    );
-                    return Uni.createFrom().completionStage(() -> hazelcastInstance.getMap(MAP_NAME).putAsync(userPseudo.pseudo(), hazelcastCachedUserProfilePicture))
-                            .map(response -> hazelcastCachedUserProfilePicture);
-                })
-                .onItem().castTo(CachedUserProfilePictures.class)
-                .onTermination()
-                .invoke(() -> openTelemetryTracingService.endSpan(span));
+    public Uni<CachedUserProfilePictures> store(final UserPseudo userPseudo, final UserProfilePictures userProfilePictures) {
+        if (userProfilePictures.canBeStoredInCache()) {
+            final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.store");
+            return Uni.createFrom()
+                    .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).getAsync(userPseudo.pseudo()))
+                    .replaceIfNullWith(() -> HazelcastCachedUserProfilePictures.newBuilder().setUserPseudo(userPseudo.pseudo()).build())
+                    .onItem().castTo(HazelcastCachedUserProfilePictures.class)
+                    .chain(hazelcastCachedUserProfilePicture -> {
+                        hazelcastCachedUserProfilePicture.replaceAllProfilePictureIdentifiers(
+                                userProfilePictures.userProfilePictures().stream()
+                                        .map(HazelcastUserProfilePictureIdentifier::new)
+                                        .collect(Collectors.toList())
+                        );
+                        return Uni.createFrom().completionStage(() -> hazelcastInstance.getMap(MAP_NAME).putAsync(userPseudo.pseudo(), hazelcastCachedUserProfilePicture))
+                                .map(response -> hazelcastCachedUserProfilePicture);
+                    })
+                    .onItem().castTo(CachedUserProfilePictures.class)
+                    .onTermination()
+                    .invoke(() -> openTelemetryTracingService.endSpan(span));
+        }
+        return Uni.createFrom().nullItem();
     }
 
     @Override
     public Uni<CachedUserProfilePictures> storeFeatured(final UserPseudo userPseudo, final UserProfilePictureIdentifier featured) {
-        final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.store");
+        final Span span = openTelemetryTracingService.startANewSpan("HazelcastUserProfilePictureCacheRepository.storeFeatured");
         return Uni.createFrom()
                 .completionStage(() -> hazelcastInstance.getMap(MAP_NAME).getAsync(userPseudo.pseudo()))
                 .replaceIfNullWith(() -> HazelcastCachedUserProfilePictures.newBuilder().setUserPseudo(userPseudo.pseudo()).build())

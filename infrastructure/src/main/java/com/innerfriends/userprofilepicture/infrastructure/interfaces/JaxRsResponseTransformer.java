@@ -3,8 +3,6 @@ package com.innerfriends.userprofilepicture.infrastructure.interfaces;
 import com.innerfriends.userprofilepicture.domain.*;
 
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
 
@@ -20,25 +18,19 @@ public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
     }
 
     @Override
-    public Response toResponse(final UserProfilePictureSaved profilePictureSaved) {
+    public Response toResponse(final UserProfilePictureSaved userProfilePictureSaved) {
         return Response.created(null)
-                .entity(new UserProfilePictureSavedDTO(profilePictureSaved))
-                .build();
+                .entity(new UserProfilePictureDTO(userProfilePictureSaved)).build();
     }
 
     @Override
     public Response toResponse(final UserProfilePictureIdentifier userProfilePictureIdentifiers) {
-        return Response.ok(new UserProfilePictureIdentifierDTO(userProfilePictureIdentifiers))
-                .build();
+        return Response.ok(new UserProfilePictureIdentifierDTO(userProfilePictureIdentifiers)).build();
     }
 
     @Override
-    public Response toResponse(final List<? extends UserProfilePictureIdentifier> userProfilePictureIdentifiers) {
-        return Response.ok(
-                userProfilePictureIdentifiers.stream()
-                        .map(UserProfilePictureIdentifierDTO::new)
-                        .collect(Collectors.toList()))
-                .build();
+    public Response toResponse(final UserProfilePictures userProfilePictures) {
+        return Response.ok(new UserProfilePicturesDTO(userProfilePictures)).build();
     }
 
     @Override
@@ -53,6 +45,11 @@ public class JaxRsResponseTransformer implements ResponseTransformer<Response> {
 
     @Override
     public Response toResponse(final UserProfilePictureRepositoryException userProfilePictureRepositoryException) {
+        return Response.serverError().build();
+    }
+
+    @Override
+    public Response toResponse(final UserProfilPictureFeaturedRepositoryException userProfilPictureFeaturedRepositoryException) {
         return Response.serverError().build();
     }
 

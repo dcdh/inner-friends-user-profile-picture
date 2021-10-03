@@ -29,7 +29,7 @@ public class SaveUserProfilePictureUseCase<R> implements UseCase<R, SaveUserProf
                         .onItemOrFailure().transform((item, exception) -> profilePictureSaved))
                 .map(profilePictureSaved -> responseTransformer.toResponse(profilePictureSaved))
                 .onFailure(UserProfilePictureRepositoryException.class)
-                .recoverWithItem(profilePictureRepositoryException -> responseTransformer.toResponse((UserProfilePictureRepositoryException) profilePictureRepositoryException))
+                .recoverWithItem(userProfilePictureRepositoryException -> responseTransformer.toResponse((UserProfilePictureRepositoryException) userProfilePictureRepositoryException))
                 .onFailure()
                 .recoverWithItem(exception -> responseTransformer.toResponse(exception))
                 .onTermination()

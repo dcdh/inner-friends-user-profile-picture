@@ -1,12 +1,10 @@
 package com.innerfriends.userprofilepicture.infrastructure;
 
 import com.innerfriends.userprofilepicture.domain.LockMechanism;
+import com.innerfriends.userprofilepicture.domain.UserProfilPictureFeaturedRepository;
 import com.innerfriends.userprofilepicture.domain.UserProfilePictureRepository;
 import com.innerfriends.userprofilepicture.domain.UserProfilePictureCacheRepository;
-import com.innerfriends.userprofilepicture.domain.usecase.GetFeaturedUserProfilePictureUseCase;
-import com.innerfriends.userprofilepicture.domain.usecase.GetUserProfilePictureByVersionUseCase;
-import com.innerfriends.userprofilepicture.domain.usecase.ListUserProfilPicturesUseCase;
-import com.innerfriends.userprofilepicture.domain.usecase.SaveUserProfilePictureUseCase;
+import com.innerfriends.userprofilepicture.domain.usecase.*;
 import com.innerfriends.userprofilepicture.infrastructure.s3.S3ObjectKey;
 import com.innerfriends.userprofilepicture.infrastructure.s3.S3ObjectKeyProvider;
 
@@ -20,8 +18,9 @@ public class Application {
     @Produces
     public GetFeaturedUserProfilePictureUseCase<Response> getFeaturedUserProfilePictureUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository,
                                                                                                        final UserProfilePictureCacheRepository userProfilePictureCacheRepository,
-                                                                                                       final LockMechanism lockMechanism) {
-        return new GetFeaturedUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism);
+                                                                                                       final LockMechanism lockMechanism,
+                                                                                                       final UserProfilPictureFeaturedRepository userProfilPictureFeaturedRepository) {
+        return new GetFeaturedUserProfilePictureUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism, userProfilPictureFeaturedRepository);
     }
 
     @ApplicationScoped
@@ -36,8 +35,9 @@ public class Application {
     @Produces
     public ListUserProfilPicturesUseCase<Response> listUserProfilPicturesUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository,
                                                                                          final UserProfilePictureCacheRepository userProfilePictureCacheRepository,
-                                                                                         final LockMechanism lockMechanism) {
-        return new ListUserProfilPicturesUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism);
+                                                                                         final LockMechanism lockMechanism,
+                                                                                         final UserProfilPictureFeaturedRepository userProfilPictureFeaturedRepository) {
+        return new ListUserProfilPicturesUseCase<>(userProfilePictureRepository, userProfilePictureCacheRepository, lockMechanism, userProfilPictureFeaturedRepository);
     }
 
     @ApplicationScoped
@@ -45,6 +45,14 @@ public class Application {
     public GetUserProfilePictureByVersionUseCase<Response> getUserProfilePictureByVersionUseCaseProducer(final UserProfilePictureRepository userProfilePictureRepository,
                                                                                                          final LockMechanism lockMechanism) {
         return new GetUserProfilePictureByVersionUseCase<>(userProfilePictureRepository, lockMechanism);
+    }
+
+    @ApplicationScoped
+    @Produces
+    public MarkUserProfilePictureAsFeaturedUseCase<Response> markUserProfilePictureAsFeaturedUseCaseProducer(final UserProfilPictureFeaturedRepository userProfilPictureFeaturedRepository,
+                                                                                                             final UserProfilePictureCacheRepository userProfilePictureCacheRepository,
+                                                                                                             final LockMechanism lockMechanism) {
+        return new MarkUserProfilePictureAsFeaturedUseCase<>(userProfilPictureFeaturedRepository, userProfilePictureCacheRepository, lockMechanism);
     }
 
     @ApplicationScoped

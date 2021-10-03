@@ -21,4 +21,9 @@ public class TestUserProfilePictureSaved implements UserProfilePictureSaved {
     public VersionId versionId() {
         return () -> "v0";
     }
+
+    @Override
+    public boolean isFeatured() {
+        return false;
+    }
 }

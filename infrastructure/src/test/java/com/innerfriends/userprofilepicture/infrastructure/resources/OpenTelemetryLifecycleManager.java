@@ -9,7 +9,6 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
-import java.util.Collections;
 import java.util.Map;
 
 public class OpenTelemetryLifecycleManager implements QuarkusTestResourceLifecycleManager {
@@ -43,9 +42,8 @@ public class OpenTelemetryLifecycleManager implements QuarkusTestResourceLifecyc
                         Wait.forLogMessage(".*Everything is ready. Begin running and processing data.*\\n", 1));
         otelOpentelemetryCollectorContainer.start();
         otelOpentelemetryCollectorContainer.followOutput(logConsumer);
-        System.setProperty("quarkus.opentelemetry.tracer.exporter.otlp.endpoint", String.format("http://localhost:%d",
+        return Map.of("quarkus.opentelemetry.tracer.exporter.otlp.endpoint", String.format("http://localhost:%d",
                 otelOpentelemetryCollectorContainer.getMappedPort(55680)));
-        return Collections.emptyMap();
     }
 
     public static Integer getJaegerRestApiHostPort() {
@@ -54,7 +52,6 @@ public class OpenTelemetryLifecycleManager implements QuarkusTestResourceLifecyc
 
     @Override
     public void stop() {
-        System.clearProperty("quarkus.opentelemetry.tracer.exporter.otlp.endpoint");
         if (jaegerTracingAllInOneContainer != null) {
             jaegerTracingAllInOneContainer.close();
         }

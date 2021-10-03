@@ -80,7 +80,7 @@ public class GetUserProfilePictureByVersionUseCaseTest {
     }
 
     @Test
-    public void should_handle_profile_picture_repository_exception() {
+    public void should_handle_user_profile_picture_repository_exception() {
         // Given
         final UserProfilePictureRepositoryException userProfilePictureRepositoryException = mock(UserProfilePictureRepositoryException.class);
         doReturn(Uni.createFrom().failure(userProfilePictureRepositoryException)).when(userProfilePictureRepository).getContentByVersionId(any());

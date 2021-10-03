@@ -9,13 +9,15 @@
     {
       "userPseudo": "pseudo",
       "mediaType": "IMAGE_JPEG",
-      "versionId": "v0"
+      "versionId": "v0",
+      "featured": false
     }
   ],
   "required": [
     "userPseudo",
     "mediaType",
-    "versionId"
+    "versionId",
+    "featured"
   ],
   "properties": {
     "userPseudo": {
@@ -46,6 +48,16 @@
       "default": "",
       "examples": [
         "v0"
+      ]
+    },
+    "featured": {
+      "$id": "#/properties/featured",
+      "type": "boolean",
+      "title": "The featured schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": false,
+      "examples": [
+        false
       ]
     }
   },

@@ -1,7 +1,5 @@
 package com.innerfriends.userprofilepicture.domain;
 
-import java.util.List;
-
 public interface ResponseTransformer<R> {
 
     R toResponse(ContentUserProfilePicture contentProfilePicture);
@@ -10,13 +8,15 @@ public interface ResponseTransformer<R> {
 
     R toResponse(UserProfilePictureIdentifier userProfilePictureIdentifiers);
 
-    R toResponse(List<? extends UserProfilePictureIdentifier> userProfilePictureIdentifiers);
+    R toResponse(UserProfilePictures userProfilePictures);
 
     R toResponse(UserProfilePictureNotAvailableYetException userProfilePictureNotAvailableYetException);
 
     R toResponse(UserProfilePictureVersionUnknownException userProfilePictureVersionUnknownException);
 
     R toResponse(UserProfilePictureRepositoryException userProfilePictureRepositoryException);
+
+    R toResponse(UserProfilPictureFeaturedRepositoryException userProfilPictureFeaturedRepositoryException);
 
     R toResponse(Throwable throwable);
 

@@ -48,4 +48,10 @@ public final class S3UserProfilePictureSaved implements UserProfilePictureSaved 
     public int hashCode() {
         return Objects.hash(userPseudo, versionId);
     }
+
+    @Override
+    public boolean isFeatured() {
+        return false;
+    }
+
 }

@@ -35,14 +35,14 @@ public class HazelcastLockMechanismTest {
         final InOrder inOrder = inOrder(openTelemetryTracingService);
 
         // When
-        hazelcastLockMechanism.lock(() -> "pseudo").await().atMost(Duration.ofSeconds(1l));
+        hazelcastLockMechanism.lock(() -> "pseudoToLock").await().atMost(Duration.ofSeconds(1l));
 
         // Then
-        assertThat(hazelcastInstance.getCPSubsystem().getLock("pseudo").isLocked()).isTrue();
+        assertThat(hazelcastInstance.getCPSubsystem().getLock("pseudoToLock").isLocked()).isTrue();
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         // I cannot do @InjectSpy on hazelcastInstance to verify the call in order
         inOrder.verify(openTelemetryTracingService, times(1)).endSpan(span);
-        hazelcastInstance.getCPSubsystem().getLock("pseudo").unlock();
+        hazelcastInstance.getCPSubsystem().getLock("pseudoToLock").unlock();
     }
 
     @Test
@@ -51,13 +51,13 @@ public class HazelcastLockMechanismTest {
         final Span span = mock(Span.class);
         doReturn(span).when(openTelemetryTracingService).startANewSpan(any());
         final InOrder inOrder = inOrder(openTelemetryTracingService);
-        hazelcastInstance.getCPSubsystem().getLock("pseudo").lock();
+        hazelcastInstance.getCPSubsystem().getLock("pseudoToLock").lock();
 
         // When
-        hazelcastLockMechanism.unlock(() -> "pseudo").await().atMost(Duration.ofSeconds(1l));
+        hazelcastLockMechanism.unlock(() -> "pseudoToLock").await().atMost(Duration.ofSeconds(1l));
 
         // Then
-        assertThat(hazelcastInstance.getCPSubsystem().getLock("pseudo").isLocked()).isFalse();
+        assertThat(hazelcastInstance.getCPSubsystem().getLock("pseudoToLock").isLocked()).isFalse();
         inOrder.verify(openTelemetryTracingService, atLeast(1)).startANewSpan(any());
         // I cannot do @InjectSpy on hazelcastInstance to verify the call in order
         inOrder.verify(openTelemetryTracingService, times(1)).endSpan(span);
