@@ -6,6 +6,11 @@ Store user profile picture into a s3 server like real amazon S3 service or Zenko
 
 `docker` is mandatory to be able to build the project. The infrastructure relie on `testcontainers` to start containers before starting tests and kill and remove them after running the tests.
 
+## Dev local env
+1. run `docker-compose -f docker-compose-dev-run.yaml up` to start the stack
+1. run `mvn compile quarkus:dev -f infrastructure/pom.xml`
+1. access swagger ui via `http://0.0.0.0:8080/q/swagger-ui/`
+
 ## How to build and run
 
 1. run to prepare application containers `docker pull zenko/cloudserver:8.2.7 && docker pull jaegertracing/all-in-one:1.25.0 && docker pull otel/opentelemetry-collector:0.33.0 && docker pull hazelcast/hazelcast:4.1.5 && docker pull arangodb:3.7.11`
